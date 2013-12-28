@@ -66,7 +66,7 @@ timeout_cb(void *data)
 void start_acquire()
 {
         start_blink(2, 100, 100);
-        timeout_add(&timeout, 5000, timeout_cb, NULL);
+        timeout_add(&timeout, 1000, timeout_cb, NULL);
         acquire_running = true;
 }
 

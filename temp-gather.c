@@ -74,9 +74,9 @@ void
 main(void)
 {
         adc_init();
-        usb_init(&cdc_device);
         spi_init();
         spiflash_pins_init();
         timeout_init();
+        usb_init(&cdc_device);
         sys_yield_for_frogs();
 }

@@ -58,6 +58,9 @@ new_data(uint8_t *data, size_t len)
                         printf("erase\n");
                         spiflash_erase_block(&spiflash, 0, true, flash_erase_cb, NULL);
                         break;
+                case 'c':
+                        cond_start();
+                        break;
                 }
         }
 

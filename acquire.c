@@ -50,6 +50,7 @@ static void
 flash_program_cb(void *cbdata)
 {}
 
+static uint32_t time = 0;
 static void
 temp_done(uint16_t data, int error, void *cbdata)
 {
@@ -58,7 +59,7 @@ temp_done(uint16_t data, int error, void *cbdata)
         accum temp_diff = volt_diff * (1000K / 1.715K);
         accum temp_deg = 25k - temp_diff;
 
-        sample_buffer[sample_idx].timestamp = 0;
+        sample_buffer[sample_idx].timestamp = time++;
         sample_buffer[sample_idx].temperature = temp_deg;
         sample_idx++;
         if (verbose)

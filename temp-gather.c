@@ -10,7 +10,7 @@ static struct read_samples_ctx read_samples_ctx;
 static void
 sample_cb(struct sample s, void *cbdata)
 {
-        printf("sample: %d  %.1k\n", s.timestamp, s.temperature);
+        printf("%u  %.1k\n", s.timestamp, s.temperature);
 }
 
 static void

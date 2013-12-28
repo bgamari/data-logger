@@ -5,6 +5,13 @@
 #include "temp-gather.desc.h"
 
 static struct cdc_ctx cdc;
+static struct read_samples_ctx read_samples_ctx;
+
+static void
+sample_cb(struct sample s, void *cbdata)
+{
+        printf("sample: %d  %.1k\n", s.timestamp, s.temperature);
+}
 
 static void
 spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
@@ -39,6 +46,9 @@ new_data(uint8_t *data, size_t len)
                         break;
                 case 'i':
                         spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
+                        break;
+                case 'g':
+                        read_samples(&read_samples_ctx, 0, 512, sample_cb, NULL);
                         break;
                 case 'b':
                         start_blink(10, 200, 200);

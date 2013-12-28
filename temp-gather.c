@@ -28,16 +28,20 @@ new_data(uint8_t *data, size_t len)
                         printf("hello\n");
                         break;
                 case 's':
-                        if (!acquire_running)
+                        if (!acquire_running) {
                                 start_acquire();
-                        else
+                        } else {
                                 stop_acquire();
+                        }
                         break;
                 case 'v':
                         verbose = !verbose;
                         break;
                 case 'i':
                         spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
+                        break;
+                case 'b':
+                        start_blink(10, 200, 200);
                         break;
                 case 'e':
                         printf("erase\n");

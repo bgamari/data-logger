@@ -1,8 +1,9 @@
 #include <mchck.h>
 
+#include "temp-gather.desc.h"
 #include "acquire.h"
 #include "blink.h"
-#include "temp-gather.desc.h"
+#include "conductivity.h"
 
 static struct cdc_ctx cdc;
 static struct read_samples_ctx read_samples_ctx;
@@ -78,5 +79,6 @@ main(void)
         spiflash_pins_init();
         timeout_init();
         usb_init(&cdc_device);
+        cond_init();
         sys_yield_for_frogs();
 }

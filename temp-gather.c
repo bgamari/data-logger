@@ -58,6 +58,10 @@ new_data(uint8_t *data, size_t len)
                 case 'c':
                         cond_start();
                         break;
+                case 't':
+                        rtc_set_time(500);
+                        rtc_start_counter();
+                        break;
                 case 'r':
                         printf("RTC time: %d\n", RTC.tsr);
                         break;
@@ -81,7 +85,7 @@ main(void)
         spi_init();
         spiflash_pins_init();
         timeout_init();
-        //rtc_init();
+        rtc_init();
         usb_init(&cdc_device);
         cond_init();
         start_blink(5, 100, 100);

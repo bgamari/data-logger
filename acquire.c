@@ -94,8 +94,6 @@ push_sample(const struct sample s)
         return ret;
 }
 
-static uint32_t time = 0;
-
 static void
 temp_done(uint16_t data, int error, void *cbdata)
 {
@@ -104,7 +102,7 @@ temp_done(uint16_t data, int error, void *cbdata)
         accum temp_diff = volt_diff * (1000K / 1.715K);
         accum temp_deg = 25k - temp_diff;
         struct sample s = {
-                .timestamp = time++,
+                .timestamp = rtc_get_time(),
                 .temperature = temp_deg
         };
         push_sample(s);

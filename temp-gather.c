@@ -9,11 +9,12 @@
 static struct cdc_ctx cdc;
 static struct cond_sample_ctx cond_sample_ctx;
 
+static bool dumping_conductivity = false;
+
 static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
 {
-        if (verbose)
-                printf("cond: %3.4k\n", conductivity);
-        return true;
+        printf("cond: %3.4k\n", conductivity);
+        return dumping_conductivity;
 }
 
 static struct sample sample_buffer[4];
@@ -74,7 +75,12 @@ process_command(uint8_t *data, size_t len)
                 read_offset += 4;
                 break;
         case 'c':
-                cond_sample(&cond_sample_ctx, cond_new_sample_cb, NULL);
+                if (!dumping_conductivity) {
+                        dumping_conductivity = true;
+                        cond_sample(&cond_sample_ctx, cond_new_sample_cb, NULL);
+                } else {
+                        dumping_conductivity = false;
+                }
                 break;
         case 't':
                 if (data[1] == '=') {

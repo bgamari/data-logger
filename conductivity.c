@@ -65,5 +65,5 @@ FTM0_Handler(void)
         //buffer[i] = dt;
         //i = (i+1) % BUFFER_LEN;
         i++;
-        printf("%5d  %5ld  %5ld\n", dt, t1, t2);
+        printf("%5ld  %5ld  %5ld\n", dt, t1, t2);
 }

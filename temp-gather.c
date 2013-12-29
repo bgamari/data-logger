@@ -78,8 +78,9 @@ main(void)
         spi_init();
         spiflash_pins_init();
         timeout_init();
-//rtc_init();
+        //rtc_init();
         usb_init(&cdc_device);
         cond_init();
+        start_blink(5, 100, 100);
         sys_yield_for_frogs();
 }

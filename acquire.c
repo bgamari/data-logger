@@ -54,7 +54,7 @@ write_sample(struct write_sample *w)
 }
 
 static void
-block_erased(void *cbdata)
+sector_erased(void *cbdata)
 {
         write_sample(cbdata);
 }
@@ -62,6 +62,7 @@ block_erased(void *cbdata)
 static int
 push_sample(const struct sample s)
 {
+        // find available write_sample
         struct write_sample *w = NULL;
         crit_enter();
         for (unsigned int i=0; i<N_WRITE_SAMPLES; i++) {
@@ -78,14 +79,16 @@ push_sample(const struct sample s)
 
         w->sample = s;
         w->addr = sample_idx * sizeof(struct sample);
-        sample_idx++;
 
         int ret;
         if (sample_idx % SAMPLES_PER_SECTOR == 0) {
-                ret = spiflash_erase_sector(&w->spiflash, w->addr, block_erased, w);
+                // erase if starting new sector
+                ret = spiflash_erase_sector(&w->spiflash, w->addr, sector_erased, w);
         } else {
                 ret = write_sample(w);
         }
+
+        sample_idx++;
         if (verbose)
                 printf("sample %d: temp=%.1k\n", sample_idx, s.temperature);
         return ret;
@@ -100,8 +103,9 @@ temp_done(uint16_t data, int error, void *cbdata)
         accum volt_diff = volt - 0.719k;
         accum temp_diff = volt_diff * (1000K / 1.715K);
         accum temp_deg = 25k - temp_diff;
-        struct sample s = { .timestamp = time++,
-                            .temperature = temp_deg
+        struct sample s = {
+                .timestamp = time++,
+                .temperature = temp_deg
         };
         push_sample(s);
 }

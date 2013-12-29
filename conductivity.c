@@ -50,9 +50,6 @@ void
 FTM0_Handler(void)
 {
         uint32_t a;
-        a = FTM0.sc.raw;
-        FTM0.sc.tof = 0;
-
         a = FTM0.channel[0].csc.raw;
         FTM0.channel[0].csc.chf = 0;
         a = FTM0.channel[1].csc.raw;

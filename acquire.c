@@ -10,43 +10,29 @@ static struct timeout_ctx timeout;
 
 static unsigned int sample_idx = 0;
 
-static void
-read_page_cb(void *cbdata)
-{
-        struct read_samples_ctx *ctx = cbdata;
-        unsigned int i = 0;
-        while (ctx->remaining > 0 && i < SAMPLES_PER_PAGE) {
-                ctx->cb(ctx->buffer[i], ctx->cbdata);
-                ctx->remaining--;
-                i++;
-        }
-        ctx->idx += i;
+#define PAGE_SIZE 256
+#define SAMPLES_PER_PAGE (PAGE_SIZE / sizeof(struct sample))
+#define SECTOR_SIZE 4096
+#define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
 
-        if (ctx->remaining > 0) {
-                // TODO: Handle error
-                spiflash_read_page(&ctx->spiflash, (uint8_t*) ctx->buffer,
-                                   ctx->idx / SAMPLES_PER_PAGE, PAGE_SIZE,
-                                   read_page_cb, ctx);
-        }
-}
-
+// start and len given in samples
 int
-read_samples(struct read_samples_ctx *ctx,
-             unsigned int start, unsigned int desired,
-             read_sample_cb cb, void *cbdata)
+read_samples(struct spiflash_ctx *spiflash,
+             struct sample *buffer,
+             unsigned int start, unsigned int len,
+             spi_cb cb, void *cbdata)
 {
-        ctx->cb        = cb;
-        ctx->cbdata    = cbdata;
-        ctx->idx       = start;
-        ctx->remaining = desired;
-        return spiflash_read_page(&ctx->spiflash, (uint8_t*) ctx->buffer,
-                                  ctx->idx / SAMPLES_PER_PAGE, PAGE_SIZE,
-                                  read_page_cb, ctx);
+        return spiflash_read_page(spiflash, (uint8_t*) buffer,
+                                  start * sizeof(struct sample),
+                                  len * sizeof(struct sample),
+                                  cb, cbdata);
 }
 
 struct write_sample {
+        struct spiflash_ctx spiflash;
         struct sample sample;
         bool pending;
+        uint32_t addr;
 };
 
 #define N_WRITE_SAMPLES 4
@@ -62,7 +48,7 @@ sample_written(void *cbdata)
 static int
 write_sample(struct write_sample *w)
 {
-        return spiflash_program_page(&spiflash, sample_idx * sizeof(struct sample),
+        return spiflash_program_page(&w->spiflash, w->addr,
                                      (const uint8_t*) &w->sample, sizeof(struct sample),
                                      sample_written, w);
 }
@@ -90,18 +76,19 @@ push_sample(const struct sample s)
                 crit_exit();
         }
 
+        w->sample = s;
+        w->addr = sample_idx * sizeof(struct sample);
         sample_idx++;
+
+        int ret;
+        if (sample_idx % SAMPLES_PER_SECTOR == 0) {
+                ret = spiflash_erase_sector(&w->spiflash, w->addr, block_erased, w);
+        } else {
+                ret = write_sample(w);
+        }
         if (verbose)
                 printf("sample %d: temp=%.1k\n", sample_idx, s.temperature);
-        
-        w->sample = s;
-        if (sample_idx % SAMPLES_PER_SECTOR == 0) {
-                return spiflash_erase_sector(&spiflash,
-                                             sample_idx * sizeof(struct sample),
-                                             block_erased, w);
-        } else {
-                return write_sample(w);
-        }
+        return ret;
 }
 
 static uint32_t time = 0;

@@ -6,12 +6,15 @@
 #include "conductivity.h"
 
 static struct cdc_ctx cdc;
-static struct read_samples_ctx read_samples_ctx;
+static struct sample sample_buffer[512];
 
 static void
-sample_cb(struct sample s, void *cbdata)
+sample_cb(void *cbdata)
 {
-        printf("%u  %.1k\n", s.timestamp, s.temperature);
+        for (unsigned int i=0; i<512; i++) {
+                struct sample *s = &sample_buffer[i];
+                printf("%lu  %.1k\n", s->timestamp, s->temperature);
+        }
 }
 
 static void
@@ -25,6 +28,7 @@ spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 static void
 flash_erase_cb(void *cbdata)
 {
+        printf("erased\n");
 }
 
 static void
@@ -49,7 +53,7 @@ new_data(uint8_t *data, size_t len)
                         spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
                         break;
                 case 'g':
-                        read_samples(&read_samples_ctx, 0, 512, sample_cb, NULL);
+                        read_samples(&spiflash, sample_buffer, 0, 512, sample_cb, NULL);
                         break;
                 case 'b':
                         start_blink(10, 200, 200);
@@ -60,6 +64,9 @@ new_data(uint8_t *data, size_t len)
                         break;
                 case 'c':
                         cond_start();
+                        break;
+                case 'r':
+                        printf("RTC time: %d\n", RTC.tsr);
                         break;
                 }
         }
@@ -81,6 +88,7 @@ main(void)
         spi_init();
         spiflash_pins_init();
         timeout_init();
+//rtc_init();
         usb_init(&cdc_device);
         cond_init();
         sys_yield_for_frogs();

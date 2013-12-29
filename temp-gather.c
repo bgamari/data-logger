@@ -26,12 +26,6 @@ spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 }
 
 static void
-flash_erase_cb(void *cbdata)
-{
-        printf("erased\n");
-}
-
-static void
 new_data(uint8_t *data, size_t len)
 {
         for (; len > 0; ++data, --len) {
@@ -57,10 +51,6 @@ new_data(uint8_t *data, size_t len)
                         break;
                 case 'b':
                         start_blink(10, 200, 200);
-                        break;
-                case 'e':
-                        printf("erase\n");
-                        spiflash_erase_block(&spiflash, 0, true, flash_erase_cb, NULL);
                         break;
                 case 'c':
                         cond_start();

@@ -37,6 +37,28 @@ cond_sample(struct cond_sample_ctx *ctx, cond_sample_cb cb, void *cbdata)
         cond_start();
 }
 
+static bool
+cond_average_cb(unsigned accum conductivity, void *cbdata)
+{
+        struct cond_average_ctx *ctx = cbdata;
+        ctx->accumulator += conductivity;
+        ctx->remaining--;
+        return ctx->remaining > 0;
+}
+
+void
+cond_average(struct cond_average_ctx *ctx, unsigned int n, void *cbdata)
+{
+        ctx->nsamples = n;
+        ctx->remaining = n;
+        cond_sample(&ctx->ctx, cond_average_cb, ctx);
+}
+
+unsigned accum cond_get_average(struct cond_average_ctx *ctx)
+{
+        return ctx->accumulator / ctx->nsamples;
+}
+
 void
 cond_init(void)
 {

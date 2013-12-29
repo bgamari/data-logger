@@ -1,10 +1,41 @@
 #include <mchck.h>
+#include "conductivity.h"
+
+static struct cond_sample_ctx *head = NULL;
+
+static void
+cond_start(void)
+{
+        // TODO: bring up enable pin
+
+        // start continuous dual-edge capture mode
+        FTM0.sc.clks = 1; // enable clock
+        FTM0.combine[0].decap = 1;
+}
+
+static void
+cond_stop(void)
+{
+        // TODO: bring down enable pin
+        FTM0.sc.clks = 0; // disable clock
+}
+
+void
+cond_sample(struct cond_sample_ctx *ctx, cond_sample_cb cb, void *cbdata)
+{
+        ctx->cb = cb;
+        ctx->cbdata = cbdata;
+        crit_enter();
+        ctx->next = head;
+        head = ctx;
+        crit_exit();
+}
 
 void
 cond_init(void)
 {
         ftm_init();
-        FTM0.sc.clks = 0; // disable clock
+        cond_stop();
         FTM0.sc.ps = FTM_PS_DIV4; // prescale
         FTM0.mode.ftmen = 1;
         int_enable(IRQ_FTM0);
@@ -28,24 +59,6 @@ cond_init(void)
 }
 
 void
-cond_start(void)
-{
-        // start continuous dual-edge capture mode
-        FTM0.sc.clks = 1; // enable clock
-        FTM0.combine[0].decap = 1;
-}
-
-void
-cond_stop(void)
-{
-        FTM0.sc.clks = 0; // disable clock
-}
-
-#define BUFFER_LEN 128
-int32_t buffer[BUFFER_LEN];
-unsigned int i = 0;
-
-void
 FTM0_Handler(void)
 {
         // acknowledge interrupt
@@ -58,12 +71,23 @@ FTM0_Handler(void)
         // fetch edge times
         uint32_t t1 = FTM0.channel[0].cv;
         uint32_t t2 = FTM0.channel[1].cv;
-        int32_t dt = t1 - t2;
-        if (dt < 0)
-                dt += 0xffff;
 
-        //buffer[i] = dt;
-        //i = (i+1) % BUFFER_LEN;
-        i++;
-        printf("%5ld  %5ld  %5ld\n", dt, t1, t2);
+        int32_t dt = t1 - t2;
+        if (dt < 0) dt += 0xffff;
+        float conductivity = dt; // FIXME
+
+        struct cond_sample_ctx *ctx = head;
+        struct cond_sample_ctx **last_next = &head;
+        while (ctx != NULL) {
+                bool more = (ctx->cb)(conductivity, ctx->cbdata);
+                if (!more) {
+                        *last_next = ctx->next;
+                } else {
+                        last_next = &ctx->next;
+                }
+                ctx = ctx->next;
+        }
+
+        if (head == NULL)
+                cond_stop();
 }

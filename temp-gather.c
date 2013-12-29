@@ -7,6 +7,15 @@
 #include "conductivity.h"
 
 static struct cdc_ctx cdc;
+static struct cond_sample_ctx cond_sample_ctx;
+
+static bool cond_new_sample_cb(float conductivity, void *cbdata)
+{
+        if (verbose)
+                printf("cond: %f\n", conductivity);
+        return true;
+}
+
 static struct sample sample_buffer[4];
 
 static void
@@ -53,7 +62,7 @@ process_command(uint8_t *data, size_t len)
                 read_offset += 4;
                 break;
         case 'c':
-                cond_start();
+                cond_sample(&cond_sample_ctx, cond_new_sample_cb, NULL);
                 break;
         case 't':
                 if (data[1] == '=') {

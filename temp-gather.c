@@ -6,12 +6,12 @@
 #include "conductivity.h"
 
 static struct cdc_ctx cdc;
-static struct sample sample_buffer[512];
+static struct sample sample_buffer[4];
 
 static void
-sample_cb(void *cbdata)
+samples_read_cb(void *cbdata)
 {
-        for (unsigned int i=0; i<512; i++) {
+        for (unsigned int i=0; i<4; i++) {
                 struct sample *s = &sample_buffer[i];
                 printf("%lu  %.1k\n", s->timestamp, s->temperature);
         }
@@ -25,6 +25,7 @@ spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
         printf("capacity: %d\n", capacity);
 }
 
+unsigned int read_offset = 4;
 static void
 new_data(uint8_t *data, size_t len)
 {
@@ -47,7 +48,9 @@ new_data(uint8_t *data, size_t len)
                         spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
                         break;
                 case 'g':
-                        read_samples(&spiflash, sample_buffer, 0, 512, sample_cb, NULL);
+                        read_samples(&spiflash, sample_buffer, read_offset, 4,
+                                     samples_read_cb, NULL);
+                        read_offset += 4;
                         break;
                 case 'b':
                         start_blink(10, 200, 200);

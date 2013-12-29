@@ -44,16 +44,19 @@ cond_stop(void)
 
 #define BUFFER_LEN 128
 int32_t buffer[BUFFER_LEN];
-unsigned int i=0;
+unsigned int i = 0;
 
 void
 FTM0_Handler(void)
 {
+        // acknowledge interrupt
         uint32_t a;
         a = FTM0.channel[0].csc.raw;
         FTM0.channel[0].csc.chf = 0;
         a = FTM0.channel[1].csc.raw;
         FTM0.channel[1].csc.chf = 0;
+
+        // fetch edge times
         uint32_t t1 = FTM0.channel[0].cv;
         uint32_t t2 = FTM0.channel[1].cv;
         int32_t dt = t1 - t2;

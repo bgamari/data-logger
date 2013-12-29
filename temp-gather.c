@@ -99,10 +99,12 @@ static void
 new_data(uint8_t *data, size_t len)
 {
         for (unsigned int i=0; i<len; i++) {
-                if (data[i] == '\n') {
+                if (data[i] == '\n' || data[i] == '\r') {
                         cmd_buffer[cmd_tail] = 0;
                         process_command(cmd_buffer, cmd_tail);
                         cmd_tail = 0;
+                } else if (data[i] == '\b') {
+                        // backspace
                 } else {
                         cmd_buffer[cmd_tail] = data[i];
                         cmd_tail = (cmd_tail + 1) % sizeof(cmd_buffer);

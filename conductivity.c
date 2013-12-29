@@ -6,6 +6,9 @@ static struct cond_sample_ctx *head = NULL;
 static void
 cond_start(void)
 {
+        if (FTM0.sc.clks)
+                return;
+        
         // TODO: bring up enable pin
 
         // start continuous dual-edge capture mode
@@ -25,10 +28,13 @@ cond_sample(struct cond_sample_ctx *ctx, cond_sample_cb cb, void *cbdata)
 {
         ctx->cb = cb;
         ctx->cbdata = cbdata;
+
         crit_enter();
         ctx->next = head;
         head = ctx;
         crit_exit();
+
+        cond_start();
 }
 
 void
@@ -58,11 +64,14 @@ cond_init(void)
         pin_mode(PIN_PTC1, PIN_MODE_MUX_ALT4); // | PIN_MODE_PULLDOWN);
 }
 
+#define UNUSED(expr) do { (void)(expr); } while (0)
+
 void
 FTM0_Handler(void)
 {
         // acknowledge interrupt
         uint32_t a;
+        UNUSED(a);
         a = FTM0.channel[0].csc.raw;
         FTM0.channel[0].csc.chf = 0;
         a = FTM0.channel[1].csc.raw;
@@ -74,7 +83,7 @@ FTM0_Handler(void)
 
         int32_t dt = t1 - t2;
         if (dt < 0) dt += 0xffff;
-        signed accum conductivity = dt; // FIXME
+        unsigned accum conductivity = dt; // FIXME
 
         struct cond_sample_ctx *ctx = head;
         struct cond_sample_ctx **last_next = &head;

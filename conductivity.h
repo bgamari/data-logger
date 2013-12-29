@@ -3,10 +3,10 @@
 
 void cond_init();
 
-/* Conductivity in ???
+/* Conductivity in units of FIXME?
  * Return true to continue sampling, false to stop.
  */
-typedef bool (cond_sample_cb)(signed accum conductivity, void *cbdata);
+typedef bool (cond_sample_cb)(unsigned accum conductivity, void *cbdata);
 
 struct cond_sample_ctx {
         cond_sample_cb *cb;

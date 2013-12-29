@@ -9,7 +9,7 @@
 static struct cdc_ctx cdc;
 static struct cond_sample_ctx cond_sample_ctx;
 
-static bool cond_new_sample_cb(signed accum conductivity, void *cbdata)
+static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
 {
         if (verbose)
                 printf("cond: %.1k\n", conductivity);

@@ -40,6 +40,9 @@ cond_sample(struct cond_sample_ctx *ctx, cond_sample_cb cb, void *cbdata)
 void
 cond_init(void)
 {
+        // FIXME Enable pin
+        //pin_mode();
+
         ftm_init();
         cond_stop();
         FTM0.sc.ps = FTM_PS_DIV4; // prescale

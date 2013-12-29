@@ -44,41 +44,64 @@ read_samples(struct read_samples_ctx *ctx,
                                   read_page_cb, ctx);
 }
 
+struct write_sample {
+        struct sample sample;
+        bool pending;
+};
+
+#define N_WRITE_SAMPLES 4
+static struct write_sample write_samples[N_WRITE_SAMPLES];
+
 static void
-block_cb(void *cbdata)
+sample_written(void *cbdata)
 {
-        struct event *done = cbdata;
-        event_fire(done);
+        struct write_sample *w = cbdata;
+        w->pending = false;
 }
 
 static int
-write_sample(const struct sample *s)
+write_sample(struct write_sample *w)
 {
-        struct event done;
-        init_event(&done);
-        int ret = spiflash_program_page(&spiflash, sample_idx * sizeof(struct sample),
-                                        (const uint8_t*) s, sizeof(struct sample),
-                                        block_cb, &done);
-        event_wait(&done);
-        return ret;
+        return spiflash_program_page(&spiflash, sample_idx * sizeof(struct sample),
+                                     (const uint8_t*) &w->sample, sizeof(struct sample),
+                                     sample_written, w);
+}
+
+static void
+block_erased(void *cbdata)
+{
+        write_sample(cbdata);
 }
 
 static int
-push_sample(const struct sample *s)
+push_sample(const struct sample s)
 {
+        struct write_sample *w = NULL;
+        crit_enter();
+        for (unsigned int i=0; i<N_WRITE_SAMPLES; i++) {
+                if (!write_samples[i].pending)
+                        w = &write_samples[i];
+        }
+        if (w == NULL) {
+                crit_exit();
+                return 1;
+        } else {
+                w->pending = true;
+                crit_exit();
+        }
+
         sample_idx++;
         if (verbose)
-                printf("sample %d: temp=%.1k\n", sample_idx, s->temperature);
+                printf("sample %d: temp=%.1k\n", sample_idx, s.temperature);
         
-        if (sample_idx % SAMPLES_PER_PAGE == 0) {
-                struct event done;
-                init_event(&done);
-                spiflash_erase_sector(&spiflash,
-                                      sample_idx * sizeof(struct sample),
-                                      block_cb, &done);
-                event_wait(&done);
+        w->sample = s;
+        if (sample_idx % SAMPLES_PER_SECTOR == 0) {
+                return spiflash_erase_sector(&spiflash,
+                                             sample_idx * sizeof(struct sample),
+                                             block_erased, w);
+        } else {
+                return write_sample(w);
         }
-        return write_sample(s);
 }
 
 static uint32_t time = 0;
@@ -93,7 +116,7 @@ temp_done(uint16_t data, int error, void *cbdata)
         struct sample s = { .timestamp = time++,
                             .temperature = temp_deg
         };
-        push_sample(&s);
+        push_sample(s);
 }
 
 void

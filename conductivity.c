@@ -5,7 +5,7 @@ cond_init(void)
 {
         ftm_init();
         FTM0.sc.clks = 0; // disable clock
-        FTM0.sc.ps = FTM_PS_DIV1; // prescale
+        FTM0.sc.ps = FTM_PS_DIV4; // prescale
         FTM0.mode.ftmen = 1;
         int_enable(IRQ_FTM0);
         FTM0.combine[0].decapen = 1;

@@ -7,8 +7,16 @@ extern bool verbose;
 extern bool acquire_running;
 
 struct sample {
-        uint32_t timestamp;
-        accum temperature;
+        enum sample_type {
+                TIME,
+                TEMPERATURE,
+                CONDUCTIVITY
+        } type;
+        union {
+                uint32_t time;
+                accum temperature;
+                unsigned accum conductivity;
+        };
 };
 
 void take_sample();

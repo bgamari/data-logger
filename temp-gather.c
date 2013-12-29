@@ -12,7 +12,7 @@ static struct cond_sample_ctx cond_sample_ctx;
 static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
 {
         if (verbose)
-                printf("cond: %.1k\n", conductivity);
+                printf("cond: %3.4k\n", conductivity);
         return true;
 }
 
@@ -23,7 +23,19 @@ samples_read_cb(void *cbdata)
 {
         for (unsigned int i=0; i<4; i++) {
                 struct sample *s = &sample_buffer[i];
-                printf("%lu  %.1k\n", s->timestamp, s->temperature);
+                switch (s->type) {
+                case TIME:
+                        printf("time        %d\n", s->time);
+                        break;
+                case TEMPERATURE:
+                        printf("temperature %.1k\n", s->temperature);
+                        break;
+                case CONDUCTIVITY:
+                        printf("temperature %.1k\n", s->conductivity);
+                        break;
+                default:
+                        printf("unknown     %x\n", s->time);
+                }
         }
 }
 

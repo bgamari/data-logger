@@ -101,11 +101,15 @@ temp_done(uint16_t data, int error, void *cbdata)
         accum volt_diff = volt - 0.719k;
         accum temp_diff = volt_diff * (1000K / 1.715K);
         accum temp_deg = 25k - temp_diff;
-        struct sample s = {
-                .timestamp = rtc_get_time(),
-                .temperature = temp_deg
-        };
-        push_sample(s);
+
+        push_sample((struct sample) {
+                        .type = TIME,
+                        .time = rtc_get_time()
+                    });
+        push_sample((struct sample) {
+                        .type = TEMPERATURE,
+                        .time = temp_deg
+                    });
 }
 
 void

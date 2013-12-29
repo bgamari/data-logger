@@ -1,4 +1,5 @@
 #include <mchck.h>
+#include <stdlib.h>
 
 #include "temp-gather.desc.h"
 #include "acquire.h"
@@ -26,48 +27,65 @@ spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 }
 
 unsigned int read_offset = 4;
+
+uint8_t cmd_buffer[16];
+unsigned int cmd_tail = 0;
+
+static void
+process_command(uint8_t *data, size_t len)
+{
+        switch (data[0]) {
+        case 's':
+                if (!acquire_running) {
+                        start_acquire();
+                } else {
+                        stop_acquire();
+                }
+                break;
+        case 'v':
+                verbose = !verbose;
+                break;
+        case 'i':
+                spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
+                break;
+        case 'g':
+                read_samples(&spiflash, sample_buffer, read_offset, 4,
+                             samples_read_cb, NULL);
+                read_offset += 4;
+                break;
+        case 'b':
+                start_blink(10, 200, 200);
+                break;
+        case 'c':
+                cond_start();
+                break;
+        case 't':
+                if (data[1] == '=') {
+                        uint32_t time = strtoul((char *) &data[2], NULL, 10);
+                        rtc_set_time(time);
+                        rtc_start_counter();
+                }
+                printf("RTC time: %d\n", RTC.tsr);
+                break;
+        default:
+                printf("Unknown command\n");
+        }
+}
+
 static void
 new_data(uint8_t *data, size_t len)
 {
-        for (; len > 0; ++data, --len) {
-                switch (data[0]) {
-                case '\n':
-                        printf("hello\n");
-                        break;
-                case 's':
-                        if (!acquire_running) {
-                                start_acquire();
-                        } else {
-                                stop_acquire();
-                        }
-                        break;
-                case 'v':
-                        verbose = !verbose;
-                        break;
-                case 'i':
-                        spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
-                        break;
-                case 'g':
-                        read_samples(&spiflash, sample_buffer, read_offset, 4,
-                                     samples_read_cb, NULL);
-                        read_offset += 4;
-                        break;
-                case 'b':
-                        start_blink(10, 200, 200);
-                        break;
-                case 'c':
-                        cond_start();
-                        break;
-                case 't':
-                        rtc_set_time(500);
-                        rtc_start_counter();
-                        break;
-                case 'r':
-                        printf("RTC time: %d\n", RTC.tsr);
-                        break;
+        for (unsigned int i=0; i<len; i++) {
+                if (data[i] == '\n') {
+                        cmd_buffer[cmd_tail] = 0;
+                        process_command(cmd_buffer, cmd_tail);
+                        cmd_tail = 0;
+                } else {
+                        cmd_buffer[cmd_tail] = data[i];
+                        cmd_tail = (cmd_tail + 1) % sizeof(cmd_buffer);
                 }
         }
-
+        
         cdc_read_more(&cdc);
 }
 

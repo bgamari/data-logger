@@ -111,7 +111,7 @@ temp_done(uint16_t data, int error, void *cbdata)
 void
 take_sample()
 {
-        start_blink(1, 100, 100);
+        start_blink(1, 50, 50);
         adc_sample_start(ADC_TEMP, temp_done, NULL);
 }
 
@@ -124,14 +124,14 @@ timeout_cb(void *data)
 
 void start_acquire()
 {
-        start_blink(2, 100, 100);
+        start_blink(2, 50, 50);
         timeout_add(&timeout, 1000, timeout_cb, NULL);
         acquire_running = true;
 }
 
 void stop_acquire()
 {
-        start_blink(1, 100, 100);
+        start_blink(3, 50, 50);
         timeout_cancel(&timeout);
         acquire_running = false;
 }

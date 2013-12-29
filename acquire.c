@@ -9,8 +9,6 @@ struct spiflash_ctx spiflash;
 static struct timeout_ctx timeout;
 
 static unsigned int sample_idx = 0;
-static unsigned int page_n = 0;
-static struct sample sample_buffer[SAMPLES_PER_PAGE];
 
 static void
 read_page_cb(void *cbdata)
@@ -47,10 +45,44 @@ read_samples(struct read_samples_ctx *ctx,
 }
 
 static void
-flash_program_cb(void *cbdata)
-{}
+block_cb(void *cbdata)
+{
+        struct event *done = cbdata;
+        event_fire(done);
+}
+
+static int
+write_sample(const struct sample *s)
+{
+        struct event done;
+        init_event(&done);
+        int ret = spiflash_program_page(&spiflash, sample_idx * sizeof(struct sample),
+                                        (const uint8_t*) s, sizeof(struct sample),
+                                        block_cb, &done);
+        event_wait(&done);
+        return ret;
+}
+
+static int
+push_sample(const struct sample *s)
+{
+        sample_idx++;
+        if (verbose)
+                printf("sample %d: temp=%.1k\n", sample_idx, s->temperature);
+        
+        if (sample_idx % SAMPLES_PER_PAGE == 0) {
+                struct event done;
+                init_event(&done);
+                spiflash_erase_sector(&spiflash,
+                                      sample_idx * sizeof(struct sample),
+                                      block_cb, &done);
+                event_wait(&done);
+        }
+        return write_sample(s);
+}
 
 static uint32_t time = 0;
+
 static void
 temp_done(uint16_t data, int error, void *cbdata)
 {
@@ -58,22 +90,10 @@ temp_done(uint16_t data, int error, void *cbdata)
         accum volt_diff = volt - 0.719k;
         accum temp_diff = volt_diff * (1000K / 1.715K);
         accum temp_deg = 25k - temp_diff;
-
-        sample_buffer[sample_idx].timestamp = time++;
-        sample_buffer[sample_idx].temperature = temp_deg;
-        sample_idx++;
-        if (verbose)
-                printf("sample %d: temp=%.1k\n", sample_idx, temp_deg);
-        
-        if (sample_idx == SAMPLES_PER_PAGE) {
-                int ret = spiflash_program_page(&spiflash, page_n,
-                                                (const uint8_t*) sample_buffer, 1,
-                                                flash_program_cb, NULL);
-                if (verbose)
-                        printf("write page=%d: %d\n", page_n, ret);
-                page_n++;
-                sample_idx = 0;
-        }
+        struct sample s = { .timestamp = time++,
+                            .temperature = temp_deg
+        };
+        push_sample(&s);
 }
 
 void

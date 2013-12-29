@@ -13,6 +13,8 @@ struct sample {
 
 #define PAGE_SIZE 256
 #define SAMPLES_PER_PAGE (PAGE_SIZE / sizeof(struct sample))
+#define SECTOR_SIZE 4096
+#define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
 
 void take_sample();
 void start_acquire();

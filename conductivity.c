@@ -15,7 +15,6 @@ cond_init(void)
         FTM0.channel[0].csc.elsa = 0;
         FTM0.channel[0].csc.elsb = 1;
         FTM0.channel[0].csc.chf = 0;
-        //FTM0.channel[0].csc.chie = 1;
 
         // channel 1 captures rising edge
         FTM0.channel[1].csc.elsa = 1;

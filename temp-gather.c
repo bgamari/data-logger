@@ -21,9 +21,7 @@ samples_read_cb(void *cbdata)
 static void
 spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
-        printf("mfg: %d\n", mfg_id);
-        printf("memtype: %d\n", memtype);
-        printf("capacity: %d\n", capacity);
+        printf("flash: mfg=%x memtype=%x capacity=%x\n", mfg_id, memtype, capacity);
 }
 
 unsigned int read_offset = 4;
@@ -44,6 +42,7 @@ process_command(uint8_t *data, size_t len)
                 break;
         case 'v':
                 verbose = !verbose;
+                printf("verbose = %d\n", verbose);
                 break;
         case 'i':
                 spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
@@ -52,9 +51,6 @@ process_command(uint8_t *data, size_t len)
                 read_samples(&spiflash, sample_buffer, read_offset, 4,
                              samples_read_cb, NULL);
                 read_offset += 4;
-                break;
-        case 'b':
-                start_blink(10, 200, 200);
                 break;
         case 'c':
                 cond_start();

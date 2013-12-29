@@ -74,7 +74,7 @@ FTM0_Handler(void)
 
         int32_t dt = t1 - t2;
         if (dt < 0) dt += 0xffff;
-        float conductivity = dt; // FIXME
+        signed accum conductivity = dt; // FIXME
 
         struct cond_sample_ctx *ctx = head;
         struct cond_sample_ctx **last_next = &head;

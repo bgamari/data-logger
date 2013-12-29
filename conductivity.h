@@ -6,7 +6,7 @@ void cond_init();
 /* Conductivity in ???
  * Return true to continue sampling, false to stop.
  */
-typedef bool (cond_sample_cb)(float conductivity, void *cbdata);
+typedef bool (cond_sample_cb)(signed accum conductivity, void *cbdata);
 
 struct cond_sample_ctx {
         cond_sample_cb *cb;

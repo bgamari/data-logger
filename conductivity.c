@@ -1,4 +1,5 @@
 #include <mchck.h>
+#include "sensor.h"
 #include "conductivity.h"
 
 static struct cond_sample_ctx *head = NULL;
@@ -126,3 +127,19 @@ FTM0_Handler(void)
         if (head == NULL)
                 cond_stop();
 }
+
+/*
+void conductivity_sample_cb(void *sensor_data, sample_done_cb cb, void* cbdata)
+{
+}
+
+void conductivity_sample(void *sensor_data, sample_done_cb cb, void* cbdata)
+{
+        cond_sensor_data *sd = sensor_data;
+        cond_average(&sd->ctx, 10, NULL);
+}
+
+struct sensor_type conductivity_sensor = {
+        .sample = conductivity_sample,
+};
+*/

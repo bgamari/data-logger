@@ -25,3 +25,7 @@ struct cond_average_ctx {
 
 void cond_average(struct cond_average_ctx *ctx, unsigned int n, void *cbdata);
 unsigned accum cond_get_average(struct cond_average_ctx *ctx);
+
+struct cond_sensor_data {
+        struct cond_average_ctx ctx;
+};

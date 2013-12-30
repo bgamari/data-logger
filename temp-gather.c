@@ -3,6 +3,7 @@
 
 #include "temp-gather.desc.h"
 #include "acquire.h"
+#include "sensor.h"
 #include "blink.h"
 #include "conductivity.h"
 
@@ -28,6 +29,16 @@ static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
         return dumping_conductivity;
 }
 
+static bool verbose = false;
+struct sensor_listener listener;
+
+static void
+on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
+{
+        if (verbose)
+                printf("%d     %.1k\n", sensor->sensor_id, value);
+}
+
 static struct sample sample_buffer[4];
 
 static void
@@ -35,19 +46,7 @@ samples_read_cb(void *cbdata)
 {
         for (unsigned int i=0; i<4; i++) {
                 struct sample *s = &sample_buffer[i];
-                switch (s->type) {
-                case TIME:
-                        printf("time        %d\n", s->time);
-                        break;
-                case TEMPERATURE:
-                        printf("temperature %.1k\n", s->temperature);
-                        break;
-                case CONDUCTIVITY:
-                        printf("temperature %.1k\n", s->conductivity);
-                        break;
-                default:
-                        printf("unknown     %x\n", s->time);
-                }
+                printf("%5d    %d    %2.3k\n", s->time, s->sensor_id, s->value);
         }
 }
 
@@ -57,7 +56,7 @@ spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
         printf("flash: mfg=%x memtype=%x capacity=%x\n", mfg_id, memtype, capacity);
 }
 
-unsigned int read_offset = 4;
+unsigned int read_offset = 0;
 
 uint8_t cmd_buffer[16];
 unsigned int cmd_tail = 0;
@@ -143,5 +142,8 @@ main(void)
         usb_init(&cdc_device);
         cond_init();
         start_blink(5, 100, 100);
+        pin_mode(PIN_PTD6, PIN_MODE_MUX_ANALOG);
+        acquire_init();
+        sensor_listen(&listener, on_sample_cb, NULL);
         sys_yield_for_frogs();
 }

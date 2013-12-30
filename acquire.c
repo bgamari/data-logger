@@ -1,8 +1,8 @@
 #include <mchck.h>
 #include "blink.h"
 #include "acquire.h"
+#include "config.h"
 
-bool verbose = false;
 bool acquire_running = false;
 
 struct spiflash_ctx spiflash;
@@ -89,34 +89,23 @@ push_sample(const struct sample s)
         }
 
         sample_idx++;
-        if (verbose)
-                printf("sample %d: temp=%.1k\n", sample_idx, s.temperature);
         return ret;
 }
 
 static void
-temp_done(uint16_t data, int error, void *cbdata)
+on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 {
-        unsigned accum volt = adc_as_voltage(data);
-        accum volt_diff = volt - 0.719k;
-        accum temp_diff = volt_diff * (1000K / 1.715K);
-        accum temp_deg = 25k - temp_diff;
-
-        push_sample((struct sample) {
-                        .type = TIME,
-                        .time = rtc_get_time()
-                    });
-        push_sample((struct sample) {
-                        .type = TEMPERATURE,
-                        .time = temp_deg
-                    });
+        push_sample((struct sample) {.sensor_id = 0, .time = rtc_get_time() });
+        push_sample((struct sample) {.sensor_id = sensor->sensor_id, .value = value});
 }
 
 void
 take_sample()
 {
         start_blink(1, 50, 50);
-        adc_sample_start(ADC_TEMP, temp_done, NULL);
+        for (struct sensor **s = &sensors[0]; *s != NULL; s++) {
+                (*s)->sample(*s);
+        }
 }
 
 static void
@@ -138,4 +127,11 @@ void stop_acquire()
         start_blink(3, 50, 50);
         timeout_cancel(&timeout);
         acquire_running = false;
+}
+
+static struct sensor_listener listener;
+
+void acquire_init()
+{
+        sensor_listen(&listener, on_sample_cb, NULL);
 }

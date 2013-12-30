@@ -88,7 +88,9 @@ push_sample(const struct sample s)
                 ret = write_sample(w);
         }
 
-        sample_idx++;
+        if (ret == 0)
+                sample_idx++;
+
         return ret;
 }
 

@@ -8,7 +8,7 @@ SRCS += temp-gather.desc
 include ../../toolchain/mchck.mk
 
 LDFLAGS += -lm
-CFLAGS+=-DSTDIO_OUTBUF_SIZE=64
+CWARNFLAGS += -Werror -Wno-format
 
 console : 
 	picocom -b 115200 --imap lfcrlf --omap crlf --echo $(DEVICE)

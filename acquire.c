@@ -28,14 +28,19 @@ read_samples(struct spiflash_ctx *spiflash,
                                   cb, cbdata);
 }
 
+struct spiflash_ctx write_ctx;
+
 struct write_sample {
-        struct spiflash_ctx spiflash;
         struct sample sample;
         bool pending;
         uint32_t addr;
         struct write_sample *next;
 };
 
+/*
+ * the write queue
+ * a write will remain at the head until it has completed
+ */
 static struct write_sample *write_queue;
 
 #define N_WRITE_SAMPLES 4
@@ -56,13 +61,13 @@ sector_erased(void *cbdata)
 static int
 _dispatch_queue()
 {
-        if (write_queue == NULL)
+        struct write_sample *w = write_queue;
+        if (w == NULL)
                 return 0;
         
-        struct write_sample *w = write_queue;
         if (sample_idx % SAMPLES_PER_SECTOR == 0) {
                 // erase if starting new sector
-                return spiflash_erase_sector(&w->spiflash, w->addr, sector_erased, w);
+                return spiflash_erase_sector(&write_ctx, w->addr, sector_erased, w);
         } else {
                 return write_sample(w);
         }
@@ -82,7 +87,7 @@ sample_written(void *cbdata)
 static int
 write_sample(struct write_sample *w)
 {
-        return spiflash_program_page(&w->spiflash, w->addr,
+        return spiflash_program_page(&write_ctx, w->addr,
                                      (const uint8_t*) &w->sample, sizeof(struct sample),
                                      sample_written, w);
 }
@@ -95,14 +100,15 @@ _enqueue_sample_write(struct write_sample *w)
         w->next = NULL;
         if (write_queue == NULL) {
                 write_queue = w;
+                return _dispatch_queue();
         } else {
                 struct write_sample *tail = write_queue;
                 while (tail->next)
                         tail = tail->next;
                 tail->next = w;
+                return 0; // although we don't know whether dispatch will fail
         }
 
-        return _dispatch_queue();
 }
 
 static int

@@ -11,9 +11,20 @@ static struct cond_sample_ctx cond_sample_ctx;
 
 static bool dumping_conductivity = false;
 
+static unsigned accum acc = 0;
+static unsigned int acc_n = 10;
+static unsigned int acc_i = 10;
+
 static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
 {
-        printf("cond: %3.4k\n", conductivity);
+        acc += conductivity;
+        acc_i--;
+        if (acc_i == 0) {
+                unsigned accum mean = acc / acc_n;
+                printf("cond: %3.4k\n", mean);
+                acc = 0;
+                acc_i = acc_n;
+        }
         return dumping_conductivity;
 }
 

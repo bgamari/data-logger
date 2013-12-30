@@ -95,8 +95,10 @@ push_sample(const struct sample s)
 static void
 on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 {
-        push_sample((struct sample) {.sensor_id = 0, .time = rtc_get_time() });
-        push_sample((struct sample) {.sensor_id = sensor->sensor_id, .value = value});
+        push_sample((struct sample) {
+                        .time = rtc_get_time(),
+                        .sensor_id = sensor->sensor_id,
+                        .value = value});
 }
 
 void

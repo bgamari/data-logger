@@ -33,16 +33,50 @@ struct write_sample {
         struct sample sample;
         bool pending;
         uint32_t addr;
+        struct write_sample *next;
 };
+
+static struct write_sample *write_queue;
 
 #define N_WRITE_SAMPLES 4
 static struct write_sample write_samples[N_WRITE_SAMPLES];
+
+static int write_sample(struct write_sample *w);
+
+static void
+sector_erased(void *cbdata)
+{
+        write_sample(cbdata);
+}
+
+/*
+ * dispatch head of write queue
+ * call in critical section
+ */
+static int
+_dispatch_queue()
+{
+        if (write_queue == NULL)
+                return 0;
+        
+        struct write_sample *w = write_queue;
+        if (sample_idx % SAMPLES_PER_SECTOR == 0) {
+                // erase if starting new sector
+                return spiflash_erase_sector(&w->spiflash, w->addr, sector_erased, w);
+        } else {
+                return write_sample(w);
+        }
+}
 
 static void
 sample_written(void *cbdata)
 {
         struct write_sample *w = cbdata;
+        crit_enter();
         w->pending = false;
+        write_queue = w->next;
+        _dispatch_queue();
+        crit_exit();
 }
 
 static int
@@ -53,10 +87,22 @@ write_sample(struct write_sample *w)
                                      sample_written, w);
 }
 
-static void
-sector_erased(void *cbdata)
+/* call in critical section */
+static int
+_enqueue_sample_write(struct write_sample *w)
 {
-        write_sample(cbdata);
+        // append write to end of queue
+        w->next = NULL;
+        if (write_queue == NULL) {
+                write_queue = w;
+        } else {
+                struct write_sample *tail = write_queue;
+                while (tail->next)
+                        tail = tail->next;
+                tail->next = w;
+        }
+
+        return _dispatch_queue();
 }
 
 static int
@@ -74,24 +120,15 @@ push_sample(const struct sample s)
                 return 1;
         } else {
                 w->pending = true;
+                w->sample = s;
+                w->addr = sample_idx * sizeof(struct sample);
+
+                int ret = _enqueue_sample_write(w);
+                if (ret == 0)
+                        sample_idx++;
                 crit_exit();
+                return ret;
         }
-
-        w->sample = s;
-        w->addr = sample_idx * sizeof(struct sample);
-
-        int ret;
-        if (sample_idx % SAMPLES_PER_SECTOR == 0) {
-                // erase if starting new sector
-                ret = spiflash_erase_sector(&w->spiflash, w->addr, sector_erased, w);
-        } else {
-                ret = write_sample(w);
-        }
-
-        if (ret == 0)
-                sample_idx++;
-
-        return ret;
 }
 
 static void

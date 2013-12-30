@@ -36,6 +36,7 @@ blink_timeout_cb(void *cbdata)
 void
 start_blink(int nblinks, unsigned int on_time, unsigned int off_time)
 {
+        if (blink.running) return;
         blink.nblinks = 2*nblinks;
         blink.on_time = on_time;
         blink.off_time = off_time;

@@ -67,7 +67,7 @@ cond_init(void)
 
         ftm_init();
         cond_stop();
-        FTM0.sc.ps = FTM_PS_DIV4; // prescale
+        FTM0.sc.ps = FTM_PS_DIV32; // prescale
         FTM0.mode.ftmen = 1;
         int_enable(IRQ_FTM0);
         FTM0.combine[0].decapen = 1;
@@ -79,8 +79,8 @@ cond_init(void)
         FTM0.channel[0].csc.chf = 0;
 
         // channel 1 captures rising edge
-        FTM0.channel[1].csc.elsa = 1;
-        FTM0.channel[1].csc.elsb = 0;
+        FTM0.channel[1].csc.elsa = 0;
+        FTM0.channel[1].csc.elsb = 1;
         FTM0.channel[1].csc.chf = 0;
         FTM0.channel[1].csc.chie = 1;
 
@@ -106,9 +106,10 @@ FTM0_Handler(void)
         uint32_t t1 = FTM0.channel[0].cv;
         uint32_t t2 = FTM0.channel[1].cv;
 
-        int32_t dt = t1 - t2;
+        int32_t dt = t2 - t1;
         if (dt < 0) dt += 0xffff;
-        unsigned accum conductivity = dt; // FIXME
+        uint32_t dt_us = dt / (48 / 32);
+        unsigned accum conductivity = 1e-3 * dt_us; // FIXME
 
         struct cond_sample_ctx *ctx = head;
         struct cond_sample_ctx **last_next = &head;

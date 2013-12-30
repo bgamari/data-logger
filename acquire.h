@@ -7,7 +7,8 @@ extern bool acquire_running;
 
 struct sample {
         uint32_t time;
-        uint8_t sensor_id;
+        uint16_t sensor_id;
+        uint16_t _reserved;
         accum value;
 };
 

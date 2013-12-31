@@ -90,7 +90,8 @@ process_command_cb(char *data, size_t len)
                 take_sample();
                 break;
         case 'v':
-                verbose = !verbose;
+                if (data[1] == '=')
+                        verbose = data[2] == '1';
                 printf("verbose = %d\n", verbose);
                 break;
         case 'i':

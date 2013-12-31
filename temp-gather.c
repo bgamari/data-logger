@@ -79,11 +79,12 @@ process_command_cb(char *data, size_t len)
 {
         switch (data[0]) {
         case 's':
-                if (!acquire_running) {
+                if (!acquire_running)
                         start_acquire();
-                } else {
+                break;
+        case 'S':
+                if (acquire_running)
                         stop_acquire();
-                }
                 break;
         case 'v':
                 verbose = !verbose;

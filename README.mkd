@@ -38,5 +38,6 @@ very primitive command set for communicating with the device,
  * `T`: Print sample period
  * `l`: Print last acquired sample
  * `n`: Print number of samples taken
+ * `s`: List configured sensors
  
 `bool` is either `0` or `1`.

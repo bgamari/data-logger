@@ -52,7 +52,7 @@ static struct sample sample_buffer;
 static void
 print_sample(struct sample *sample)
 {
-        printf("%10d    %d    %2.3k\n",
+        printf("%10d    %2d    %2.3k\n",
                sample->time, sample->sensor_id, sample->value);
 }
 
@@ -135,9 +135,14 @@ process_command_cb(char *data, size_t len)
                 }
                 printf("sample period = %d\n", get_sample_period());
                 break;
+        case 's':
+                for (struct sensor **s = &sensors[0]; *s != NULL; s++)
+                        printf("%2d    %15s    %10s\n",
+                               (*s)->sensor_id, (*s)->name, (*s)->unit);
+                break;
         case 'l':
                 for (struct sensor **s = &sensors[0]; *s != NULL; s++)
-                        printf("%10d    %d    %2.3k\n", (*s)->last_sample_time,
+                        printf("%10d    %2d    %2.3k\n", (*s)->last_sample_time,
                                (*s)->sensor_id,
                                (*s)->last_sample);
                 break;

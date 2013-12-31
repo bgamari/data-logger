@@ -6,8 +6,8 @@ struct sensor;
 typedef void (*sample_func)(struct sensor *sensor);
 
 struct sensor {
-        struct sensor_type *type;
         const char *name;
+        const char *unit;
         uint16_t sensor_id;
         void *sensor_data;
         sample_func sample;

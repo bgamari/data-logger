@@ -50,16 +50,22 @@ unsigned int print_sample_remaining = 0;
 static struct sample sample_buffer;
 
 static void
-print_sample(void *cbdata)
+print_sample(struct sample *sample)
 {
         printf("%5d    %d    %2.3k\n",
-               sample_buffer.time, sample_buffer.sensor_id, sample_buffer.value);
+               sample->time, sample->sensor_id, sample->value);
+}
+
+static void
+print_stored_sample(void *cbdata)
+{
+        print_sample(&sample_buffer);
         if (print_sample_remaining > 0) {
                 print_sample_remaining--;
                 print_sample_idx++;
                 sample_store_read(&sample_buffer,
                                   print_sample_idx, 1,
-                                  print_sample, NULL);
+                                  print_stored_sample, NULL);
         }
 }
 
@@ -102,7 +108,7 @@ process_command_cb(char *data, size_t len)
                 char *end;
                 print_sample_idx = strtoul(&data[2], &end, 10);
                 print_sample_remaining = strtoul(&end[1], NULL, 10);
-                print_sample(NULL);
+                print_stored_sample(NULL);
                 break;
         }
         case 'c':
@@ -127,6 +133,9 @@ process_command_cb(char *data, size_t len)
                         set_sample_period(time);
                 }
                 printf("sample period = %d\n", get_sample_period());
+                break;
+        case 'l':
+                print_sample(&last_sample);
                 break;
         case 'n':
                 printf("%d\n", sample_store_get_count());

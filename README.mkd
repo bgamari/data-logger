@@ -37,5 +37,6 @@ very primitive command set for communicating with the device,
  * `t`: Print RTC time in seconds
  * `T=[time]`: Set time between samples (sample period)
  * `T`: Print sample period
+ * `l`: Print last acquired sample
  * `n`: Print number of samples taken
  

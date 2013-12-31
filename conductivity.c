@@ -44,20 +44,24 @@ cond_average_cb(unsigned accum conductivity, void *cbdata)
         struct cond_average_ctx *ctx = cbdata;
         ctx->accumulator += conductivity;
         ctx->remaining--;
-        return ctx->remaining > 0;
+        if (ctx->remaining == 0) {
+                unsigned accum mean = ctx->accumulator / ctx->nsamples;
+                ctx->cb(mean, ctx->cbdata);
+                return false;
+        } else {
+                return true;
+        }
 }
 
 void
-cond_average(struct cond_average_ctx *ctx, unsigned int n, void *cbdata)
+cond_average(struct cond_average_ctx *ctx, unsigned int n,
+             cond_average_done_cb cb, void *cbdata)
 {
         ctx->nsamples = n;
         ctx->remaining = n;
+        ctx->cb = cb;
+        ctx->cbdata = cbdata;
         cond_sample(&ctx->ctx, cond_average_cb, ctx);
-}
-
-unsigned accum cond_get_average(struct cond_average_ctx *ctx)
-{
-        return ctx->accumulator / ctx->nsamples;
 }
 
 void
@@ -128,18 +132,15 @@ FTM0_Handler(void)
                 cond_stop();
 }
 
-/*
-void conductivity_sample_cb(void *sensor_data, sample_done_cb cb, void* cbdata)
+static void
+cond_sensor_sample_cb(unsigned accum conductivity, void* cbdata)
 {
+        struct sensor *sensor = cbdata;
+        sensor_new_sample(sensor, conductivity);
 }
 
-void conductivity_sample(void *sensor_data, sample_done_cb cb, void* cbdata)
+void cond_sensor_sample(struct sensor *sensor)
 {
-        cond_sensor_data *sd = sensor_data;
-        cond_average(&sd->ctx, 10, NULL);
+        struct cond_sensor_data *sd = sensor->sensor_data;
+        cond_average(&sd->ctx, 10, cond_sensor_sample_cb, sensor);
 }
-
-struct sensor_type conductivity_sensor = {
-        .sample = conductivity_sample,
-};
-*/

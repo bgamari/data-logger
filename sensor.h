@@ -17,6 +17,9 @@ void sensor_new_sample(struct sensor *sensor, accum value);
 
 typedef void (*new_sample_cb)(struct sensor *sensor, accum value, void *cbdata);
 
+/*
+ * listening for samples
+ */
 struct sensor_listener {
         struct sensor_listener *next;
         new_sample_cb new_sample;

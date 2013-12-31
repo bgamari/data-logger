@@ -2,7 +2,9 @@
 
 #include "thermistor.h"
 #include "temperature.h"
+#include "conductivity.h"
 
+// on-board temperature
 struct sensor temperature_sensor = {
         .sample = &adc_sensor_sample,
         .name = "temperature",
@@ -17,6 +19,7 @@ struct thermistor_map_data thermistor_map_data = {
         .r1 = 10e3
 };
 
+// thermistor #1
 struct adc_sensor_data thermistor_adc_sensor_data = {
         .channel = ADC_PTD6,
         .map = thermistor_map,
@@ -29,6 +32,7 @@ struct sensor thermistor_sensor = {
         .sensor_data = &thermistor_adc_sensor_data,
 };
 
+// thermistor #2
 struct adc_sensor_data thermistor2_adc_sensor_data = {
         .channel = ADC_PTD5,
         .map = thermistor_map,
@@ -41,18 +45,19 @@ struct sensor thermistor2_sensor = {
         .sensor_data = &thermistor2_adc_sensor_data,
 };
 
-#if 0
+// conductivity sensor
+struct cond_sensor_data cond_sensor_data;
+
 struct sensor conductivity_sensor = {
-        .sample = &conductivity_sensor_sample,
+        .sample = &cond_sensor_sample,
         .sensor_id = 3,
-        .sensor_data = &conductivity_sensor_data,
+        .sensor_data = &cond_sensor_data,
 };
-#endif
 
 struct sensor *sensors[] = {
         &temperature_sensor,
         &thermistor_sensor,
         &thermistor2_sensor,
-        //&conductivity_sensor,
+        &conductivity_sensor,
         NULL
 };

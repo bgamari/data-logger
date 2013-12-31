@@ -66,7 +66,8 @@ print_stored_sample(void *cbdata)
                 sample_store_read(&sample_buffer,
                                   print_sample_idx, 1,
                                   print_stored_sample, NULL);
-        }
+        } else
+                printf("\n");
 }
 
 /*
@@ -75,7 +76,8 @@ print_stored_sample(void *cbdata)
 static void
 spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
-        printf("flash: mfg=%x memtype=%x capacity=%x\n", mfg_id, memtype, capacity);
+        printf("flash: mfg=%x memtype=%x capacity=%x\n\n",
+               mfg_id, memtype, capacity);
 }
 
 unsigned int read_offset = 0;
@@ -91,15 +93,16 @@ process_command_cb(char *data, size_t len)
                         else
                                 start_acquire();
                 }
-                printf("acquiring = %d\n", acquire_running);
+                printf("acquiring = %d\n\n", acquire_running);
                 break;
         case 'f':
                 take_sample();
+                printf("\n");
                 break;
         case 'v':
                 if (data[1] == '=')
                         verbose = data[2] == '1';
-                printf("verbose = %d\n", verbose);
+                printf("verbose = %d\n\n", verbose);
                 break;
         case 'i':
                 spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
@@ -126,31 +129,33 @@ process_command_cb(char *data, size_t len)
                         rtc_set_time(time);
                         rtc_start_counter();
                 }
-                printf("RTC time = %d\n", RTC.tsr);
+                printf("RTC time = %d\n\n", RTC.tsr);
                 break;
         case 'T':
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);
                         set_sample_period(time);
                 }
-                printf("sample period = %d\n", get_sample_period());
+                printf("sample period = %d\n\n", get_sample_period());
                 break;
         case 's':
                 for (struct sensor **s = &sensors[0]; *s != NULL; s++)
                         printf("%2d    %15s    %10s\n",
                                (*s)->sensor_id, (*s)->name, (*s)->unit);
+                printf("\n");
                 break;
         case 'l':
                 for (struct sensor **s = &sensors[0]; *s != NULL; s++)
                         printf("%10d    %2d    %2.3k\n", (*s)->last_sample_time,
                                (*s)->sensor_id,
                                (*s)->last_sample);
+                printf("\n");
                 break;
         case 'n':
-                printf("%d\n", sample_store_get_count());
+                printf("%d\n\n", sample_store_get_count());
                 break;
         default:
-                printf("Unknown command\n");
+                printf("unknown command\n\n");
         }
 }
 

@@ -152,7 +152,7 @@ process_command_cb(char *data, size_t len)
                 printf("\n");
                 break;
         case 'n':
-                printf("%d\n\n", sample_store_get_count());
+                printf("sample count = %d\n\n", sample_store_get_count());
                 break;
         default:
                 printf("unknown command\n\n");

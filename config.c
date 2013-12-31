@@ -50,7 +50,7 @@ struct cond_sensor_data cond_sensor_data;
 
 struct sensor conductivity_sensor = {
         .sample = &cond_sensor_sample,
-        .sensor_id = 3,
+        .sensor_id = 4,
         .sensor_data = &cond_sensor_data,
 };
 

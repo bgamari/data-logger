@@ -51,6 +51,6 @@ adc_sensor_sample(struct sensor *sensor)
 accum
 adc_map_raw(uint16_t codepoint, void *map_data)
 {
-        return codepoint;
+        return 1. * codepoint;
 }
 

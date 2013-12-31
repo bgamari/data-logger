@@ -29,7 +29,7 @@ struct adc_sensor_data thermistor_adc_sensor_data = {
 struct sensor thermistor_sensor = {
         .sample = &adc_sensor_sample,
         .name = "thermistor",
-        .units = "Kelvin",
+        .unit = "Kelvin",
         .sensor_id = 2,
         .sensor_data = &thermistor_adc_sensor_data,
 };
@@ -44,7 +44,7 @@ struct adc_sensor_data thermistor2_adc_sensor_data = {
 struct sensor thermistor2_sensor = {
         .sample = &adc_sensor_sample,
         .name = "thermistor",
-        .units = "Kelvin",
+        .unit = "Kelvin",
         .sensor_id = 3,
         .sensor_data = &thermistor2_adc_sensor_data,
 };
@@ -55,7 +55,7 @@ struct cond_sensor_data cond_sensor_data;
 struct sensor conductivity_sensor = {
         .sample = &cond_sensor_sample,
         .name = "conductivity",
-        .units = "arbitrary",
+        .unit = "arbitrary",
         .sensor_id = 4,
         .sensor_data = &cond_sensor_data,
 };

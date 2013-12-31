@@ -135,7 +135,7 @@ process_command_cb(char *data, size_t len)
                 printf("sample period = %d\n", get_sample_period());
                 break;
         case 'l':
-                for (struct sensor **s = &sensors[0]; s != NULL; s++)
+                for (struct sensor **s = &sensors[0]; *s != NULL; s++)
                         printf("%10d    %d    %2.3k\n", (*s)->last_sample_time,
                                (*s)->sensor_id,
                                (*s)->last_sample);

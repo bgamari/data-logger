@@ -47,3 +47,10 @@ adc_sensor_sample(struct sensor *sensor)
 
         adc_schedule();
 }
+
+accum
+adc_map_raw(uint16_t codepoint, void *map_data)
+{
+        return codepoint;
+}
+

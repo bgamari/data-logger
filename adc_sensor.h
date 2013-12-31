@@ -2,7 +2,7 @@
 #include "mchck.h"
 #include "sensor.h"
 
-typedef accum (*adc_map_func)(uint16_t voltage, void *map_data);
+typedef accum (*adc_map_func)(uint16_t codepoint, void *map_data);
 
 struct sample_queue {
         struct sensor *sensor;
@@ -19,3 +19,6 @@ struct adc_sensor_data {
 };
 
 void adc_sensor_sample(struct sensor *sensor);
+
+// A mapping function returning the codepoint
+accum adc_map_raw(uint16_t codepoint, void *map_data);

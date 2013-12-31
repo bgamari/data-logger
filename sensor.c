@@ -6,6 +6,10 @@ void
 sensor_new_sample(struct sensor *sensor, accum value)
 {
         struct sensor_listener *l = listeners;
+        crit_enter();
+        sensor->last_sample_time = rtc_get_time();
+        sensor->last_sample = value;
+        crit_exit();
         while (l) {
                 l->new_sample(sensor, value, l->cbdata);
                 l = l->next;

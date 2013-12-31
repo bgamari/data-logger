@@ -11,6 +11,8 @@ struct sensor {
         uint16_t sensor_id;
         void *sensor_data;
         sample_func sample;
+        uint32_t last_sample_time;
+        accum last_sample;
 };
 
 void sensor_new_sample(struct sensor *sensor, accum value);

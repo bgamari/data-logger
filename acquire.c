@@ -52,6 +52,7 @@ get_sample_period()
 
 void start_acquire()
 {
+        if (acquire_running) return;
         start_blink(2, 50, 50);
         timeout_add(&timeout, 1000, timeout_cb, NULL);
         acquire_running = true;
@@ -59,6 +60,7 @@ void start_acquire()
 
 void stop_acquire()
 {
+        if (!acquire_running) return;
         start_blink(3, 50, 50);
         timeout_cancel(&timeout);
         acquire_running = false;

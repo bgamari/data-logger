@@ -85,12 +85,10 @@ process_command_cb(char *data, size_t len)
 {
         switch (data[0]) {
         case 's':
-                if (!acquire_running)
-                        start_acquire();
+                start_acquire();
                 break;
         case 'S':
-                if (acquire_running)
-                        stop_acquire();
+                stop_acquire();
                 break;
         case 'f':
                 take_sample();

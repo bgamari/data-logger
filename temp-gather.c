@@ -1,6 +1,7 @@
 #include <mchck.h>
 #include <stdlib.h>
 
+#include "config.h"
 #include "acquire.h"
 #include "sensor.h"
 #include "blink.h"
@@ -123,6 +124,7 @@ process_command_cb(char *data, size_t len)
 void
 main(void)
 {
+        config_pins();
         adc_init();
         spi_init();
         spiflash_pins_init();
@@ -132,7 +134,6 @@ main(void)
         usb_console_init();
         cond_init();
         start_blink(5, 100, 100);
-        pin_mode(PIN_PTD6, PIN_MODE_MUX_ANALOG);
         acquire_init();
         sensor_listen(&listener, on_sample_cb, NULL);
         sys_yield_for_frogs();

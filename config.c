@@ -61,3 +61,10 @@ struct sensor *sensors[] = {
         &conductivity_sensor,
         NULL
 };
+
+void
+config_pins()
+{
+        pin_mode(PIN_PTD6, PIN_MODE_MUX_ANALOG);
+        pin_mode(PIN_PTD5, PIN_MODE_MUX_ANALOG);
+}

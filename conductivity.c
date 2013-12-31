@@ -27,8 +27,11 @@ cond_stop(void)
 void
 cond_sample(struct cond_sample_ctx *ctx, cond_sample_cb cb, void *cbdata)
 {
+        // prevent multiple additions
+        if (ctx->active) return;
         ctx->cb = cb;
         ctx->cbdata = cbdata;
+        ctx->active = true;
 
         crit_enter();
         ctx->next = head;
@@ -122,6 +125,7 @@ FTM0_Handler(void)
                 bool more = (ctx->cb)(conductivity, ctx->cbdata);
                 if (!more) {
                         *last_next = ctx->next;
+                        ctx->active = false;
                 } else {
                         last_next = &ctx->next;
                 }

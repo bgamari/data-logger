@@ -13,6 +13,7 @@ struct cond_sample_ctx {
         cond_sample_cb *cb;
         void *cbdata;
         struct cond_sample_ctx *next;
+        bool active;
 };
 
 void cond_sample(struct cond_sample_ctx *ctx, cond_sample_cb cb, void *cbdata);

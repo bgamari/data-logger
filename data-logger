@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
 import argparse
+import logging
 from serial import Serial
+
+logging.basicConfig(level=logging.DEBUG)
 
 class DataLogger(object):
     def __init__(self, device=None):
@@ -11,14 +14,20 @@ class DataLogger(object):
 
         self._dev = Serial(device, baudrate=115200)
         self._dev.write('v=0\n') # ensure verbose mode is off
+        self._dev.readline()
         self._dev.flush()
-        self.set_verbose(False)
+        self._dev.flushInput()
 
+    def _write_cmd(self, cmd):
+        logging.debug('command: %s' % cmd)
+        self._dev.write(cmd + '\n')
+        
     def _read_reply(self):
         a = []
         while True:
-            l = self._dev.readline()
-            if l == '':
+            l = self._dev.readline().strip()
+            if len(l.strip()) == 0:
+                logging.debug('reply: %s' % a)
                 return a
             else:
                 a.append(l)
@@ -26,8 +35,8 @@ class DataLogger(object):
     def _read_single_reply(self):
         """ Read a single-line reply """
         reply = self._read_reply()
-        if len(reply != 1):
-            raise RuntimeError('invalid reply: '+reply)
+        if len(reply) != 1:
+            raise RuntimeError('invalid reply: %s' % reply)
         return reply[0]
 
     def _read_reply_value(self):
@@ -35,11 +44,11 @@ class DataLogger(object):
         return reply.split('=')[1].strip()
 
     def set_verbose(self, verbose):
-        self._dev.write('v=%d\n' % verbose)
+        self._write_cmd('v=%d' % verbose)
         return bool(self._read_reply_value())
         
     def get_sample_count(self):
-        self._dev.write('n\n')
+        self._write_cmd('n')
         return int(self._read_reply_value())
 
     def _parse_sample(self, line):
@@ -52,34 +61,34 @@ class DataLogger(object):
         return (time, sensor, value)
 
     def fetch_samples(self, start, count):
-        self._dev.write('g %d %d\n' % (start, count))
+        self._write_cmd('g %d %d' % (start, count))
         for l in self._read_reply():
             yield self._parse_sample(l)
 
     def set_acquisition_state(self, running):
-        self._dev.write('a=%d\n' % running)
+        self._write_cmd('a=%d' % running)
         return bool(self._read_reply_value())
 
     def get_acquisition_state(self):
-        self._dev.write('a\n')
+        self._write_cmd('a')
         return bool(self._read_reply_value())
 
     def identify_flash(self):
-        self._dev.write('i\n')
+        self._write_cmd('i')
         return self._read_single_reply()
 
     def get_last_sample(self):
-        self._dev.write('l\n')
-        for l in self._read_reply()
+        self._write_cmd('l')
+        for l in self._read_reply():
             yield self._parse_sample(l)
 
     def force_sample(self):
-        self._dev.write('f\n')
+        self._write_cmd('f')
         self._read_reply()
 
     def get_sensors(self):
-        self._dev.write('l\n')
-        for l in self._read_reply()
+        self._write_cmd('l')
+        for l in self._read_reply():
             yield l.split()
 
 def fetch_handler(logger, args):

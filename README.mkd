@@ -16,8 +16,8 @@ run `make flash`,
      $ cd mchck
      $ git checkout temp-gather
      $ cd examples
-     $ git clone https://github.com/bgamari/water-quality
-     $ cd water-quality
+     $ git clone https://github.com/bgamari/data-logger
+     $ cd data-logger
      $ make
      $ make console
   

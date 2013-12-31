@@ -1,0 +1,106 @@
+#!/usr/bin/python
+
+import argparse
+from serial import Serial
+
+class DataLogger(object):
+    def __init__(self, device=None):
+        if device == None:
+            # TODO: Look for device more intelligently
+            device = '/dev/ttyACM0'
+
+        self._dev = Serial(device, baudrate=115200)
+        self._dev.write('v=0\n')
+        self._dev.flush()
+    
+    def get_sample_count(self):
+        self._dev.write('n\n')
+        return int(self._dev.readline())
+
+    def _parse_sample(self, line):
+        l = line.split()
+        if len(l) != 3:
+            raise RuntimeError("Invalid sample line")
+        time = int(l[0])
+        sensor = int(l[1])
+        value = float(l[2])
+        return (time, sensor, value)
+
+    def fetch_samples(self, start, count):
+        self._dev.write('g %d %d\n' % (start, count))
+        samples = []
+        for i in range(count):
+            l = self._dev.readline()
+            yield self._parse_sample(l)
+
+    def start_sampling(self):
+        self._dev.write('s\n')
+
+    def stop_sampling(self):
+        self._dev.write('S\n')
+
+    def identify_flash(self):
+        self._dev.write('i\n')
+        return self._dev.readline()
+
+    def get_last_sample(self):
+        self._dev.write('l\n')
+        l = self._dev.readline()
+        return self._parse_sample(l)
+
+def fetch(logger, args):
+    nsamples = logger.get_sample_count()
+
+    start = 0
+    count = nsamples
+    if args.start is not None:
+        start = args.start
+        count = nsamples - start
+
+    if args.count is not None:
+        if start + args.count > nsamples:
+            raise RuntimeError('Too many samples requested')
+        count = args.count
+
+    for sample in logger.fetch_samples(start, count):
+        print sample
+
+def start(logger, args):
+    logger.start_sampling()
+
+def stop(logger, args):
+    logger.stop_sampling()
+
+def status(logger, args):
+    count = logger.get_sample_count()
+    print '%d samples collected' % count
+    print logger.identify_flash()
+
+def print_last(logger, args):
+    print logger.get_last_sample()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Interface to mchck data-logger firmware")
+    parser.add_argument('-d', '--device', metavar='FILE', help='data-logger ACM device')
+    subparsers = parser.add_subparsers(help='sub-command help', dest='mode')
+
+    fetch = parser.add_parser('fetch', help='fetch samples from device')
+    fetch.set_defaults(func=fetch)
+    fetch.add_argument('-s', '--start', type=int, help='sample index to start from')
+    fetch.add_argument('-n', '--count', type=int, help='number of samples to dump')
+
+    start = parser.add_parser('start', help='fetch samples from device')
+    start.set_defaults(func=start)
+    start.add_argument('-T', '--sample-period', type=int, metavar='SECONDS',
+                       help='time between samples in seconds')
+
+    status = parser.add_parser('status', help='fetch samples from device')
+    status.set_defaults(func=status)
+
+    last = parser.add_parser('last', help='fetch samples from device')
+    last.set_defaults(func=print_last)
+
+    args = parser.parse_args()
+    logger = DataLogger(args.device)
+    if args.func:
+        args.func(logger, args)

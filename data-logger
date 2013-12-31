@@ -79,8 +79,10 @@ def fetch_handler(logger, args):
             raise RuntimeError('Too many samples requested')
         count = args.count
 
+    print("# time\tsensor\tvalue")
     for sample in logger.fetch_samples(start, count):
-        print sample
+        (time, sensor, value) = sample
+        print("%10d\t%2d   \t%3.4f" % (time, sensor, value)
 
 def start_handler(logger, args):
     logger.set_acquisition_state(True)
@@ -93,15 +95,16 @@ def stop_handler(logger, args):
 
 def status_handler(logger, args):
     count = logger.get_sample_count()
-    print '%d samples collected' % count
-    print logger.identify_flash()
+    print('%d samples collected' % count)
+    print(logger.identify_flash())
 
 def print_last_handler(logger, args):
     if args.force_sample:
         from time import sleep
         logger.force_sample()
         sleep(0.1)
-    print logger.get_last_sample()
+    (time, sensor, value) = logger.get_last_sample()
+    print(time, sensor, value)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Interface to mchck data-logger firmware")

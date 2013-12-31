@@ -86,6 +86,9 @@ process_command_cb(char *data, size_t len)
                 if (acquire_running)
                         stop_acquire();
                 break;
+        case 'f':
+                take_sample();
+                break;
         case 'v':
                 verbose = !verbose;
                 printf("verbose = %d\n", verbose);

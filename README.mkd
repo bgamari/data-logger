@@ -1,0 +1,39 @@
+# data-logger
+
+This is a set of firmware for autonomously logging sensor measurements
+(e.g. for environmental monitoring purposes) for the
+[MC HCK](http://www.mchck.org/).
+
+This firmware takes advantage of the low power consumption of the MC
+HCK to allow sensor values to be logged for months on end.
+
+## building
+
+Simply clone the respository into the `mchck/examples` directory and
+run `make flash`,
+
+     $ git clone https://github.com/bgamari/mchck
+     $ cd mchck
+     $ git checkout temp-gather
+     $ cd examples
+     $ git clone https://github.com/bgamari/water-quality
+     $ cd water-quality
+     $ make
+  
+## command set
+
+The device exposes a CDC-ACM device over its USB interface. There is a
+very primitive command set for communicating with the device,
+
+ * `s`: Start acquisition
+ * `S`: Stop acquisition
+ * `v`: Toggle verbose mode. In verbose mode the device outputs each
+   sample taken to the console.
+ * `i`: Print identity of FLASH device
+ * `g [start] [count]`: Print sample numbers `start` to `start+count`
+ * `t=[time]`: Set RTC time in seconds
+ * `t`: Print RTC time in seconds
+ * `T=[time]`: Set time between samples (sample period)
+ * `T`: Print sample period
+ * `n`: Print number of samples taken
+ 

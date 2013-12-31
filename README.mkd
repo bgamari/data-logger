@@ -19,6 +19,7 @@ run `make flash`,
      $ git clone https://github.com/bgamari/water-quality
      $ cd water-quality
      $ make
+     $ make console
   
 ## command set
 

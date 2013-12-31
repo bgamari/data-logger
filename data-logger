@@ -10,9 +10,13 @@ class DataLogger(object):
             device = '/dev/ttyACM0'
 
         self._dev = Serial(device, baudrate=115200)
-        self._dev.write('v=0\n')
         self._dev.flush()
+        self.set_verbose(False)
     
+    def set_verbose(self, verbose):
+        self._dev.write('v=%d\n' % verbose)
+        self._dev.readline()
+        
     def get_sample_count(self):
         self._dev.write('n\n')
         return int(self._dev.readline())
@@ -48,7 +52,7 @@ class DataLogger(object):
         l = self._dev.readline()
         return self._parse_sample(l)
 
-def fetch(logger, args):
+def fetch_handler(logger, args):
     nsamples = logger.get_sample_count()
 
     start = 0
@@ -65,18 +69,18 @@ def fetch(logger, args):
     for sample in logger.fetch_samples(start, count):
         print sample
 
-def start(logger, args):
+def start_handler(logger, args):
     logger.start_sampling()
 
-def stop(logger, args):
+def stop_handler(logger, args):
     logger.stop_sampling()
 
-def status(logger, args):
+def status_handler(logger, args):
     count = logger.get_sample_count()
     print '%d samples collected' % count
     print logger.identify_flash()
 
-def print_last(logger, args):
+def print_last_handler(logger, args):
     print logger.get_last_sample()
 
 if __name__ == "__main__":
@@ -84,21 +88,21 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--device', metavar='FILE', help='data-logger ACM device')
     subparsers = parser.add_subparsers(help='sub-command help', dest='mode')
 
-    fetch = parser.add_parser('fetch', help='fetch samples from device')
-    fetch.set_defaults(func=fetch)
+    fetch = subparsers.add_parser('fetch', help='fetch samples from device')
+    fetch.set_defaults(func=fetch_handler)
     fetch.add_argument('-s', '--start', type=int, help='sample index to start from')
     fetch.add_argument('-n', '--count', type=int, help='number of samples to dump')
 
-    start = parser.add_parser('start', help='fetch samples from device')
-    start.set_defaults(func=start)
+    start = subparsers.add_parser('start', help='fetch samples from device')
+    start.set_defaults(func=start_handler)
     start.add_argument('-T', '--sample-period', type=int, metavar='SECONDS',
                        help='time between samples in seconds')
 
-    status = parser.add_parser('status', help='fetch samples from device')
-    status.set_defaults(func=status)
+    status = subparsers.add_parser('status', help='fetch samples from device')
+    status.set_defaults(func=status_handler)
 
-    last = parser.add_parser('last', help='fetch samples from device')
-    last.set_defaults(func=print_last)
+    last = subparsers.add_parser('last', help='fetch samples from device')
+    last.set_defaults(func=print_last_handler)
 
     args = parser.parse_args()
     logger = DataLogger(args.device)

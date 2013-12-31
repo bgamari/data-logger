@@ -26,10 +26,9 @@ run `make flash`,
 The device exposes a CDC-ACM device over its USB interface. There is a
 very primitive command set for communicating with the device,
 
- * `s`: Start acquisition
- * `S`: Stop acquisition
+ * `a=[bool]`: Start or stop acquisition
  * `f`: Force taking a sample
- * `v=[0 or 1]`: Enable/disable verbose mode. In verbose mode the
+ * `v=[bool]`: Enable/disable verbose mode. In verbose mode the
    device outputs each sample taken to the console.
  * `i`: Print identity of FLASH device
  * `g [start] [count]`: Print sample numbers `start` to `start+count`
@@ -40,3 +39,4 @@ very primitive command set for communicating with the device,
  * `l`: Print last acquired sample
  * `n`: Print number of samples taken
  
+`bool` is either `0` or `1`.

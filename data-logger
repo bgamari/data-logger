@@ -37,8 +37,18 @@ class DataLogger(object):
             l = self._dev.readline()
             yield self._parse_sample(l)
 
-    def start_sampling(self):
-        self._dev.write('s\n')
+    def _read_bool(self):
+        l = self._dev.readline()
+        parts = l.split('=')
+        return int(parts[1])
+
+    def set_acquisition_state(self, running):
+        self._dev.write('a=%d\n' % running)
+        return self._read_bool()
+
+    def get_acquisition_state(self):
+        self._dev.write('a\n')
+        return self._read_bool()
 
     def stop_sampling(self):
         self._dev.write('S\n')
@@ -51,6 +61,9 @@ class DataLogger(object):
         self._dev.write('l\n')
         l = self._dev.readline()
         return self._parse_sample(l)
+
+    def force_sample(self):
+        self._dev.write('f\n')
 
 def fetch_handler(logger, args):
     nsamples = logger.get_sample_count()
@@ -70,7 +83,10 @@ def fetch_handler(logger, args):
         print sample
 
 def start_handler(logger, args):
-    logger.start_sampling()
+    logger.set_acquisition_state(True)
+
+def stop_handler(logger, args):
+    logger.set_acquisition_state(False)
 
 def stop_handler(logger, args):
     logger.stop_sampling()
@@ -81,6 +97,10 @@ def status_handler(logger, args):
     print logger.identify_flash()
 
 def print_last_handler(logger, args):
+    if args.force_sample:
+        from time import sleep
+        logger.force_sample()
+        sleep(0.1)
     print logger.get_last_sample()
 
 if __name__ == "__main__":
@@ -93,15 +113,19 @@ if __name__ == "__main__":
     fetch.add_argument('-s', '--start', type=int, help='sample index to start from')
     fetch.add_argument('-n', '--count', type=int, help='number of samples to dump')
 
-    start = subparsers.add_parser('start', help='fetch samples from device')
+    start = subparsers.add_parser('start', help='start sample acquisition')
     start.set_defaults(func=start_handler)
     start.add_argument('-T', '--sample-period', type=int, metavar='SECONDS',
                        help='time between samples in seconds')
+
+    start = subparsers.add_parser('stop', help='stop sample acquisition')
+    start.set_defaults(func=stop_handler)
 
     status = subparsers.add_parser('status', help='fetch samples from device')
     status.set_defaults(func=status_handler)
 
     last = subparsers.add_parser('last', help='fetch samples from device')
+    last.add_argument('-f', '--force-sample', action='store_true', help='Force a sample')
     last.set_defaults(func=print_last_handler)
 
     args = parser.parse_args()

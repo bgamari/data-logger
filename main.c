@@ -84,11 +84,14 @@ static void
 process_command_cb(char *data, size_t len)
 {
         switch (data[0]) {
-        case 's':
-                start_acquire();
-                break;
-        case 'S':
-                stop_acquire();
+        case 'a':
+                if (data[1] == '=') {
+                        if (data[2] == '0')
+                                stop_acquire();
+                        else
+                                start_acquire();
+                }
+                printf("acquiring = %d\n", acquire_running);
                 break;
         case 'f':
                 take_sample();

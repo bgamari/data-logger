@@ -65,6 +65,13 @@ class DataLogger(object):
     def force_sample(self):
         self._dev.write('f\n')
 
+    def get_sensors(self):
+        self._dev.write('l\n')
+        while True:
+            l = self._dev.readline()
+            if l == '': break
+            yield l.split()
+
 def fetch_handler(logger, args):
     nsamples = logger.get_sample_count()
 
@@ -82,7 +89,7 @@ def fetch_handler(logger, args):
     print("# time\tsensor\tvalue")
     for sample in logger.fetch_samples(start, count):
         (time, sensor, value) = sample
-        print("%10d\t%2d   \t%3.4f" % (time, sensor, value)
+        print("%-10d\t%-2d   \t%-3.4f" % (time, sensor, value))
 
 def start_handler(logger, args):
     logger.set_acquisition_state(True)
@@ -97,6 +104,12 @@ def status_handler(logger, args):
     count = logger.get_sample_count()
     print('%d samples collected' % count)
     print(logger.identify_flash())
+    print('acquisition: %s' %
+          ('running' if logger.get_acquisition_state() else 'stopped'))
+    print()
+    print("sensors:")
+    for (sid, name, unit) in logger.get_sensors():
+        print("%-2d\t%-15s\t%-10s" % (sid, name, unit))
 
 def print_last_handler(logger, args):
     if args.force_sample:

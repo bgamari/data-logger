@@ -6,6 +6,7 @@
 #include "blink.h"
 #include "conductivity.h"
 #include "usb_console.h"
+#include "sample_store.h"
 
 static struct cond_sample_ctx cond_sample_ctx;
 
@@ -55,9 +56,9 @@ print_sample(void *cbdata)
         if (print_sample_remaining > 0) {
                 print_sample_remaining--;
                 print_sample_idx++;
-                read_samples(&spiflash, &sample_buffer,
-                             print_sample_idx, 1,
-                             print_sample, NULL);
+                sample_store_read(&sample_buffer,
+                                  print_sample_idx, 1,
+                                  print_sample, NULL);
         }
 }
 

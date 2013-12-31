@@ -136,5 +136,6 @@ main(void)
         start_blink(5, 100, 100);
         acquire_init();
         sensor_listen(&listener, on_sample_cb, NULL);
+        adc_sample_prepare(ADC_MODE_POWER_LOW | ADC_MODE_SAMPLE_LONG | ADC_MODE_AVG_32);
         sys_yield_for_frogs();
 }

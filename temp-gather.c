@@ -116,6 +116,13 @@ process_command_cb(char *data, size_t len)
                 }
                 printf("RTC time: %d\n", RTC.tsr);
                 break;
+        case 'T':
+                if (data[1] == '=') {
+                        uint32_t time = strtoul(&data[2], NULL, 10);
+                        set_sample_period(time);
+                }
+                printf("sample period: %d\n", get_sample_period());
+                break;
         default:
                 printf("Unknown command\n");
         }

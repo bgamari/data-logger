@@ -5,6 +5,7 @@
 #include "config.h"
 
 bool acquire_running = false;
+static unsigned int sample_period = 30; // seconds
 
 static struct timeout_ctx timeout;
 
@@ -30,7 +31,21 @@ static void
 timeout_cb(void *data)
 {
         take_sample();
-        timeout_add(&timeout, 500, timeout_cb, NULL);
+        timeout_add(&timeout, 1000*sample_period, timeout_cb, NULL);
+}
+
+void
+set_sample_period(unsigned int seconds)
+{
+        timeout_cancel(&timeout);
+        sample_period = seconds;
+        timeout_cb(NULL);
+}
+
+unsigned int
+get_sample_period()
+{
+        return sample_period;
 }
 
 void start_acquire()

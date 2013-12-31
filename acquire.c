@@ -8,14 +8,16 @@ bool acquire_running = false;
 static unsigned int sample_period = 30; // seconds
 
 static struct timeout_ctx timeout;
+struct sample last_sample;
 
 static void
 on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 {
-        sample_store_push((struct sample) {
+        last_sample = (struct sample) {
                         .time = rtc_get_time(),
                         .sensor_id = sensor->sensor_id,
-                        .value = value});
+                        .value = value};
+        sample_store_push(last_sample);
 }
 
 void

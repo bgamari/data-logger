@@ -160,9 +160,9 @@ main(void)
         usb_console_line_recvd_cb = process_command_cb;
         usb_console_init();
         cond_init();
-        start_blink(5, 100, 100);
         acquire_init();
-        sensor_listen(&listener, on_sample_cb, NULL);
         adc_sample_prepare(ADC_MODE_POWER_LOW | ADC_MODE_SAMPLE_LONG | ADC_MODE_AVG_32);
+        sensor_listen(&listener, on_sample_cb, NULL);
+        start_blink(5, 100, 100);
         sys_yield_for_frogs();
 }

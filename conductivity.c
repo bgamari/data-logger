@@ -60,6 +60,7 @@ void
 cond_average(struct cond_average_ctx *ctx, unsigned int n,
              cond_average_done_cb cb, void *cbdata)
 {
+        ctx->accumulator = 0;
         ctx->nsamples = n;
         ctx->remaining = n;
         ctx->cb = cb;

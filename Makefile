@@ -1,10 +1,10 @@
-PROG=temp-gather
+PROG=data-logger
 DEVICE ?= /dev/ttyACM0
 
-SRCS += temp-gather.c acquire.c blink.c conductivity.c usb_console.c
+SRCS += main.c acquire.c blink.c conductivity.c usb_console.c
 SRCS += sensor.c adc_sensor.c temperature.c thermistor.c sample_store.c
 SRCS += config.c
-SRCS += temp-gather.desc
+SRCS += data-logger.desc
 include ../../toolchain/mchck.mk
 
 LDFLAGS += -lm

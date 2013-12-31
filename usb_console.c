@@ -1,4 +1,4 @@
-#include "temp-gather.desc.h"
+#include "data-logger.desc.h"
 
 static struct cdc_ctx cdc;
 

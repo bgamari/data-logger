@@ -137,3 +137,9 @@ sample_store_push(const struct sample s)
                 return ret;
         }
 }
+
+unsigned int
+sample_store_get_count()
+{
+        return sample_idx;
+}

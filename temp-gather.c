@@ -124,6 +124,9 @@ process_command_cb(char *data, size_t len)
                 }
                 printf("sample period: %d\n", get_sample_period());
                 break;
+        case 'n':
+                printf("%d\n", sample_store_get_count());
+                break;
         default:
                 printf("Unknown command\n");
         }

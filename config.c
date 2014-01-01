@@ -3,6 +3,7 @@
 #include "thermistor.h"
 #include "temperature.h"
 #include "conductivity.h"
+#include "acquire.h"
 
 // on-board temperature
 struct sensor temperature_sensor = {
@@ -73,4 +74,14 @@ config_pins()
 {
         pin_mode(PIN_PTD6, PIN_MODE_MUX_ANALOG);
         pin_mode(PIN_PTD5, PIN_MODE_MUX_ANALOG);
+        PORTA.pcr[1].irqc = PCR_IRQC_INT_FALLING;
+}
+
+void
+PORTA_Handler(void)
+{
+        if (acquire_running)
+                stop_acquire();
+        else
+                start_acquire();
 }

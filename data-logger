@@ -48,6 +48,7 @@ def stop_handler(logger, args):
 
 def status_handler(logger, args):
     count = logger.get_sample_count()
+    print('firmware version: %s' % logger.get_firmware_version())
     print('samples collected: %d' % count)
     print(logger.identify_flash())
     t = logger.get_rtc_time()

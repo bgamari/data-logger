@@ -34,6 +34,10 @@ class DataLogger(object):
         reply = self._read_single_reply()
         return reply.split('=')[1].strip()
 
+    def get_firmware_version(self):
+        self._write_cmd('V')
+        return self._read_reply_value()
+
     def set_verbose(self, verbose):
         self._write_cmd('v=%d' % verbose)
         return bool(int(self._read_reply_value()))

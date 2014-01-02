@@ -39,9 +39,11 @@ timeout_cb(void *data)
 void
 set_sample_period(unsigned int seconds)
 {
-        timeout_cancel(&timeout);
+        if (acquire_running)
+                timeout_cancel(&timeout);
         sample_period = seconds;
-        timeout_cb(NULL);
+        if (acquire_running)
+                timeout_cb(NULL);
 }
 
 unsigned int

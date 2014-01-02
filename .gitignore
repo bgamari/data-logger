@@ -1,0 +1,14 @@
+*.o
+*.d
+*~
+*.linkdep
+\#*
+.*
+
+data-logger.bin
+data-logger.desc.c
+data-logger.desc.h
+data-logger.elf
+data-logger.ld
+data-logger.ld-template
+data-logger.map

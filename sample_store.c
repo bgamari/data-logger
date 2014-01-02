@@ -38,7 +38,7 @@ struct write_sample {
         struct write_sample *next;
 };
 
-static int last_erased_page = -1;
+static volatile int last_erased_sector = -1;
 
 /*
  * the write queue
@@ -68,11 +68,11 @@ _dispatch_queue()
         if (w == NULL)
                 return 0;
         
-        int next_page = (w->addr + sizeof(struct sample)) / SAMPLES_PER_SECTOR;
-        if (next_page > last_erased_page) {
+        int next_sector = (w->addr + sizeof(struct sample)) / SAMPLES_PER_SECTOR;
+        if (next_sector > last_erased_sector) {
                 // erase if starting new sector
-                last_erased_page = next_page;
-                return spiflash_erase_sector(&write_ctx, next_page, sector_erased, w);
+                last_erased_sector = next_sector;
+                return spiflash_erase_sector(&write_ctx, next_sector * SECTOR_SIZE, sector_erased, w);
         } else {
                 return write_sample(w);
         }

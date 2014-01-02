@@ -1,5 +1,8 @@
 #include "sample_store.h"
 
+#define MAX(a,b) ((a) > (b)) ? (a) : (b)
+#define MIN(a,b) ((a) < (b)) ? (a) : (b)
+
 #define PAGE_SIZE 256
 #define SAMPLES_PER_PAGE (PAGE_SIZE / sizeof(struct sample))
 #define SECTOR_SIZE 4096
@@ -16,30 +19,40 @@ sample_address(unsigned int sample_idx)
 /*
  * reading samples
  */
-struct spiflash_ctx spiflash;
-static unsigned int sample_idx = 0;
+
+static void
+sample_store_read_cb(void *cbdata)
+{
+        struct sample_store_read_ctx *ctx = cbdata;
+        if (ctx->pos >= ctx->start + ctx->len) {
+                ctx->cb(ctx->cbdata);
+        } else {
+                unsigned int to_read = MIN(ctx->start + ctx->len - ctx->pos,
+                                           SAMPLES_PER_PAGE);
+                uint32_t start_addr = sample_address(ctx->pos);
+                int ret = spiflash_read_page(&onboard_flash, &ctx->transaction,
+                                             (uint8_t*) &ctx->buffer[ctx->pos - ctx->start],
+                                             start_addr, to_read * sizeof(struct sample),
+                                             sample_store_read_cb, ctx);
+                ret = ret;
+                ctx->pos += to_read;
+        }
+}
 
 // start and len given in samples
 int
-sample_store_read(struct sample *buffer,
+sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
                   unsigned int start, unsigned int len,
                   spi_cb cb, void *cbdata)
 {
-        unsigned int idx = sample_idx;
-        unsigned int page = sample_idx / SAMPLES_PER_PAGE;
-        int ret = 0;
-        while (idx < start + len) {
-                uint32_t start_addr = sample_address(idx);
-                uint32_t end_addr = (page + 1) * PAGE_SIZE;
-                ret = spiflash_read_page(&spiflash, (uint8_t*) &buffer[idx],
-                                         start_addr, end_addr - start_addr,
-                                         cb, cbdata);
-                idx += (end_addr - start_addr) / sizeof(struct sample);
-
-                if (ret)
-                        return ret;
-        }
-        return ret;
+        ctx->buffer = buffer;
+        ctx->pos    = start;
+        ctx->start  = start;
+        ctx->len    = len;
+        ctx->cb     = cb;
+        ctx->cbdata = cbdata;
+        sample_store_read_cb(ctx);
+        return 0;
 }
 
 /*
@@ -48,15 +61,15 @@ sample_store_read(struct sample *buffer,
  * we need to ensure that we only issue once write at a time, hence
  * the queue.
  */
-struct spiflash_ctx write_ctx;
-
 struct write_sample {
         struct sample sample;
+        struct spiflash_transaction transaction;
         bool pending;
         uint32_t addr;
         struct write_sample *next;
 };
 
+static volatile unsigned int sample_idx = 0;
 static volatile int last_erased_sector = -1;
 
 /*
@@ -91,7 +104,8 @@ _dispatch_queue()
         if (next_sector > last_erased_sector) {
                 // erase if starting new sector
                 last_erased_sector = next_sector;
-                return spiflash_erase_sector(&write_ctx, next_sector * SECTOR_SIZE, sector_erased, w);
+                return spiflash_erase_sector(&onboard_flash, &w->transaction,
+                                             next_sector * SECTOR_SIZE, sector_erased, w);
         } else {
                 return write_sample(w);
         }
@@ -111,7 +125,7 @@ sample_written(void *cbdata)
 static int
 write_sample(struct write_sample *w)
 {
-        return spiflash_program_page(&write_ctx, w->addr,
+        return spiflash_program_page(&onboard_flash, &w->transaction, w->addr,
                                      (const uint8_t*) &w->sample, sizeof(struct sample),
                                      sample_written, w);
 }

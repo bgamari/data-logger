@@ -58,6 +58,7 @@ on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
  */
 static struct sample sample_buffer;
 static volatile bool sample_valid;
+static struct sample_store_read_ctx sample_read_ctx;
 
 static void
 print_sample(struct sample *sample)
@@ -82,6 +83,8 @@ spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
                mfg_id, memtype, capacity);
         command_queued = false;
 }
+
+struct spiflash_transaction get_id_transaction;
 
 static void
 process_command()
@@ -110,7 +113,7 @@ process_command()
                 command_queued = false;
                 break;
         case 'i':
-                spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
+                spiflash_get_id(&onboard_flash, &get_id_transaction, spiflash_id_cb, NULL);
                 break;
         case 'g':
         {
@@ -118,12 +121,19 @@ process_command()
                 unsigned int idx = strtoul(&data[2], &pos, 10);
                 unsigned int end = idx + strtoul(&pos[1], NULL, 10);
                 while (idx < end) {
-                        idx++;
                         sample_valid = false;
-                        sample_store_read(&sample_buffer, idx, 1,
-                                          print_stored_sample, NULL);
-                        while (!sample_valid);
+                        int ret = sample_store_read(&sample_read_ctx,
+                                                    &sample_buffer, idx, 1,
+                                                    print_stored_sample, NULL);
+                        if (ret != 0) {
+                                OUT("error\n\n");
+                                command_queued = false;
+                                break;
+                        }
+                                
+                        while (!sample_valid) __asm__("wfi");
                         print_sample(&sample_buffer);
+                        idx++;
                 } 
                 OUT("\n");
                 command_queued = false;

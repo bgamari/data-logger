@@ -38,6 +38,10 @@ class DataLogger(object):
         self._write_cmd('V')
         return self._read_reply_value()
 
+    def get_device_id(self):
+        self._write_cmd('I')
+        return self._read_reply_value()
+
     def set_verbose(self, verbose):
         self._write_cmd('v=%d' % verbose)
         return bool(int(self._read_reply_value()))

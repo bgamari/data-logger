@@ -10,14 +10,12 @@
 #include "usb_console.h"
 #include "sample_store.h"
 
-#pragma GCC optimize("0")
-
 /*
  * command processing
  */
 #define OUT usb_console_printf_blocking
 static char cmd_buffer[32];
-static bool command_queued = false;
+static volatile bool command_queued = false;
 
 /*
  * conductivity dumping
@@ -44,7 +42,7 @@ static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
 /*
  * sensor sample dumping
  */
-static bool verbose = false;
+static volatile bool verbose = false;
 struct sensor_listener listener;
 
 static void
@@ -58,7 +56,7 @@ on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
  * stored sample printing
  */
 static struct sample sample_buffer;
-static bool sample_valid;
+static volatile bool sample_valid;
 
 static void
 print_sample(struct sample *sample)

@@ -14,10 +14,6 @@ class DataLogger(object):
             device = '/dev/ttyACM0'
 
         self._dev = Serial(device, baudrate=115200)
-        self._dev.write('v=0\n') # ensure verbose mode is off
-        self._dev.readline()
-        self._dev.flush()
-        self._dev.flushInput()
 
     def _write_cmd(self, cmd):
         logging.debug('command: %s' % cmd)

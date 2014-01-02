@@ -3,7 +3,7 @@
 import argparse
 import logging
 from serial import Serial
-import time, calendar
+import time, datetime
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -156,10 +156,13 @@ def status_handler(logger, args):
     count = logger.get_sample_count()
     print('%d samples collected' % count)
     print(logger.identify_flash())
+    t = logger.get_rtc_time()
+    dt = datetime.datetime.utcfromtimestamp(t).isoformat()
+    print('RTC time: %s = %d' % (dt, t))
     print('sample period: %d' % logger.get_sample_period())
     print('acquisition: %s' %
           ('running' if logger.get_acquisition_state() else 'stopped'))
-    print()
+    print('')
     print("sensors:")
     for (sid, name, unit) in logger.list_sensors():
         print("%-2d\t%-15s\t%-10s" % (sid, name, unit))
@@ -173,7 +176,7 @@ def print_last_handler(logger, args):
         print("%-10d        %-2d          %-3.4f" % (time, sensor, value))
 
 def set_rtc_handler(logger, args):
-    epoch_time = calendar.timegm(time.gmtime())
+    epoch_time = time.time()
     logger.set_rtc_time(epoch_time)
 
 if __name__ == "__main__":

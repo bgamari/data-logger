@@ -150,12 +150,12 @@ def stop_handler(logger, args):
 
 def status_handler(logger, args):
     count = logger.get_sample_count()
-    print('%d samples collected' % count)
+    print('samples collected: %d' % count)
     print(logger.identify_flash())
     t = logger.get_rtc_time()
     dt = datetime.datetime.utcfromtimestamp(t).isoformat()
     print('RTC time: %s = %d' % (dt, t))
-    print('sample period: %d' % logger.get_sample_period())
+    print('sample period: %d seconds' % logger.get_sample_period())
     print('acquisition: %s' %
           ('running' if logger.get_acquisition_state() else 'stopped'))
     print('')

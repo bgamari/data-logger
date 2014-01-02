@@ -94,7 +94,16 @@ class DataLogger(object):
         self._write_cmd('T')
         return int(self._read_reply_value())
 
-    def get_sensors(self):
+    def list_sensors(self):
+        self._write_cmd('s')
+        for l in self._read_reply():
+            parts = l.split()
+            sensor_id = int(parts[0])
+            name = parts[1]
+            unit = parts[2]
+            yield (sensor_id, name, unit)
+
+    def get_last_sample(self):
         self._write_cmd('l')
         for l in self._read_reply():
             parts = l.split()
@@ -138,11 +147,12 @@ def status_handler(logger, args):
     count = logger.get_sample_count()
     print('%d samples collected' % count)
     print(logger.identify_flash())
+    print('sample period: %d' % logger.get_sample_period())
     print('acquisition: %s' %
           ('running' if logger.get_acquisition_state() else 'stopped'))
     print()
     print("sensors:")
-    for (sid, name, unit) in logger.get_sensors():
+    for (sid, name, unit) in logger.list_sensors():
         print("%-2d\t%-15s\t%-10s" % (sid, name, unit))
 
 def print_last_handler(logger, args):
@@ -150,8 +160,9 @@ def print_last_handler(logger, args):
         from time import sleep
         logger.force_sample()
         sleep(0.1)
-    (time, sensor, value) = logger.get_last_sample()
-    print(time, sensor, value)
+    print("# time            sensor      value")
+    for (time, sensor, value) in logger.get_last_sample():
+        print("%-10d        %-2d          %-3.4f" % (time, sensor, value))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Interface to mchck data-logger firmware")

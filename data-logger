@@ -3,7 +3,8 @@
 import argparse
 import logging
 from serial import Serial
-import time, datetime
+import time
+import datetime
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -168,8 +169,8 @@ def print_last_handler(logger, args):
         logger.force_sample()
         time.sleep(0.1)
     print("# time            sensor      value")
-    for (time, sensor, value) in logger.get_last_sample():
-        print("%-10d        %-2d          %-3.4f" % (time, sensor, value))
+    for (t, sensor, value) in logger.get_last_sample():
+        print("%-10d        %-2d          %-3.4f" % (t, sensor, value))
 
 def set_rtc_handler(logger, args):
     epoch_time = time.time()

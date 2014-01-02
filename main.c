@@ -54,9 +54,8 @@ on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 /*
  * stored sample printing
  */
-static unsigned int print_sample_idx = 0;
-static unsigned int print_sample_remaining = 0;
 static struct sample sample_buffer;
+static bool sample_valid;
 
 static void
 print_sample(struct sample *sample)
@@ -68,16 +67,7 @@ print_sample(struct sample *sample)
 static void
 print_stored_sample(void *cbdata)
 {
-        print_sample(&sample_buffer);
-        if (print_sample_remaining > 0) {
-                print_sample_remaining--;
-                print_sample_idx++;
-                sample_store_read(&sample_buffer,
-                                  print_sample_idx, 1,
-                                  print_stored_sample, NULL);
-        } else {
-                OUT("\n");
-        }
+        sample_valid = true;
 }
 
 /*
@@ -122,10 +112,19 @@ process_command()
                 break;
         case 'g':
         {
-                char *end;
-                print_sample_idx = strtoul(&data[2], &end, 10);
-                print_sample_remaining = strtoul(&end[1], NULL, 10);
-                print_stored_sample(NULL);
+                char *pos;
+                unsigned int idx = strtoul(&data[2], &pos, 10);
+                unsigned int end = idx + strtoul(&pos[1], NULL, 10);
+                while (idx < end) {
+                        idx++;
+                        sample_valid = false;
+                        sample_store_read(&sample_buffer, idx, 1,
+                                          print_stored_sample, NULL);
+                        while (!sample_valid);
+                        print_sample(&sample_buffer);
+                } 
+                OUT("\n");
+                command_queued = false;
                 break;
         }
         case 'c':

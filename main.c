@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "version.h"
 #include "acquire.h"
 #include "sensor.h"
 #include "blink.h"
@@ -173,6 +174,10 @@ process_command()
                 break;
         case 'n':
                 OUT("sample count = %d\n\n", sample_store_get_count());
+                command_queued = false;
+                break;
+        case 'V':
+                OUT("version: %s\n\n", commit_id);
                 command_queued = false;
                 break;
         default:

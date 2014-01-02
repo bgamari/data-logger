@@ -42,7 +42,7 @@ class DataLogger(object):
 
     def set_verbose(self, verbose):
         self._write_cmd('v=%d' % verbose)
-        return bool(self._read_reply_value())
+        return bool(int(self._read_reply_value()))
         
     def get_sample_count(self):
         self._write_cmd('n')
@@ -64,11 +64,11 @@ class DataLogger(object):
 
     def set_acquisition_state(self, running):
         self._write_cmd('a=%d' % running)
-        return bool(self._read_reply_value())
+        return bool(int(self._read_reply_value()))
 
     def get_acquisition_state(self):
         self._write_cmd('a')
-        return bool(self._read_reply_value())
+        return bool(int(self._read_reply_value()))
 
     def identify_flash(self):
         self._write_cmd('i')

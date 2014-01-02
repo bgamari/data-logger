@@ -46,9 +46,6 @@ def stop_handler(logger, args):
     logger.set_acquisition_state(False)
     print("Acquisition stopped")
 
-def stop_handler(logger, args):
-    logger.stop_sampling()
-
 def info_handler(logger, args):
     count = logger.get_sample_count()
     print('firmware version: %s' % logger.get_firmware_version())

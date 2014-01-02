@@ -3,6 +3,7 @@
 import argparse
 import logging
 from serial import Serial
+import time, calendar
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -75,6 +76,14 @@ class DataLogger(object):
 
     def identify_flash(self):
         self._write_cmd('i')
+        return self._read_single_reply()
+
+    def get_rtc_time(self):
+        self._write_cmd('t')
+        return int(self._read_reply_value())
+
+    def set_rtc_time(self, time):
+        self._write_cmd('t=%d' % time)
         return self._read_single_reply()
 
     def get_last_sample(self):
@@ -157,12 +166,15 @@ def status_handler(logger, args):
 
 def print_last_handler(logger, args):
     if args.force_sample:
-        from time import sleep
         logger.force_sample()
-        sleep(0.1)
+        time.sleep(0.1)
     print("# time            sensor      value")
     for (time, sensor, value) in logger.get_last_sample():
         print("%-10d        %-2d          %-3.4f" % (time, sensor, value))
+
+def set_rtc_handler(logger, args):
+    epoch_time = calendar.timegm(time.gmtime())
+    logger.set_rtc_time(epoch_time)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Interface to mchck data-logger firmware")
@@ -184,6 +196,9 @@ if __name__ == "__main__":
 
     status = subparsers.add_parser('status', help='fetch samples from device')
     status.set_defaults(func=status_handler)
+
+    set_rtc = subparsers.add_parser('set-rtc', help='set the real-time clock time on the device')
+    set_rtc.set_defaults(func=set_rtc_handler)
 
     last = subparsers.add_parser('last', help='fetch samples from device')
     last.add_argument('-f', '--force-sample', action='store_true', help='Force a sample')

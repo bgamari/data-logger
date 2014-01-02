@@ -9,11 +9,17 @@
 #include "usb_console.h"
 #include "sample_store.h"
 
-static struct cond_sample_ctx cond_sample_ctx;
+/*
+ * command processing
+ */
+#define OUT usb_console_printf_blocking
+static char cmd_buffer[32];
+static bool command_queued = false;
 
 /*
  * conductivity dumping
  */
+static struct cond_sample_ctx cond_sample_ctx;
 static bool dumping_conductivity = false;
 static unsigned accum acc = 0;
 static unsigned int acc_n = 10;
@@ -32,6 +38,9 @@ static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
         return dumping_conductivity;
 }
 
+/*
+ * sensor sample dumping
+ */
 static bool verbose = false;
 struct sensor_listener listener;
 
@@ -43,16 +52,16 @@ on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 }
 
 /*
- * Sample printing
+ * stored sample printing
  */
-unsigned int print_sample_idx = 0;
-unsigned int print_sample_remaining = 0;
+static unsigned int print_sample_idx = 0;
+static unsigned int print_sample_remaining = 0;
 static struct sample sample_buffer;
 
 static void
 print_sample(struct sample *sample)
 {
-        printf("%10d    %2d    %2.3k\n",
+        OUT("%10d    %2d    %2.3k\n",
                sample->time, sample->sensor_id, sample->value);
 }
 
@@ -66,8 +75,9 @@ print_stored_sample(void *cbdata)
                 sample_store_read(&sample_buffer,
                                   print_sample_idx, 1,
                                   print_stored_sample, NULL);
-        } else
-                printf("\n");
+        } else {
+                OUT("\n");
+        }
 }
 
 /*
@@ -76,15 +86,15 @@ print_stored_sample(void *cbdata)
 static void
 spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
-        printf("flash: mfg=%x memtype=%x capacity=%x\n\n",
+        OUT("flash: mfg=%x memtype=%x capacity=%x\n\n",
                mfg_id, memtype, capacity);
+        command_queued = false;
 }
 
-unsigned int read_offset = 0;
-
 static void
-process_command_cb(char *data, size_t len)
+process_command()
 {
+        const char *data = cmd_buffer;
         switch (data[0]) {
         case 'a':
                 if (data[1] == '=') {
@@ -93,16 +103,19 @@ process_command_cb(char *data, size_t len)
                         else
                                 start_acquire();
                 }
-                printf("acquiring = %d\n\n", acquire_running);
+                OUT("acquiring = %d\n\n", acquire_running);
+                command_queued = false;
                 break;
         case 'f':
                 take_sample();
-                printf("\n");
+                OUT("\n");
+                command_queued = false;
                 break;
         case 'v':
                 if (data[1] == '=')
                         verbose = data[2] == '1';
-                printf("verbose = %d\n\n", verbose);
+                OUT("verbose = %d\n\n", verbose);
+                command_queued = false;
                 break;
         case 'i':
                 spiflash_get_id(&spiflash, spiflash_id_cb, NULL);
@@ -129,34 +142,51 @@ process_command_cb(char *data, size_t len)
                         rtc_set_time(time);
                         rtc_start_counter();
                 }
-                printf("RTC time = %d\n\n", RTC.tsr);
+                OUT("RTC time = %d\n\n", RTC.tsr);
+                command_queued = false;
                 break;
         case 'T':
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);
                         set_sample_period(time);
                 }
-                printf("sample period = %d\n\n", get_sample_period());
+                OUT("sample period = %d\n\n", get_sample_period());
+                command_queued = false;
                 break;
         case 's':
                 for (struct sensor **s = &sensors[0]; *s != NULL; s++)
-                        printf("%2d    %15s    %10s\n",
-                               (*s)->sensor_id, (*s)->name, (*s)->unit);
-                printf("\n");
+                        OUT("%2d    %15s    %10s\n",
+                            (*s)->sensor_id, (*s)->name, (*s)->unit);
+                OUT("\n");
+                command_queued = false;
                 break;
         case 'l':
                 for (struct sensor **s = &sensors[0]; *s != NULL; s++)
-                        printf("%10d    %2d    %2.3k\n", (*s)->last_sample_time,
-                               (*s)->sensor_id,
-                               (*s)->last_sample);
-                printf("\n");
+                        OUT("%10d    %2d    %2.3k\n", (*s)->last_sample_time,
+                            (*s)->sensor_id,
+                            (*s)->last_sample);
+                OUT("\n");
+                command_queued = false;
                 break;
         case 'n':
-                printf("sample count = %d\n\n", sample_store_get_count());
+                OUT("sample count = %d\n\n", sample_store_get_count());
+                command_queued = false;
                 break;
         default:
-                printf("unknown command\n\n");
+                OUT("unknown command\n\n");
+                command_queued = false;
         }
+}
+
+static void
+console_line_recvd(const char *cmd, size_t len)
+{
+        if (command_queued)
+                return;
+        if (len > sizeof(cmd_buffer))
+                len = sizeof(cmd_buffer);
+        memcpy(cmd_buffer, cmd, len);
+        command_queued = true;
 }
 
 void
@@ -168,12 +198,18 @@ main(void)
         spiflash_pins_init();
         timeout_init();
         rtc_init();
-        usb_console_line_recvd_cb = process_command_cb;
+        usb_console_line_recvd_cb = console_line_recvd;
         usb_console_init();
         cond_init();
         acquire_init();
         adc_sample_prepare(ADC_MODE_POWER_LOW | ADC_MODE_SAMPLE_LONG | ADC_MODE_AVG_32);
         sensor_listen(&listener, on_sample_cb, NULL);
         start_blink(5, 100, 100);
-        sys_yield_for_frogs();
+
+        // event loop
+        while (true) {
+                __asm__("wfi");
+                if (command_queued)
+                        process_command();
+        }
 }

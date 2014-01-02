@@ -37,11 +37,11 @@ def start_handler(logger, args):
 
     logger.set_acquisition_state(True)
     t = logger.get_sample_period()
-    print "Acquisition started sampling every %d seconds" % t
+    print("Acquisition started sampling every %d seconds" % t)
 
 def stop_handler(logger, args):
     logger.set_acquisition_state(False)
-    print "Acquisition stopped"
+    print("Acquisition stopped")
 
 def stop_handler(logger, args):
     logger.stop_sampling()

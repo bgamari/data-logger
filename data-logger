@@ -4,7 +4,7 @@ import argparse
 import logging
 from serial import Serial
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 class DataLogger(object):
     def __init__(self, device=None):
@@ -86,10 +86,22 @@ class DataLogger(object):
         self._write_cmd('f')
         self._read_reply()
 
+    def set_sample_period(self, period):
+        self._write_cmd('T=%d' % period)
+        self._read_reply()
+
+    def get_sample_period(self):
+        self._write_cmd('T')
+        return int(self._read_reply_value())
+
     def get_sensors(self):
         self._write_cmd('l')
         for l in self._read_reply():
-            yield l.split()
+            parts = l.split()
+            last_sample_time = int(parts[0])
+            sensor_id = int(parts[1])
+            last_value = float(parts[2])
+            yield (last_sample_time, sensor_id, last_value)
 
 def fetch_handler(logger, args):
     nsamples = logger.get_sample_count()
@@ -112,9 +124,12 @@ def fetch_handler(logger, args):
 
 def start_handler(logger, args):
     logger.set_acquisition_state(True)
+    t = logger.get_sample_period()
+    print "Acquisition started sampling every %d seconds" % t
 
 def stop_handler(logger, args):
     logger.set_acquisition_state(False)
+    print "Acquisition stopped"
 
 def stop_handler(logger, args):
     logger.stop_sampling()

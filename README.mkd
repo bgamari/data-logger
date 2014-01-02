@@ -40,5 +40,6 @@ very primitive command set for communicating with the device,
  * `n`: Print number of samples taken
  * `s`: List configured sensors
  * `V`: Print firmware version (commit id)
+ * `I`: Print device ID
  
 `bool` is either `0` or `1`.

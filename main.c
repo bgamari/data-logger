@@ -179,6 +179,11 @@ process_command()
                 OUT("version = %s\n\n", commit_id);
                 command_queued = false;
                 break;
+        case 'I':
+                OUT("device id = %x-%x-%x-%x\n\n",
+                    SIM.uidl, SIM.uidml, SIM.uidmh, SIM.uidh);
+                command_queued = false;
+                break;
         default:
                 OUT("unknown command\n\n");
                 command_queued = false;

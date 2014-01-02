@@ -1,5 +1,6 @@
 #include <mchck.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "config.h"
 #include "version.h"
@@ -189,9 +190,7 @@ console_line_recvd(const char *cmd, size_t len)
 {
         if (command_queued)
                 return;
-        if (len > sizeof(cmd_buffer))
-                len = sizeof(cmd_buffer);
-        memcpy(cmd_buffer, cmd, len);
+        strncpy(cmd_buffer, cmd, sizeof(cmd_buffer));
         command_queued = true;
 }
 

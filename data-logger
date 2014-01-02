@@ -35,6 +35,9 @@ def start_handler(logger, args):
         print("The device time doesn't look valid. I've updated it for you.")
         set_rtc_handler(logger, args)
 
+    if args.sample_period is not None:
+        logger.set_sample_period(args.sample_period)
+
     logger.set_acquisition_state(True)
     t = logger.get_sample_period()
     print("Acquisition started sampling every %d seconds" % t)

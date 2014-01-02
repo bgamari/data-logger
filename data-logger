@@ -30,6 +30,11 @@ def fetch_handler(logger, args):
         print("%-10d     %-2d        %-3.4f" % (time, sensor, value))
 
 def start_handler(logger, args):
+    # Ensure that time is set
+    if logger.get_rtc_time() == 0:
+        print("Invalid time found. Updating...")
+        set_rtc_time(logger, args)
+
     logger.set_acquisition_state(True)
     t = logger.get_sample_period()
     print "Acquisition started sampling every %d seconds" % t

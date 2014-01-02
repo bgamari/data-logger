@@ -1,15 +1,23 @@
 #include "sample_store.h"
 
+#define PAGE_SIZE 256
+#define SAMPLES_PER_PAGE (PAGE_SIZE / sizeof(struct sample))
+#define SECTOR_SIZE 4096
+#define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
+
+static uint32_t
+sample_address(unsigned int sample_idx)
+{
+        unsigned int page = sample_idx / SAMPLES_PER_PAGE;
+        unsigned int offset = sample_idx % SAMPLES_PER_PAGE;
+        return PAGE_SIZE * page + offset * sizeof(struct sample);
+}
+
 /*
  * reading samples
  */
 struct spiflash_ctx spiflash;
 static unsigned int sample_idx = 0;
-
-#define PAGE_SIZE 256
-#define SAMPLES_PER_PAGE (PAGE_SIZE / sizeof(struct sample))
-#define SECTOR_SIZE 4096
-#define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
 
 // start and len given in samples
 int
@@ -17,10 +25,21 @@ sample_store_read(struct sample *buffer,
                   unsigned int start, unsigned int len,
                   spi_cb cb, void *cbdata)
 {
-        return spiflash_read_page(&spiflash, (uint8_t*) buffer,
-                                  start * sizeof(struct sample),
-                                  len * sizeof(struct sample),
-                                  cb, cbdata);
+        unsigned int idx = sample_idx;
+        unsigned int page = sample_idx / SAMPLES_PER_PAGE;
+        int ret = 0;
+        while (idx < start + len) {
+                uint32_t start_addr = sample_address(idx);
+                uint32_t end_addr = (page + 1) * PAGE_SIZE;
+                ret = spiflash_read_page(&spiflash, (uint8_t*) &buffer[idx],
+                                         start_addr, end_addr - start_addr,
+                                         cb, cbdata);
+                idx += (end_addr - start_addr) / sizeof(struct sample);
+
+                if (ret)
+                        return ret;
+        }
+        return ret;
 }
 
 /*
@@ -132,7 +151,7 @@ sample_store_push(const struct sample s)
         } else {
                 w->pending = true;
                 w->sample = s;
-                w->addr = sample_idx * sizeof(struct sample);
+                w->addr = sample_address(sample_idx);
 
                 int ret = _enqueue_sample_write(w);
                 if (ret == 0)

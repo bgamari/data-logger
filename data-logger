@@ -32,8 +32,8 @@ def fetch_handler(logger, args):
 def start_handler(logger, args):
     # Ensure that time is set
     if logger.get_rtc_time() == 0:
-        print("Invalid time found. Updating...")
-        set_rtc_time(logger, args)
+        print("The device time doesn't look valid. I've updated it for you.")
+        set_rtc_handler(logger, args)
 
     logger.set_acquisition_state(True)
     t = logger.get_sample_period()

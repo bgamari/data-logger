@@ -22,10 +22,12 @@ def fetch_handler(logger, args):
             raise RuntimeError('Too many samples requested')
         count = args.count
 
-    print("# time\tsensor\tvalue")
+    print("# time         sensor    value")
     for sample in logger.fetch_samples(start, count):
         (time, sensor, value) = sample
-        print("%-10d\t%-2d   \t%-3.4f" % (time, sensor, value))
+        if args.sensor is not None and sensor != args.sensor:
+            continue
+        print("%-10d     %-2d        %-3.4f" % (time, sensor, value))
 
 def start_handler(logger, args):
     logger.set_acquisition_state(True)
@@ -74,6 +76,7 @@ fetch = subparsers.add_parser('fetch', help='fetch samples from device')
 fetch.set_defaults(func=fetch_handler)
 fetch.add_argument('-s', '--start', type=int, help='sample index to start from')
 fetch.add_argument('-n', '--count', type=int, help='number of samples to dump')
+fetch.add_argument('-S', '--sensor', type=int, help='only from given sensor')
 
 start = subparsers.add_parser('start', help='start sample acquisition')
 start.set_defaults(func=start_handler)

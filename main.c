@@ -176,7 +176,7 @@ process_command()
                 command_queued = false;
                 break;
         case 'V':
-                OUT("version: %s\n\n", commit_id);
+                OUT("version = %s\n\n", commit_id);
                 command_queued = false;
                 break;
         default:

@@ -75,6 +75,9 @@ config_pins()
         pin_mode(PIN_PTD6, PIN_MODE_MUX_ANALOG);
         pin_mode(PIN_PTD5, PIN_MODE_MUX_ANALOG);
         //PORTA.pcr[1].irqc = PCR_IRQC_INT_FALLING;
+
+        // This appears to break ADC_TEMP:
+        //adc_sample_prepare(ADC_MODE_POWER_LOW | ADC_MODE_SAMPLE_LONG | ADC_MODE_AVG_32);
 }
 
 void

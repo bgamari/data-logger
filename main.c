@@ -142,7 +142,7 @@ process_command()
                         rtc_set_time(time);
                         rtc_start_counter();
                 }
-                OUT("RTC time = %d\n\n", RTC.tsr);
+                OUT("RTC time = %lu\n\n", rtc_get_time());
                 command_queued = false;
                 break;
         case 'T':

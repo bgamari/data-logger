@@ -9,6 +9,8 @@
 #include "usb_console.h"
 #include "sample_store.h"
 
+#pragma GCC optimize("0")
+
 /*
  * command processing
  */
@@ -155,7 +157,9 @@ process_command()
         case 's':
                 for (struct sensor **s = &sensors[0]; *s != NULL; s++)
                         OUT("%2d    %15s    %10s\n",
-                            (*s)->sensor_id, (*s)->name, (*s)->unit);
+                            (*s)->sensor_id,
+                            (*s)->name ? (*s)->name : "unknown",
+                            (*s)->unit ? (*s)->unit : "unknown");
                 OUT("\n");
                 command_queued = false;
                 break;

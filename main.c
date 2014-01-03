@@ -84,6 +84,7 @@ spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
         command_queued = false;
 }
 
+static volatile bool power_save_mode = false;
 struct spiflash_transaction get_id_transaction;
 
 static void
@@ -194,6 +195,14 @@ process_command()
                     SIM.uidl, SIM.uidml, SIM.uidmh, SIM.uidh);
                 command_queued = false;
                 break;
+        case 'p':
+                if (data[1] == 'p') {
+                        OUT("powersave\n\n");
+                        // usb_disable(); // FIXME
+                        power_save_mode = true;
+                }
+                command_queued = false;
+                break;
         default:
                 OUT("unknown command\n\n");
                 command_queued = false;
@@ -225,9 +234,25 @@ main(void)
         sensor_listen(&listener, on_sample_cb, NULL);
         start_blink(5, 100, 100);
 
+        // configure LLWU
+        // enable RTC alarm wake-up source
+        LLWU.wume |= 0x5;
+        // enable LLWU_P3 = PTA4 as wake-up source
+        pin_mode(PIN_PTA4, PIN_MODE_MUX_ALT1);
+        LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
+        LLWU.filt1.filtsel = 3; // P3
+        LLWU.filt1.filte = LLWU_FILTER_BOTH;
+
         // event loop
         while (true) {
+                bool can_deep_sleep = power_save_mode
+                        && spiflash_is_idle(&onboard_flash);
+                SCB.scr.sleepdeep = can_deep_sleep;
+                if (can_deep_sleep) {
+                        // TODO: power things down
+                }
                 __asm__("wfi");
+
                 if (command_queued)
                         process_command();
         }

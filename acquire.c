@@ -7,7 +7,7 @@
 bool acquire_running = false;
 static unsigned int sample_period = 30; // seconds
 
-static struct timeout_ctx timeout;
+static struct rtc_alarm_ctx alarm;
 
 static void
 on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
@@ -30,20 +30,21 @@ take_sample()
 }
 
 static void
-timeout_cb(void *data)
+alarm_cb(void *data)
 {
         take_sample();
-        timeout_add(&timeout, 1000*sample_period, timeout_cb, NULL);
+        rtc_alarm_add(&alarm, rtc_get_time() + sample_period,
+                      alarm_cb, NULL);
 }
 
 void
 set_sample_period(unsigned int seconds)
 {
         if (acquire_running)
-                timeout_cancel(&timeout);
+                rtc_alarm_cancel(&alarm);
         sample_period = seconds;
         if (acquire_running)
-                timeout_cb(NULL);
+                alarm_cb(NULL);
 }
 
 unsigned int
@@ -56,7 +57,7 @@ void start_acquire()
 {
         if (acquire_running) return;
         start_blink(2, 50, 50);
-        timeout_add(&timeout, 1000, timeout_cb, NULL);
+        alarm_cb(NULL);
         acquire_running = true;
 }
 
@@ -64,7 +65,7 @@ void stop_acquire()
 {
         if (!acquire_running) return;
         start_blink(3, 50, 50);
-        timeout_cancel(&timeout);
+        rtc_alarm_cancel(&alarm);
         acquire_running = false;
 }
 

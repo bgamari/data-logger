@@ -270,6 +270,7 @@ main(void)
         spiflash_pins_init();
         timeout_init();
         rtc_init();
+        sample_store_init();
         usb_console_line_recvd_cb = console_line_recvd;
         usb_console_init();
         cond_init();

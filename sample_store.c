@@ -8,6 +8,8 @@
 #define SECTOR_SIZE 4096
 #define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
 
+static size_t flash_size = 0;
+
 static uint32_t
 sample_address(unsigned int sample_idx)
 {
@@ -179,4 +181,21 @@ unsigned int
 sample_store_get_count()
 {
         return sample_idx;
+}
+
+/*
+ * initialization
+ */
+static void
+identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
+{
+        flash_size = spiflash_capacity_to_bytes(capacity);
+}
+
+static struct spiflash_transaction trans;
+
+void
+sample_store_init()
+{
+        spiflash_get_id(&onboard_flash, &trans, identify_flash_cb, NULL);
 }

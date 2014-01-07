@@ -19,3 +19,5 @@ int sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
 int sample_store_push(const struct sample s);
 
 unsigned int sample_store_get_count();
+
+void sample_store_init();

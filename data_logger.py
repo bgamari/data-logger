@@ -14,18 +14,17 @@ class DataLogger(object):
         self._dev.write(cmd + '\n')
         
     def _read_reply(self):
-        a = []
         while True:
             l = self._dev.readline().strip()
             if len(l.strip()) == 0:
-                logging.debug('reply: %s' % a)
-                return a
+                return
             else:
-                a.append(l)
+                logging.debug('reply: %s' % l)
+                yield l
 
     def _read_single_reply(self):
         """ Read a single-line reply """
-        reply = self._read_reply()
+        reply = list(self._read_reply())
         if len(reply) != 1:
             raise RuntimeError('invalid reply: %s' % reply)
         return reply[0]

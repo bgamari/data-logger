@@ -152,6 +152,14 @@ last_sensor_sample(void *cbdata)
         }
 }
 
+// `R` command: recovery last sample index
+static void
+recovery_done()
+{
+        OUT("sample count = %d\n", sample_store_get_count());
+        finish_reply();
+}
+
 static volatile bool power_save_mode = false;
 struct spiflash_transaction get_id_transaction;
 
@@ -243,6 +251,9 @@ process_command()
                         // usb_disable(); // FIXME
                         power_save_mode = true;
                 }
+                break;
+        case 'R':
+                sample_store_recover(recovery_done);
                 break;
         default:
                 OUT("unknown command\n");

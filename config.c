@@ -8,7 +8,8 @@
 // on-board temperature
 struct sensor temperature_sensor = {
         .sample = &adc_sensor_sample,
-        .name = "temperature",
+        .name = "onboard-temperature",
+        .unit = "Kelvin",
         .sensor_id = 1,
         .sensor_data = &temperature_sensor_data
 };

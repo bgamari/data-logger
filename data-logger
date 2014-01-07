@@ -6,8 +6,6 @@ import time
 import datetime
 from data_logger import DataLogger
 
-#logging.basicConfig(level=logging.DEBUG)
-
 def fetch_handler(logger, args):
     nsamples = logger.get_sample_count()
 
@@ -77,6 +75,7 @@ def set_rtc_handler(logger, args):
 
 parser = argparse.ArgumentParser(description="Interface to mchck data-logger firmware")
 parser.add_argument('-d', '--device', metavar='FILE', help='data-logger ACM device')
+parser.add_argument('-v', '--verbose', action='store_true', help='Produce debug output')
 subparsers = parser.add_subparsers(help='sub-command help', dest='mode')
 
 fetch = subparsers.add_parser('fetch', help='fetch samples from device')
@@ -104,6 +103,9 @@ last.add_argument('-f', '--force-sample', action='store_true', help='Force a sam
 last.set_defaults(func=print_last_handler)
 
 args = parser.parse_args()
+if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+
 logger = DataLogger(args.device)
 if args.func:
     args.func(logger, args)

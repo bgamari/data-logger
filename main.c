@@ -243,11 +243,10 @@ process_command()
                         // usb_disable(); // FIXME
                         power_save_mode = true;
                 }
-                command_queued = false;
                 break;
         default:
-                OUT("unknown command\n\n");
-                command_queued = false;
+                OUT("unknown command\n");
+                finish_reply();
         }
 }
 

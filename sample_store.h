@@ -44,5 +44,14 @@ void sample_store_find_empty_page(struct find_empty_page_ctx *ctx,
                                   unsigned int start_page,
                                   find_empty_page_cb cb, void *cbdata);
 
+/*
+ * recovery from power loss
+ *
+ * places the sample index at the beginning of the next empty page.
+ */
+typedef void (*sample_store_recover_done_cb)();
+
+void sample_store_recover(sample_store_recover_done_cb done_cb);
+
 /* initialization */
 void sample_store_init();

@@ -228,6 +228,35 @@ sample_store_find_empty_page(struct find_empty_page_ctx *ctx,
 }
 
 /*
+ * recovery from power loss
+ */
+typedef void (*sample_store_recover_done_cb)();
+
+static void
+sample_store_recover_cb(uint32_t addr, void *cbdata)
+{
+        sample_store_recover_done_cb cb = cbdata;
+        if (addr != INVALID_PAGE) {
+                sample_idx = addr / sizeof(struct sample);
+                last_erased_sector = addr / PAGE_SIZE - 1;
+        } else {
+                sample_idx = 0;
+                last_erased_sector = -1;
+        }
+        if (cb)
+                cb();
+}
+
+struct find_empty_page_ctx recover_ctx;
+
+void
+sample_store_recover(sample_store_recover_done_cb done_cb)
+{
+        sample_store_find_empty_page(&recover_ctx, 0,
+                                     sample_store_recover_cb, done_cb);
+}
+        
+/*
  * initialization
  */
 static void

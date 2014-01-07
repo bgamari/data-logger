@@ -86,31 +86,35 @@ static struct write_sample write_samples[N_WRITE_SAMPLES];
 static int write_sample(struct write_sample *w);
 
 static void
-sector_erased(void *cbdata)
+ensure_erased(void *cbdata)
 {
-        write_sample(cbdata);
+        struct write_sample *w = cbdata;
+        /* We add one here to ensure we've always erased one sector ahead of where
+         * we are writing. This allows us to easily reconstruct where
+         * we last wrote to on power-loss
+         */
+        int next_sector = (w->addr + sizeof(struct sample)) / SAMPLES_PER_SECTOR + 1;
+        if (next_sector > last_erased_sector) {
+                last_erased_sector++;
+                spiflash_erase_sector(&onboard_flash, &w->transaction,
+                                      last_erased_sector * SECTOR_SIZE,
+                                      ensure_erased, w);
+        } else {
+                write_sample(w);
+        }
 }
 
 /*
  * dispatch head of write queue
  * call in critical section
  */
-static int
+static void
 _dispatch_queue()
 {
         struct write_sample *w = write_queue;
         if (w == NULL)
-                return 0;
-        
-        int next_sector = (w->addr + sizeof(struct sample)) / SAMPLES_PER_SECTOR;
-        if (next_sector > last_erased_sector) {
-                // erase if starting new sector
-                last_erased_sector = next_sector;
-                return spiflash_erase_sector(&onboard_flash, &w->transaction,
-                                             next_sector * SECTOR_SIZE, sector_erased, w);
-        } else {
-                return write_sample(w);
-        }
+                return;
+        ensure_erased(w);
 }
 
 static void
@@ -140,7 +144,8 @@ _enqueue_sample_write(struct write_sample *w)
         w->next = NULL;
         if (write_queue == NULL) {
                 write_queue = w;
-                return _dispatch_queue();
+                _dispatch_queue();
+                return 0;
         } else {
                 struct write_sample *tail = write_queue;
                 while (tail->next)

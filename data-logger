@@ -61,7 +61,7 @@ def info_handler(logger, args):
     print('')
     print("sensors:")
     for (sid, name, unit) in logger.list_sensors():
-        print("%-2d\t%-15s\t%-10s" % (sid, name, unit))
+        print("%-2d\t%-30s\t%-10s" % (sid, name, unit))
 
 def print_last_handler(logger, args):
     if args.force_sample:

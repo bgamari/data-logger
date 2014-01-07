@@ -9,6 +9,7 @@
 #include "blink.h"
 #include "conductivity.h"
 #include "usb_console.h"
+#include "nv_config.h"
 #include "sample_store.h"
 
 /*
@@ -269,6 +270,7 @@ main(void)
         adc_init();
         spi_init();
         spiflash_pins_init();
+        nv_config_init();
         timeout_init();
         rtc_init();
         sample_store_init();

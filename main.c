@@ -218,6 +218,8 @@ console_line_recvd(const char *cmd, size_t len)
         command_queued = true;
 }
 
+static bool usb_on = true;
+
 void
 main(void)
 {
@@ -236,7 +238,7 @@ main(void)
 
         // configure LLWU
         // enable RTC alarm wake-up source
-        LLWU.wume |= 0x5;
+        LLWU.wume |= 1 << 5;
         // enable LLWU_P3 = PTA4 as wake-up source
         pin_mode(PIN_PTA4, PIN_MODE_MUX_ALT1);
         LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
@@ -250,6 +252,15 @@ main(void)
                 SCB.scr.sleepdeep = can_deep_sleep;
                 if (can_deep_sleep) {
                         // TODO: power things down
+                        if (usb_on) {
+                                USB0.ctl.raw |= ((struct USB_CTL_t){
+                                                .txd_suspend = 1,
+                                                        .usben = 0,
+                                                        .oddrst = 1,
+                                                        }).raw;
+                                SIM.scgc4.usbotg = 0;
+                                usb_on = false;
+                        }
                 }
                 __asm__("wfi");
 

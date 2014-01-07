@@ -189,6 +189,42 @@ sample_store_get_count()
 }
 
 /*
+ * Identifying next empty page after power-loss
+ *
+ * By virtue of the fact that the next unused FLASH page has always
+ * been cleared, we can identify it by looking at the first byte of
+ * each page and check whether it has been cleared. The first page
+ * with a first byte of 0xff is the next unused page.
+ */
+void
+find_page_cb(void *cbdata)
+{
+        struct find_empty_page_ctx *ctx = cbdata;
+        if (ctx->buffer == 0xffffffff) {
+                // we've found our page
+                ctx->cb(ctx->next_page, ctx->cbdata);
+        } else {
+                ctx->next_page += 256;
+                spiflash_read_page(&onboard_flash, &ctx->trans,
+                                   (uint8_t *) &ctx->buffer, ctx->next_page, 4, 
+                                   find_page_cb, ctx);
+        }
+}
+
+void
+sample_store_find_empty_page(struct find_empty_page_ctx *ctx,
+                             unsigned int start_page,
+                             find_empty_page_cb cb, void *cbdata)
+{
+        ctx->next_page = PAGE_SIZE * start_page;
+        ctx->cb = cb;
+        ctx->cbdata = cbdata;
+        spiflash_read_page(&onboard_flash, &ctx->trans,
+                           (uint8_t *) &ctx->buffer, ctx->next_page, 4, 
+                           find_page_cb, ctx);
+}
+
+/*
  * initialization
  */
 static void

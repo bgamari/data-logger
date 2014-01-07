@@ -100,7 +100,8 @@ static void
 print_stored_sample(void *cbdata)
 {
         print_sample(&sample_buffer);
-        if (sample_idx < sample_end) {
+        if (sample_idx < sample_end - 1) {
+                sample_idx++;
                 usb_console_flush(get_stored_sample, NULL);
         } else {
                 finish_reply();

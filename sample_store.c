@@ -8,12 +8,15 @@
 #define SECTOR_SIZE 4096
 #define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
 
+// number of reserved pages at beginning of addressing space
+#define RESERVED_PAGES 16
+
 static size_t flash_size = 0;
 
 static uint32_t
 sample_address(unsigned int sample_idx)
 {
-        unsigned int page = sample_idx / SAMPLES_PER_PAGE;
+        unsigned int page = sample_idx / SAMPLES_PER_PAGE + RESERVED_PAGES;
         unsigned int offset = sample_idx % SAMPLES_PER_PAGE;
         return PAGE_SIZE * page + offset * sizeof(struct sample);
 }
@@ -72,7 +75,7 @@ struct write_sample {
 };
 
 static volatile unsigned int sample_idx = 0;
-static volatile int last_erased_sector = -1;
+static volatile int last_erased_sector = RESERVED_PAGES - 1;
 
 /*
  * the write queue

@@ -187,7 +187,8 @@ process_command()
                 char *pos;
                 sample_idx = strtoul(&data[2], &pos, 10);
                 sample_end = sample_idx + strtoul(&pos[1], NULL, 10);
-                get_stored_sample(NULL);
+                if (sample_end - sample_idx > 0)
+                        get_stored_sample(NULL);
                 break;
         }
         case 'c':

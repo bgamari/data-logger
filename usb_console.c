@@ -62,7 +62,7 @@ FILE out_file = {
 };
 
 int
-usb_console_printf_blocking(char *fmt, ...)
+usb_console_printf_blocking(const char *fmt, ...)
 {
         va_list args;
         int ret;

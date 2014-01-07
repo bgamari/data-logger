@@ -263,6 +263,15 @@ console_line_recvd(const char *cmd, size_t len)
 
 static bool usb_on = true;
 
+static void nv_config_available()
+{
+        // begin acquiring if so-configured
+        if (nv_config.acquire_on_boot) {
+                sample_store_recover(NULL);
+                start_acquire();
+        }
+}
+
 void
 main(void)
 {
@@ -270,7 +279,6 @@ main(void)
         adc_init();
         spi_init();
         spiflash_pins_init();
-        nv_config_init();
         timeout_init();
         rtc_init();
         sample_store_init();
@@ -290,6 +298,9 @@ main(void)
         LLWU.filt1.filtsel = 3; // P3
         LLWU.filt1.filte = LLWU_FILTER_BOTH;
 
+        // load non-volatile configuration
+        nv_config_init(nv_config_available);
+
         // event loop
         while (true) {
                 bool can_deep_sleep = power_save_mode
@@ -308,5 +319,7 @@ main(void)
                         }
                 }
                 __asm__("wfi");
+                if (SMC.pmctrl.stopa)
+                        onboard_led(1);
         }
 }

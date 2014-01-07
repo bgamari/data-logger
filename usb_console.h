@@ -1,13 +1,14 @@
 #pragma once
 #include <mchck.h>
 
+typedef void (*flush_cb)(void *cbdata);
+
 // line received
 extern void (*usb_console_line_recvd_cb)(const char *cmd, size_t len);
 
-void usb_console_write_blocking(const uint8_t *buf, size_t len);
+int usb_console_printf(const char *fmt, ...);
 
-int usb_console_printf_blocking(const char *fmt, ...);
-
-void usb_console_tx(unsigned int len);
+// flush transmit buffer
+void usb_console_flush(flush_cb cb, void *cbdata);
 
 void usb_console_init();

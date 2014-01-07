@@ -14,9 +14,23 @@
 /*
  * command processing
  */
-#define OUT usb_console_printf_blocking
 static char cmd_buffer[32];
 static volatile bool command_queued = false;
+
+#define OUT usb_console_printf
+static void
+reply_finished(void *cbdata)
+{
+        command_queued = false;
+}
+
+static void
+finish_reply()
+{
+        usb_console_printf("\n");
+        usb_console_flush(reply_finished, NULL);
+}
+
 
 /*
  * conductivity dumping
@@ -57,20 +71,40 @@ on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
  * stored sample printing
  */
 static struct sample sample_buffer;
-static volatile bool sample_valid;
+static volatile unsigned int sample_idx = 0;
+static volatile unsigned int sample_end = 0;
 static struct sample_store_read_ctx sample_read_ctx;
+
+static void print_stored_sample(void *cbdata);
 
 static void
 print_sample(struct sample *sample)
 {
-        OUT("%10d    %2d    %2.3k\n",
+        usb_console_printf("%10d    %2d    %2.3k\n",
                sample->time, sample->sensor_id, sample->value);
 }
 
 static void
+get_stored_sample(void *cbdata)
+{
+        int ret = sample_store_read(&sample_read_ctx,
+                                    &sample_buffer, sample_idx, 1,
+                                    print_stored_sample, NULL);
+        if (ret != 0) {
+                OUT("error\n");
+                finish_reply();
+        }
+}
+        
+static void
 print_stored_sample(void *cbdata)
 {
-        sample_valid = true;
+        print_sample(&sample_buffer);
+        if (sample_idx < sample_end) {
+                usb_console_flush(get_stored_sample, NULL);
+        } else {
+                finish_reply();
+        }
 }
 
 /*
@@ -79,9 +113,41 @@ print_stored_sample(void *cbdata)
 static void
 spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
-        OUT("flash: mfg=%x memtype=%x capacity=%x\n\n",
+        OUT("flash: mfg=%x memtype=%x capacity=%x\n",
                mfg_id, memtype, capacity);
         command_queued = false;
+        finish_reply();
+}
+
+// `s` command: list sensors
+static void
+print_sensor(void *cbdata)
+{
+        struct sensor **s = cbdata;
+        if (*s == NULL) {
+                finish_reply();
+        } else {
+                OUT("%2d    %15s    %10s\n",
+                    (*s)->sensor_id,
+                    (*s)->name ? (*s)->name : "unknown",
+                    (*s)->unit ? (*s)->unit : "unknown");
+                usb_console_flush(print_sensor, s+1);
+        }
+}
+
+// `l` command: last sensor value
+static void
+last_sensor_sample(void *cbdata)
+{
+        struct sensor **s = cbdata;
+        if (*s == NULL) {
+                finish_reply();
+        } else {
+                OUT("%10d    %2d    %2.3k\n", (*s)->last_sample_time,
+                    (*s)->sensor_id,
+                    (*s)->last_sample);
+                usb_console_flush(last_sensor_sample, s+1);
+        }
 }
 
 static volatile bool power_save_mode = false;
@@ -99,19 +165,18 @@ process_command()
                         else
                                 start_acquire();
                 }
-                OUT("acquiring = %d\n\n", acquire_running);
-                command_queued = false;
+                OUT("acquiring = %d\n", acquire_running);
+                finish_reply();
                 break;
         case 'f':
                 take_sample();
-                OUT("\n");
-                command_queued = false;
+                finish_reply();
                 break;
         case 'v':
                 if (data[1] == '=')
                         verbose = data[2] == '1';
-                OUT("verbose = %d\n\n", verbose);
-                command_queued = false;
+                OUT("verbose = %d\n", verbose);
+                finish_reply();
                 break;
         case 'i':
                 spiflash_get_id(&onboard_flash, &get_id_transaction, spiflash_id_cb, NULL);
@@ -119,25 +184,9 @@ process_command()
         case 'g':
         {
                 char *pos;
-                unsigned int idx = strtoul(&data[2], &pos, 10);
-                unsigned int end = idx + strtoul(&pos[1], NULL, 10);
-                while (idx < end) {
-                        sample_valid = false;
-                        int ret = sample_store_read(&sample_read_ctx,
-                                                    &sample_buffer, idx, 1,
-                                                    print_stored_sample, NULL);
-                        if (ret != 0) {
-                                OUT("error\n\n");
-                                command_queued = false;
-                                break;
-                        }
-                                
-                        while (!sample_valid) __asm__("wfi");
-                        print_sample(&sample_buffer);
-                        idx++;
-                } 
-                OUT("\n");
-                command_queued = false;
+                sample_idx = strtoul(&data[2], &pos, 10);
+                sample_end = sample_idx + strtoul(&pos[1], NULL, 10);
+                get_stored_sample(NULL);
                 break;
         }
         case 'c':
@@ -154,50 +203,40 @@ process_command()
                         rtc_set_time(time);
                         rtc_start_counter();
                 }
-                OUT("RTC time = %lu\n\n", rtc_get_time());
-                command_queued = false;
+                OUT("RTC time = %lu\n", rtc_get_time());
+                finish_reply();
                 break;
         case 'T':
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);
                         set_sample_period(time);
                 }
-                OUT("sample period = %d\n\n", get_sample_period());
-                command_queued = false;
+                OUT("sample period = %d\n", get_sample_period());
+                finish_reply();
                 break;
         case 's':
-                for (struct sensor **s = &sensors[0]; *s != NULL; s++)
-                        OUT("%2d    %15s    %10s\n",
-                            (*s)->sensor_id,
-                            (*s)->name ? (*s)->name : "unknown",
-                            (*s)->unit ? (*s)->unit : "unknown");
-                OUT("\n");
-                command_queued = false;
+                print_sensor(sensors);
                 break;
         case 'l':
-                for (struct sensor **s = &sensors[0]; *s != NULL; s++)
-                        OUT("%10d    %2d    %2.3k\n", (*s)->last_sample_time,
-                            (*s)->sensor_id,
-                            (*s)->last_sample);
-                OUT("\n");
-                command_queued = false;
+                last_sensor_sample(sensors);
                 break;
         case 'n':
-                OUT("sample count = %d\n\n", sample_store_get_count());
-                command_queued = false;
+                OUT("sample count = %d\n", sample_store_get_count());
+                finish_reply();
                 break;
         case 'V':
-                OUT("version = %s\n\n", commit_id);
-                command_queued = false;
+                OUT("version = %s\n", commit_id);
+                finish_reply();
                 break;
         case 'I':
-                OUT("device id = %x-%x-%x-%x\n\n",
+                OUT("device id = %x-%x-%x-%x\n",
                     SIM.uidl, SIM.uidml, SIM.uidmh, SIM.uidh);
-                command_queued = false;
+                finish_reply();
                 break;
         case 'p':
                 if (data[1] == 'p') {
-                        OUT("powersave\n\n");
+                        OUT("powersave\n");
+                        finish_reply();
                         // usb_disable(); // FIXME
                         power_save_mode = true;
                 }
@@ -216,6 +255,7 @@ console_line_recvd(const char *cmd, size_t len)
                 return;
         strncpy(cmd_buffer, cmd, sizeof(cmd_buffer));
         command_queued = true;
+        process_command();
 }
 
 static bool usb_on = true;
@@ -263,8 +303,5 @@ main(void)
                         }
                 }
                 __asm__("wfi");
-
-                if (command_queued)
-                        process_command();
         }
 }

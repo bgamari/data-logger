@@ -182,6 +182,8 @@ process_command()
                 sample_end = sample_idx + strtoul(&pos[1], NULL, 10);
                 if (sample_end - sample_idx > 0)
                         get_stored_sample(NULL);
+                else
+                        finish_reply();
                 break;
         }
         case 't':     // RTC time

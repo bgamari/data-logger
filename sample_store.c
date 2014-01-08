@@ -208,9 +208,15 @@ find_page_cb(void *cbdata)
                 ctx->cb(ctx->next_page, ctx->cbdata);
         } else {
                 ctx->next_page += 256;
-                spiflash_read_page(&onboard_flash, &ctx->trans,
-                                   (uint8_t *) &ctx->buffer, ctx->next_page, 4, 
-                                   find_page_cb, ctx);
+                if (ctx->next_page < flash_size) {
+                        int res = spiflash_read_page(&onboard_flash, &ctx->trans,
+                                                     (uint8_t *) &ctx->buffer, ctx->next_page, 4, 
+                                                     find_page_cb, ctx);
+                        if (res)
+                                ctx->cb(INVALID_PAGE, ctx->cbdata);
+                } else {
+                        ctx->cb(INVALID_PAGE, ctx->cbdata);
+                }
         }
 }
 

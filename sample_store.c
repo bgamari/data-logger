@@ -176,6 +176,10 @@ sample_store_push(const struct sample s)
                 w->pending = true;
                 w->sample = s;
                 w->addr = sample_address(sample_idx);
+                if (w->addr > flash_size) {
+                        crit_exit();
+                        return 2;
+                }
 
                 int ret = _enqueue_sample_write(w);
                 if (ret == 0)

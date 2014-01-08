@@ -19,9 +19,53 @@ run `make flash`,
      $ git clone https://github.com/bgamari/data-logger
      $ cd data-logger
      $ make
-     $ make console
-  
-## command set
+     $ ./data-logger start --sample-period=60
+
+## using
+
+The `data-logger` program in this repository provides an easy-to-use
+interface to the functions of the device. The `info` subcommand
+provides various details of the device and its status. After plugging
+in a new device, its output will look something like this,
+
+    $ ./data-logger info
+    firmware version: 0136b40382c69b1dfd627ef6dadbfe6517eb8402
+    device ID: 24404e45-2d0011-ffff0052-ffffffff
+    samples collected: 0
+    flash: mfg=ef memtype=40 capacity=14
+    RTC time: 1970-01-01T00:00:00 = 0
+    sample period: 30 seconds
+    acquisition: stopped
+    
+    sensors:
+    1 	onboard-temperature           	Kelvin    
+    2 	thermistor                    	Kelvin    
+    3 	thermistor                    	Kelvin    
+    4 	conductivity                  	arbitrary 
+
+To begin data acquisition use the `start` command,
+
+    $ ./data-logger start --sample-period=90
+    The device time doesn't look valid. I've updated it for you.
+    Acquisition started sampling every 90 seconds
+
+Here we see that `data-logger` has noticed that the device's time
+isn't set. It has set the clock to the current UTC time. The device is now taking data.
+
+Finally, the collected data can be downloaded with the `fetch` command,
+
+    $ ./data-logger fetch
+    # time         sensor    value
+    1389105233     1         16.0150
+    1389105233     3         304.0020
+    1389105233     2         294.0020
+    1389140502     1         16.2590
+    ...
+
+We described a subset of the functions of `data-logger`. `data-logger
+--help` for a more thorough description.
+
+## internal command set
 
 The device exposes a CDC-ACM device over its USB interface. There is a
 very primitive command set for communicating with the device,

@@ -137,6 +137,13 @@ recovery_done()
         finish_reply();
 }
 
+static void
+nv_configuration_saved(void *cbdata)
+{
+        OUT("saved\n");
+        finish_reply();
+}
+
 static volatile bool power_save_mode = false;
 struct spiflash_transaction get_id_transaction;
 
@@ -228,9 +235,7 @@ process_command()
                 finish_reply();
                 break;
         case 'S':     // save non-volatile configuration
-                nv_config_save(NULL, NULL);
-                OUT("saved\n");
-                finish_reply();
+                nv_config_save(nv_configuration_saved, NULL);
                 break;
         case 'R':     // recover from power loss
                 sample_store_recover(recovery_done);

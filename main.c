@@ -258,13 +258,12 @@ console_line_recvd(const char *cmd, size_t len)
 
 static bool usb_on = true;
 
-static void nv_config_available()
+static void
+nv_config_available()
 {
         // begin acquiring if so-configured
-        if (nv_config.acquire_on_boot) {
-                sample_store_recover(NULL);
-                start_acquire();
-        }
+        if (nv_config.acquire_on_boot)
+                sample_store_recover(start_acquire);
 }
 
 void

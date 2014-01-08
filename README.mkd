@@ -86,9 +86,11 @@ very primitive command set for communicating with the device,
  * `V`: Print firmware version (commit id)
  * `I`: Print device ID
  * `pp`: Enter power-saving mode
- * `B`: Get acquire-on-boot flag
- * `B=[bool]`: Set acquire-on-boot flag
  * `R`: Recover last sample index after power-loss
+ * Operations acting on non-volatile configuration
+     * `B`: Get acquire-on-boot flag
+     * `B=[bool]`: Set acquire-on-boot flag
+     * `S`: Save non-volatile configuration
  
 `bool` is either `0` or `1`.
 

@@ -227,7 +227,7 @@ process_command()
                 OUT("acquire on boot = %d\n", nv_config.acquire_on_boot);
                 finish_reply();
                 break;
-        case 'S':     // acquire-on-boot flag
+        case 'S':     // save non-volatile configuration
                 nv_config_save(NULL, NULL);
                 OUT("saved\n");
                 finish_reply();

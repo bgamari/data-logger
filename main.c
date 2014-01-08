@@ -32,29 +32,6 @@ finish_reply()
         usb_console_flush(reply_finished, NULL);
 }
 
-
-/*
- * conductivity dumping
- */
-static struct cond_sample_ctx cond_sample_ctx;
-static bool dumping_conductivity = false;
-static unsigned accum acc = 0;
-static unsigned int acc_n = 10;
-static unsigned int acc_i = 10;
-
-static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
-{
-        acc += conductivity;
-        acc_i--;
-        if (acc_i == 0) {
-                unsigned accum mean = acc / acc_n;
-                printf("cond: %3.4k\n", mean);
-                acc = 0;
-                acc_i = acc_n;
-        }
-        return dumping_conductivity;
-}
-
 /*
  * sensor sample dumping
  */
@@ -200,14 +177,6 @@ process_command()
                         get_stored_sample(NULL);
                 break;
         }
-        case 'c':     // dump conductivity samples
-                if (!dumping_conductivity) {
-                        dumping_conductivity = true;
-                        cond_sample(&cond_sample_ctx, cond_new_sample_cb, NULL);
-                } else {
-                        dumping_conductivity = false;
-                }
-                break;
         case 't':     // RTC time
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);

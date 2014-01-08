@@ -41,5 +41,24 @@ very primitive command set for communicating with the device,
  * `s`: List configured sensors
  * `V`: Print firmware version (commit id)
  * `I`: Print device ID
+ * `R`: Recover last sample index after power-loss
+ * `pp`: Enter power-saving mode
  
 `bool` is either `0` or `1`.
+
+## Stored samples
+
+The primary function of the device is to store sensor samples to the
+MC HCK's on-board FLASH memory for later retreival. If the device
+loses power, it will lose track of the location of the last sample it
+wrote. For this reason, it is necessary for the device to scan the
+FLASH to recover this location. This is done with the `R` command.
+
+## Power-saving mode
+
+Note: This isn't completely implemented yet.
+
+This is the mode the device should be in while in the field taking
+measurements. Here most of the functions of the device are
+disabled. It is necessary to wake up the device with the "wake up"
+button before the USB interface can be used.

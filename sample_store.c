@@ -219,7 +219,7 @@ sample_store_find_empty_page(struct find_empty_page_ctx *ctx,
                              unsigned int start_page,
                              find_empty_page_cb cb, void *cbdata)
 {
-        ctx->next_page = PAGE_SIZE * start_page;
+        ctx->next_page = PAGE_SIZE * (start_page + RESERVED_PAGES);
         ctx->cb = cb;
         ctx->cbdata = cbdata;
         spiflash_read_page(&onboard_flash, &ctx->trans,
@@ -237,7 +237,7 @@ sample_store_recover_cb(uint32_t addr, void *cbdata)
 {
         sample_store_recover_done_cb cb = cbdata;
         if (addr != INVALID_PAGE) {
-                sample_idx = addr / sizeof(struct sample);
+                sample_idx = (addr - RESERVED_PAGES * PAGE_SIZE) / sizeof(struct sample);
                 last_erased_sector = addr / PAGE_SIZE - 1;
         } else {
                 sample_idx = 0;

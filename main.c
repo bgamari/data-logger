@@ -221,6 +221,12 @@ process_command()
                         power_save_mode = true;
                 }
                 break;
+        case 'B':     // acquire-on-boot flag
+                if (data[1] == '=')
+                        nv_config.acquire_on_boot = data[2] == '1';
+                OUT("acquire on boot = %d\n", nv_config.acquire_on_boot);
+                finish_reply();
+                break;
         case 'R':     // recover from power loss
                 sample_store_recover(recovery_done);
                 break;

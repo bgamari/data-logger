@@ -168,7 +168,7 @@ process_command()
 {
         const char *data = cmd_buffer;
         switch (data[0]) {
-        case 'a':
+        case 'a':     // acquisition status
                 if (data[1] == '=') {
                         if (data[2] == '0')
                                 stop_acquire();
@@ -178,20 +178,20 @@ process_command()
                 OUT("acquiring = %d\n", acquire_running);
                 finish_reply();
                 break;
-        case 'f':
+        case 'f':     // force a sample
                 take_sample();
                 finish_reply();
                 break;
-        case 'v':
+        case 'v':     // enable verbose mode (dump every sample)
                 if (data[1] == '=')
                         verbose = data[2] == '1';
                 OUT("verbose = %d\n", verbose);
                 finish_reply();
                 break;
-        case 'i':
+        case 'i':     // identify FLASH device
                 spiflash_get_id(&onboard_flash, &get_id_transaction, spiflash_id_cb, NULL);
                 break;
-        case 'g':
+        case 'g':     // get stored samples
         {
                 char *pos;
                 sample_idx = strtoul(&data[2], &pos, 10);
@@ -200,7 +200,7 @@ process_command()
                         get_stored_sample(NULL);
                 break;
         }
-        case 'c':
+        case 'c':     // dump conductivity samples
                 if (!dumping_conductivity) {
                         dumping_conductivity = true;
                         cond_sample(&cond_sample_ctx, cond_new_sample_cb, NULL);
@@ -208,7 +208,7 @@ process_command()
                         dumping_conductivity = false;
                 }
                 break;
-        case 't':
+        case 't':     // RTC time
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);
                         rtc_set_time(time);
@@ -217,7 +217,7 @@ process_command()
                 OUT("RTC time = %lu\n", rtc_get_time());
                 finish_reply();
                 break;
-        case 'T':
+        case 'T':     // sample period
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);
                         set_sample_period(time);
@@ -225,26 +225,26 @@ process_command()
                 OUT("sample period = %d\n", get_sample_period());
                 finish_reply();
                 break;
-        case 's':
+        case 's':     // list sensors
                 print_sensor(sensors);
                 break;
-        case 'l':
+        case 'l':     // list last sensor values
                 last_sensor_sample(sensors);
                 break;
-        case 'n':
+        case 'n':     // fetch stored sample count
                 OUT("sample count = %d\n", sample_store_get_count());
                 finish_reply();
                 break;
-        case 'V':
+        case 'V':     // fetch firmware version
                 OUT("version = %s\n", commit_id);
                 finish_reply();
                 break;
-        case 'I':
+        case 'I':     // fetch device ID
                 OUT("device id = %x-%x-%x-%x\n",
                     SIM.uidl, SIM.uidml, SIM.uidmh, SIM.uidh);
                 finish_reply();
                 break;
-        case 'p':
+        case 'p':     // enter power-save mode
                 if (data[1] == 'p') {
                         OUT("powersave\n");
                         finish_reply();
@@ -252,7 +252,7 @@ process_command()
                         power_save_mode = true;
                 }
                 break;
-        case 'R':
+        case 'R':     // recover from power loss
                 sample_store_recover(recovery_done);
                 break;
         default:

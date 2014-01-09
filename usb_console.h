@@ -11,4 +11,6 @@ int usb_console_printf(const char *fmt, ...);
 // flush transmit buffer
 void usb_console_flush(flush_cb cb, void *cbdata);
 
+void usb_console_reset();
+
 void usb_console_init();

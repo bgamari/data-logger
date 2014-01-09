@@ -251,6 +251,12 @@ process_command()
 static void
 console_line_recvd(const char *cmd, size_t len)
 {
+        if (cmd[0] == '!') {
+                usb_console_reset();
+                command_queued = false;
+                return;
+        }
+        
         if (command_queued)
                 return;
         strncpy(cmd_buffer, cmd, sizeof(cmd_buffer));

@@ -108,6 +108,16 @@ data_sent_cb(size_t sent)
 }
 
 void
+usb_console_reset()
+{
+        crit_enter();
+        rx_tail = 0;
+        tx_head = 0;
+        tx_tail = 0;
+        crit_exit();
+}
+
+void
 init_vcdc(int config)
 {
         cdc_init(new_data, data_sent_cb, &cdc);
@@ -117,5 +127,6 @@ init_vcdc(int config)
 void
 usb_console_init()
 {
+        usb_console_reset();
         usb_init(&cdc_device);
 }

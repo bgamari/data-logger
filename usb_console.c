@@ -77,10 +77,10 @@ do_flush(size_t sent)
 {
         crit_enter();
         if (tx_tail < tx_head) {
-                crit_exit();
                 size_t written = cdc_write((const uint8_t *) &tx_buffer[tx_tail],
                                            tx_head - tx_tail, &cdc);
                 tx_tail += written;
+                crit_exit();
         } else {
                 tx_head = 0;
                 flush_cb cb = cur_flush_cb;

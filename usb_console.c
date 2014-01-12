@@ -86,7 +86,8 @@ do_flush(size_t sent)
                 flush_cb cb = cur_flush_cb;
                 cur_flush_cb = NULL;
                 crit_exit();
-                cb(flush_cbdata);
+                if (cb)
+                        cb(flush_cbdata);
         }
 }
 

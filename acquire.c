@@ -40,11 +40,13 @@ alarm_cb(void *data)
 void
 set_sample_period(unsigned int seconds)
 {
+        crit_enter();
         if (acquire_running)
                 rtc_alarm_cancel(&alarm);
         sample_period = seconds;
         if (acquire_running)
                 alarm_cb(NULL);
+        crit_enter();
 }
 
 unsigned int

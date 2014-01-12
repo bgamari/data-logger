@@ -48,7 +48,8 @@ static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
         acc_i--;
         if (acc_i == 0) {
                 unsigned accum mean = acc / acc_n;
-                printf("cond: %3.4k\n", mean);
+                OUT("cond: %3.4k\n", mean);
+                usb_console_flush(NULL, NULL);
                 acc = 0;
                 acc_i = acc_n;
         }
@@ -216,6 +217,8 @@ process_command()
                 } else {
                         dumping_conductivity = false;
                 }
+                OUT("go\n");
+                finish_reply();
                 break;
         case 't':     // RTC time
                 if (data[1] == '=') {

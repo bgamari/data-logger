@@ -13,7 +13,10 @@ struct sensor {
         sample_func sample;
         uint32_t last_sample_time;
         accum last_sample;
+        bool busy;
 };
+
+int sensor_start_sample(struct sensor *sensor);
 
 void sensor_new_sample(struct sensor *sensor, accum value);
 

@@ -2,6 +2,16 @@
 
 static struct sensor_listener *listeners;
 
+int
+sensor_start_sample(struct sensor *sensor)
+{
+        if (sensor->busy)
+                return 1;
+        sensor->busy = true;
+        sensor->sample(sensor);
+        return 0;
+}
+
 void
 sensor_new_sample(struct sensor *sensor, accum value)
 {
@@ -9,6 +19,7 @@ sensor_new_sample(struct sensor *sensor, accum value)
         crit_enter();
         sensor->last_sample_time = rtc_get_time();
         sensor->last_sample = value;
+        sensor->busy = false;
         crit_exit();
         while (l) {
                 l->new_sample(sensor, value, l->cbdata);

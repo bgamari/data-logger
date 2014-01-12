@@ -25,7 +25,7 @@ take_sample()
 {
         start_blink(1, 50, 50);
         for (struct sensor **s = &sensors[0]; *s != NULL; s++) {
-                (*s)->sample(*s);
+                sensor_start_sample(*s);
         }
 }
 

@@ -46,7 +46,7 @@ set_sample_period(unsigned int seconds)
         sample_period = seconds;
         if (acquire_running)
                 alarm_cb(NULL);
-        crit_enter();
+        crit_exit();
 }
 
 unsigned int

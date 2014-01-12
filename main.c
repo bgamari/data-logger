@@ -66,7 +66,7 @@ static void
 on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 {
         if (verbose)
-                printf("%d     %.1k\n", sensor->sensor_id, value);
+                printf("%d     %.3.3k\n", sensor->sensor_id, value);
 }
 
 /*

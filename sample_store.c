@@ -197,26 +197,27 @@ sample_store_get_count()
 }
 
 /*
- * Identifying next empty page after power-loss
+ * Identifying next empty sector after power-loss
  *
- * By virtue of the fact that the next unused FLASH page has always
+ * By virtue of the fact that the next unused FLASH sector has always
  * been cleared, we can identify it by looking at the first byte of
- * each page and check whether it has been cleared. The first page
- * with a first byte of 0xff is the next unused page.
+ * each sector and check whether it has been cleared. The first sector
+ * with a first byte of 0xff is the next unused sector.
  */
 void
-find_page_cb(void *cbdata)
+find_sector_cb(void *cbdata)
 {
-        struct find_empty_page_ctx *ctx = cbdata;
+        struct find_empty_sector_ctx *ctx = cbdata;
         if (ctx->buffer == 0xffffffff) {
                 // we've found our page
-                ctx->cb(ctx->next_page, ctx->cbdata);
+                ctx->cb(ctx->next_sector, ctx->cbdata);
         } else {
-                ctx->next_page += 256;
-                if (ctx->next_page < flash_size) {
+                ctx->next_sector += SECTOR_SIZE;
+                if (ctx->next_sector < flash_size) {
                         int res = spiflash_read_page(&onboard_flash, &ctx->trans,
-                                                     (uint8_t *) &ctx->buffer, ctx->next_page, 4, 
-                                                     find_page_cb, ctx);
+                                                     (uint8_t *) &ctx->buffer,
+                                                     ctx->next_sector, 4, 
+                                                     find_sector_cb, ctx);
                         if (res)
                                 ctx->cb(INVALID_PAGE, ctx->cbdata);
                 } else {
@@ -226,16 +227,16 @@ find_page_cb(void *cbdata)
 }
 
 void
-sample_store_find_empty_page(struct find_empty_page_ctx *ctx,
-                             unsigned int start_page,
-                             find_empty_page_cb cb, void *cbdata)
+sample_store_find_empty_sector(struct find_empty_sector_ctx *ctx,
+                               unsigned int start_sector,
+                               find_empty_sector_cb cb, void *cbdata)
 {
-        ctx->next_page = PAGE_SIZE * (start_page + RESERVED_PAGES);
+        ctx->next_sector = SECTOR_SIZE * (start_sector + RESERVED_PAGES);
         ctx->cb = cb;
         ctx->cbdata = cbdata;
         spiflash_read_page(&onboard_flash, &ctx->trans,
-                           (uint8_t *) &ctx->buffer, ctx->next_page, 4, 
-                           find_page_cb, ctx);
+                           (uint8_t *) &ctx->buffer, ctx->next_sector, 4, 
+                           find_sector_cb, ctx);
 }
 
 /*
@@ -249,7 +250,7 @@ sample_store_recover_cb(uint32_t addr, void *cbdata)
         sample_store_recover_done_cb cb = cbdata;
         if (addr != INVALID_PAGE) {
                 sample_idx = (addr - RESERVED_PAGES * PAGE_SIZE) / sizeof(struct sample);
-                last_erased_sector = addr / PAGE_SIZE - 1;
+                last_erased_sector = addr / SECTOR_SIZE - 1;
         } else {
                 sample_idx = 0;
                 last_erased_sector = -1;
@@ -258,13 +259,13 @@ sample_store_recover_cb(uint32_t addr, void *cbdata)
                 cb();
 }
 
-struct find_empty_page_ctx recover_ctx;
+struct find_empty_sector_ctx recover_ctx;
 
 void
 sample_store_recover(sample_store_recover_done_cb done_cb)
 {
-        sample_store_find_empty_page(&recover_ctx, 0,
-                                     sample_store_recover_cb, done_cb);
+        sample_store_find_empty_sector(&recover_ctx, 0,
+                                       sample_store_recover_cb, done_cb);
 }
         
 /*

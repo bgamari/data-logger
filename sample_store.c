@@ -96,8 +96,9 @@ ensure_erased(void *cbdata)
          * we are writing. This allows us to easily reconstruct where
          * we last wrote to on power-loss
          */
-        int next_sector = (w->addr + sizeof(struct sample)) / SAMPLES_PER_SECTOR + 1;
+        int next_sector = w->addr / SECTOR_SIZE + 1;
         if (next_sector > last_erased_sector) {
+                // erase one sector and check again
                 last_erased_sector++;
                 spiflash_erase_sector(&onboard_flash, &w->transaction,
                                       last_erased_sector * SECTOR_SIZE,

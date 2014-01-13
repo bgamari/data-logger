@@ -155,7 +155,7 @@ _enqueue_sample_write(struct write_sample *w)
                 while (tail->next)
                         tail = tail->next;
                 tail->next = w;
-                return 0; // although we don't know whether dispatch will fail
+                return 0; // although we don't know whether _dispatch_queue will fail
         }
 
 }

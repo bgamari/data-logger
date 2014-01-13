@@ -9,16 +9,16 @@
 #define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
 
 // number of reserved pages at beginning of addressing space
-#define RESERVED_PAGES 16
+#define RESERVED_SECTORS 1
 
 static size_t flash_size = 0;
 
 static uint32_t
 sample_address(unsigned int sample_idx)
 {
-        unsigned int page = sample_idx / SAMPLES_PER_PAGE + RESERVED_PAGES;
-        unsigned int offset = sample_idx % SAMPLES_PER_PAGE;
-        return PAGE_SIZE * page + offset * sizeof(struct sample);
+        unsigned int sector = sample_idx / SAMPLES_PER_SECTOR + RESERVED_SECTORS;
+        unsigned int offset = sample_idx % SAMPLES_PER_SECTOR;
+        return SECTOR_SIZE * sector + offset * sizeof(struct sample);
 }
 
 /*
@@ -75,7 +75,7 @@ struct write_sample {
 };
 
 static volatile unsigned int sample_idx = 0;
-static volatile int last_erased_sector = RESERVED_PAGES - 1;
+static volatile int last_erased_sector = RESERVED_SECTORS - 1;
 
 /*
  * the write queue
@@ -209,7 +209,7 @@ find_sector_cb(void *cbdata)
 {
         struct find_empty_sector_ctx *ctx = cbdata;
         if (ctx->buffer == 0xffffffff) {
-                // we've found our page
+                // we've found our sector
                 ctx->cb(ctx->next_sector, ctx->cbdata);
         } else {
                 ctx->next_sector += SECTOR_SIZE;
@@ -231,7 +231,7 @@ sample_store_find_empty_sector(struct find_empty_sector_ctx *ctx,
                                unsigned int start_sector,
                                find_empty_sector_cb cb, void *cbdata)
 {
-        ctx->next_sector = SECTOR_SIZE * (start_sector + RESERVED_PAGES);
+        ctx->next_sector = SECTOR_SIZE * (start_sector + RESERVED_SECTORS);
         ctx->cb = cb;
         ctx->cbdata = cbdata;
         spiflash_read_page(&onboard_flash, &ctx->trans,
@@ -249,7 +249,7 @@ sample_store_recover_cb(uint32_t addr, void *cbdata)
 {
         sample_store_recover_done_cb cb = cbdata;
         if (addr != INVALID_PAGE) {
-                sample_idx = (addr - RESERVED_PAGES * PAGE_SIZE) / sizeof(struct sample);
+                sample_idx = (addr - RESERVED_SECTORS * SECTOR_SIZE) / sizeof(struct sample);
                 last_erased_sector = addr / SECTOR_SIZE - 1;
         } else {
                 sample_idx = 0;

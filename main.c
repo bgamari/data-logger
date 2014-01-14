@@ -111,14 +111,20 @@ print_stored_sample(void *cbdata)
 }
 
 /*
- * SPI flash identification
+ * SPI flash commands
  */ 
 static void
-spiflash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
+flash_id_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
         OUT("flash: mfg=%x memtype=%x capacity=%x\n",
                mfg_id, memtype, capacity);
-        command_queued = false;
+        finish_reply();
+}
+
+static void
+flash_status_cb(void *cbdata, uint8_t status)
+{
+        OUT("flash: status=%02x\n", status);
         finish_reply();
 }
 
@@ -196,8 +202,17 @@ process_command()
                 OUT("verbose = %d\n", verbose);
                 finish_reply();
                 break;
-        case 'i':     // identify FLASH device
-                spiflash_get_id(&onboard_flash, &get_id_transaction, spiflash_id_cb, NULL);
+        case 'F':     // identify FLASH device
+                if (data[1] == 'i') {
+                        spiflash_get_id(&onboard_flash, &get_id_transaction,
+                                        flash_id_cb, NULL);
+                } else if (data[1] == 's') {
+                        spiflash_get_status(&onboard_flash, &get_id_transaction,
+                                            flash_status_cb, NULL);
+                } else {
+                        OUT("unknown command\n");
+                        finish_reply();
+                }
                 break;
         case 'g':     // get stored samples
         {

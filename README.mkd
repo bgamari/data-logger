@@ -74,7 +74,8 @@ very primitive command set for communicating with the device,
  * `f`: Force taking a sample
  * `v=[bool]`: Enable/disable verbose mode. In verbose mode the
    device outputs each sample taken to the console.
- * `i`: Print identity of FLASH device
+ * `Fi`: Print identity of FLASH device
+ * `Fs`: Print status of FLASH device
  * `g [start] [count]`: Print sample numbers `start` to `start+count`
  * `t=[time]`: Set RTC time in seconds
  * `t`: Print RTC time in seconds

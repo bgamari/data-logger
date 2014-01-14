@@ -72,7 +72,7 @@ class DataLogger(object):
         return bool(int(self._read_reply_value()))
 
     def identify_flash(self):
-        self._write_cmd('i')
+        self._write_cmd('Fi')
         return self._read_single_reply()
 
     def get_rtc_time(self):

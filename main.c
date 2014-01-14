@@ -1,4 +1,6 @@
 #include <mchck.h>
+#include <nrf/nrf.h>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,6 +13,7 @@
 #include "usb_console.h"
 #include "nv_config.h"
 #include "sample_store.h"
+#include "radio.h"
 
 /*
  * command processing
@@ -202,6 +205,16 @@ process_command()
                 OUT("verbose = %d\n", verbose);
                 finish_reply();
                 break;
+        case 'r':     // enable radio report mode (dump every sample)
+                if (data[1] == '=') {
+                        if (data[2] == '1')
+                                radio_enable();
+                        else
+                                radio_disable();
+                }
+                OUT("radio = %d\n", radio_get_enabled());
+                finish_reply();
+                break;
         case 'F':     // identify FLASH device
                 if (data[1] == 'i') {
                         spiflash_get_id(&onboard_flash, &get_id_transaction,
@@ -337,6 +350,7 @@ main(void)
         usb_console_init();
         cond_init();
         acquire_init();
+        radio_init();
         sensor_listen(&listener, on_sample_cb, NULL);
         start_blink(5, 100, 100);
 

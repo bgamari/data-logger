@@ -57,7 +57,7 @@ static bool cond_new_sample_cb(unsigned accum conductivity, void *cbdata)
 }
 
 /*
- * sensor sample dumping
+ * live sensor sample dumping
  */
 static volatile bool verbose = false;
 struct sensor_listener listener;
@@ -66,7 +66,7 @@ static void
 on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 {
         if (verbose)
-                printf("%d     %.3.3k\n", sensor->sensor_id, value);
+                printf("%d     %3.3k\n", sensor->sensor_id, value);
 }
 
 /*

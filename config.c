@@ -23,7 +23,7 @@ struct thermistor_map_data thermistor_map_data = {
 
 // thermistor #1
 struct adc_sensor_data thermistor_adc_sensor_data = {
-        .channel = ADC_PTD6,
+        .channel = ADC_PTD5,
         .map = thermistor_map,
         .map_data = &thermistor_map_data,
 };

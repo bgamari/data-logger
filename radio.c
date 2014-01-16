@@ -83,19 +83,6 @@ radio_send()
                          radio_buffer_sent);
         }
 }
-        
-// send the buffer at the head of the fill queue
-static void
-radio_finish_buffer()
-{
-        crit_enter();
-        struct nrf_buffer *done = fill_queue;
-        fill_queue = fill_queue->next;
-
-        if (append_to_queue(&send_queue, done))
-                radio_send();
-        crit_exit();
-}
 
 static void
 radio_new_sample(struct sensor *sensor, accum value, void *cbdata)
@@ -116,11 +103,15 @@ radio_new_sample(struct sensor *sensor, accum value, void *cbdata)
                 .sensor_id = sensor->sensor_id,
                 .value = value
         };
+        fill_queue->head++;
 
-        if (fill_queue->head == BUFFER_LEN - 1) {
-                radio_finish_buffer();
-        } else {
-                fill_queue->head++;
+        if (fill_queue->head == BUFFER_LEN) {
+                // head of fill_queue is full, send it
+                struct nrf_buffer *done = fill_queue;
+                fill_queue = fill_queue->next;
+
+                if (append_to_queue(&send_queue, done))
+                        radio_send();
         }
         crit_exit();
 }

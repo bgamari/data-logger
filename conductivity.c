@@ -56,16 +56,21 @@ cond_average_cb(unsigned accum conductivity, void *cbdata)
         }
 }
 
-void
+int
 cond_average(struct cond_average_ctx *ctx, unsigned int n,
              cond_average_done_cb cb, void *cbdata)
 {
+        // Fail if there's already an averaging underway
+        if (ctx->remaining > 0)
+                return 1;
+
         ctx->accumulator = 0;
         ctx->nsamples = n;
         ctx->remaining = n;
         ctx->cb = cb;
         ctx->cbdata = cbdata;
         cond_sample(&ctx->ctx, cond_average_cb, ctx);
+        return 0;
 }
 
 void

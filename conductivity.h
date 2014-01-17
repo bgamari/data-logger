@@ -32,8 +32,8 @@ struct cond_average_ctx {
         void *cbdata;
 };
 
-void cond_average(struct cond_average_ctx *ctx, unsigned int n,
-                  cond_average_done_cb cb, void *cbdata);
+int cond_average(struct cond_average_ctx *ctx, unsigned int n,
+                 cond_average_done_cb cb, void *cbdata);
 
 struct cond_sensor_data {
         struct cond_average_ctx ctx;

@@ -1,5 +1,8 @@
 #include "sample_store.h"
 
+/* Write samples one byte at a time as required by some FLASH memories */
+#define PER_BYTE
+
 #define MAX(a,b) ((a) > (b)) ? (a) : (b)
 #define MIN(a,b) ((a) < (b)) ? (a) : (b)
 
@@ -68,6 +71,9 @@ sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
  */
 struct write_sample {
         struct sample sample;
+#ifdef PER_BYTE
+        uint8_t byte_n;
+#endif
         struct spiflash_transaction transaction;
         bool pending;
         uint32_t addr;
@@ -132,6 +138,27 @@ sample_written(void *cbdata)
         crit_exit();
 }
 
+#ifdef PER_BYTE
+static void
+_write_sample(void *w)
+{
+        write_sample(w);
+}
+
+static int
+write_sample(struct write_sample *w)
+{
+        const uint8_t *buf = (const uint8_t *) &w->sample;
+        if (w->byte_n == sizeof(struct sample)) {
+                sample_written(w);
+                return 0;
+        } else {
+                return spiflash_program_page(&onboard_flash, &w->transaction, w->addr,
+                                             &buf[w->byte_n++], 1,
+                                             _write_sample, w);
+        }
+}
+#else
 static int
 write_sample(struct write_sample *w)
 {
@@ -139,6 +166,7 @@ write_sample(struct write_sample *w)
                                      (const uint8_t*) &w->sample, sizeof(struct sample),
                                      sample_written, w);
 }
+#endif
 
 /* call in critical section */
 static int
@@ -175,6 +203,9 @@ sample_store_push(const struct sample s)
                 return 1;
         } else {
                 w->pending = true;
+#ifdef PER_BYTE
+                w->byte_n = 0;
+#endif
                 w->sample = s;
                 w->addr = sample_address(sample_idx);
                 if (w->addr > flash_size) {

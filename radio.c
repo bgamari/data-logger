@@ -14,11 +14,9 @@ struct nrf_sample {
 };
 
 #define NBUFFERS 16
-#define BUFFER_LEN (32 / sizeof(struct nrf_sample))
 
 struct nrf_buffer {
-        struct nrf_sample buffer[BUFFER_LEN];
-        unsigned int head;
+        struct nrf_sample buffer;
         struct nrf_buffer *next;
 };
 static struct nrf_buffer radio_buffers[NBUFFERS];
@@ -55,7 +53,7 @@ append_to_queue(struct nrf_buffer **head, struct nrf_buffer *buf)
 static void
 radio_buffer_sent(void *payload, uint8_t bytes_sent)
 {
-        if (bytes_sent < sizeof(struct nrf_sample) * send_queue->head) {
+        if (bytes_sent < sizeof(struct nrf_sample)) {
                 radio_send();
                 return;
         }
@@ -65,7 +63,6 @@ radio_buffer_sent(void *payload, uint8_t bytes_sent)
         send_queue = sent->next;
 
         // place buffer on end of fill queue
-        sent->head = 0;
         append_to_queue(&fill_queue, sent);
 
         // send next
@@ -78,8 +75,8 @@ static void
 radio_send()
 {
         if (send_queue) {
-                nrf_send(&dest_addr, send_queue->buffer,
-                         sizeof(struct nrf_sample) * send_queue->head,
+                nrf_send(&dest_addr, &send_queue->buffer,
+                         sizeof(struct nrf_sample),
                          radio_buffer_sent);
         }
 }
@@ -97,22 +94,19 @@ radio_new_sample(struct sensor *sensor, accum value, void *cbdata)
                 return;
         }
 
-        fill_queue->buffer[fill_queue->head] = (struct nrf_sample) {
+        fill_queue->buffer = (struct nrf_sample) {
                 .time = rtc_get_time(),
                 .node_id = 0x1, // FIXME
                 .sensor_id = sensor->sensor_id,
                 .value = value
         };
-        fill_queue->head++;
 
-        if (fill_queue->head == BUFFER_LEN) {
-                // head of fill_queue is full, send it
-                struct nrf_buffer *done = fill_queue;
-                fill_queue = fill_queue->next;
+        // send
+        struct nrf_buffer *done = fill_queue;
+        fill_queue = fill_queue->next;
+        if (append_to_queue(&send_queue, done))
+                radio_send();
 
-                if (append_to_queue(&send_queue, done))
-                        radio_send();
-        }
         crit_exit();
 }
 
@@ -138,7 +132,6 @@ void
 radio_init()
 {
         for (unsigned int i=0; i<NBUFFERS; i++) {
-                radio_buffers[i].head = 0;
                 radio_buffers[i].next = &radio_buffers[i+1];
         }
         radio_buffers[NBUFFERS-1].next = NULL;

@@ -271,13 +271,17 @@ sample_store_recover(sample_store_recover_done_cb done_cb)
 /*
  * initialization
  */
+static struct spiflash_transaction trans;
+
+static void
+flash_unprotected_cb(void *cbdata) {}
+
 static void
 identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
         flash_size = spiflash_capacity_to_bytes(capacity);
+        spiflash_set_protection(&onboard_flash, &trans, false, flash_unprotected_cb, NULL);
 }
-
-static struct spiflash_transaction trans;
 
 void
 sample_store_init()

@@ -1,4 +1,5 @@
 #include "sample_store.h"
+#include "flash_list.h"
 
 /* Write samples one byte at a time as required by some FLASH memories */
 #define PER_BYTE
@@ -14,7 +15,8 @@
 // number of reserved pages at beginning of addressing space
 #define RESERVED_SECTORS 1
 
-static size_t flash_size = 0;
+static struct spi_flash_params *flash_params = NULL;
+static uint32_t flash_size = 0;
 
 static uint32_t
 sample_address(unsigned int sample_idx)
@@ -310,7 +312,16 @@ flash_unprotected_cb(void *cbdata) {}
 static void
 identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
-        flash_size = spiflash_capacity_to_bytes(capacity);
+        for (struct spi_flash_params *i = spi_flash_table; i->mfg_id != 0x00; i++) {
+                if (mfg_id == i->mfg_id
+                    && memtype == ((i->device_id >> 8) & 0xff)
+                    && capacity == (i->device_id & 0xff)) {
+                        flash_params = i;
+                        flash_size = (1 << i->sector_size) * i->n_sectors;
+                        break;
+                }
+
+        }
         spiflash_set_protection(&onboard_flash, &trans, false, flash_unprotected_cb, NULL);
 }
 

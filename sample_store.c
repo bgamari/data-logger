@@ -314,8 +314,8 @@ identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacit
 {
         for (struct spi_flash_params *i = spi_flash_table; i->mfg_id != 0x00; i++) {
                 if (mfg_id == i->mfg_id
-                    && memtype == ((i->device_id >> 8) & 0xff)
-                    && capacity == (i->device_id & 0xff)) {
+                    && memtype == i->device_id1
+                    && capacity == i->device_id2) {
                         flash_params = i;
                         flash_size = (1 << i->sector_size) * i->n_sectors;
                         break;

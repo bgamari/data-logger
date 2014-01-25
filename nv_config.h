@@ -6,6 +6,7 @@
 struct nv_config {
         uint32_t magic;
         bool acquire_on_boot;
+        char name[32];
 };
 
 extern struct nv_config nv_config;

@@ -9,6 +9,7 @@ static struct spiflash_transaction trans;
 static const struct nv_config default_nv_config = {
         .magic              = NV_CONFIG_MAGIC,
         .acquire_on_boot    = false,
+        .name               = "unnamed-sensor",
 };
   
 int

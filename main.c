@@ -375,8 +375,7 @@ main(void)
 
         // event loop
         while (true) {
-                bool can_deep_sleep = low_power_mode
-                        && spiflash_is_idle(&onboard_flash);
+                bool can_deep_sleep = low_power_mode && spi_is_idle();
                 SCB.scr.sleepdeep = can_deep_sleep;
                 if (can_deep_sleep) {
                         // TODO: power things down

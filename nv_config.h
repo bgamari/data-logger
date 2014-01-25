@@ -12,7 +12,7 @@ struct nv_config {
 
 extern struct nv_config nv_config;
 
-int nv_config_save(spi_cb cb, void *cbdata);
+void nv_config_save(spi_cb cb, void *cbdata);
 
 typedef void (*nv_config_loaded_cb)();
 

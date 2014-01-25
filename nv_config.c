@@ -1,8 +1,10 @@
 #include <mchck.h>
+#include "spiflash_utils.h"
 #include "nv_config.h"
 
 struct nv_config nv_config;
 static struct spiflash_transaction trans;
+static struct spiflash_write_bytes write_bytes;
 
 #define NV_CONFIG_MAGIC 0xdeadbeef
 
@@ -12,13 +14,14 @@ static const struct nv_config default_nv_config = {
         .sample_period      = 60,
         .name               = "unnamed-sensor",
 };
-  
-int
+ 
+void
 nv_config_save(spi_cb cb, void *cbdata)
 {
-        return spiflash_program_page(&onboard_flash, &trans,
-                                     0, (const uint8_t *) &nv_config, sizeof(struct nv_config),
-                                     cb, cbdata);
+        spiflash_write_bytes(&onboard_flash, &write_bytes,
+                             0, (const uint8_t *) &nv_config,
+                             sizeof(struct nv_config),
+                             cb, cbdata);
 }
 
 static int

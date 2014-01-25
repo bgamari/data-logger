@@ -261,6 +261,7 @@ process_command()
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);
                         set_sample_period(time);
+                        nv_config.sample_period = time;
                 }
                 OUT("sample period = %d\n", get_sample_period());
                 finish_reply();
@@ -339,8 +340,10 @@ static void
 nv_config_available()
 {
         // begin acquiring if so-configured
-        if (nv_config.acquire_on_boot)
+        if (nv_config.acquire_on_boot) {
+                set_sample_period(nv_config.sample_period);
                 sample_store_recover(start_acquire);
+        }
 }
 
 void

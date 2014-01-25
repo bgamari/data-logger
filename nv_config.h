@@ -6,6 +6,7 @@
 struct nv_config {
         uint32_t magic;
         bool acquire_on_boot;
+        uint32_t sample_period;
         char name[32];
 };
 

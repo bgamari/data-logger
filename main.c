@@ -289,7 +289,7 @@ process_command()
                         OUT("powersave\n");
                         finish_reply();
                         // usb_disable(); // FIXME
-                        low_power_mode = true;
+                        enter_low_power_mode();
                 }
                 break;
         case 'B':     // acquire-on-boot flag

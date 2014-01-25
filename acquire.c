@@ -1,4 +1,5 @@
 #include <mchck.h>
+#include "power.h"
 #include "blink.h"
 #include "acquire.h"
 #include "sample_store.h"
@@ -23,7 +24,9 @@ on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 void
 take_sample()
 {
-        start_blink(1, 50, 50);
+        if (!low_power_mode)
+                start_blink(1, 50, 50);
+
         for (struct sensor **s = &sensors[0]; *s != NULL; s++) {
                 sensor_start_sample(*s);
         }

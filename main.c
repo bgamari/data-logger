@@ -6,6 +6,7 @@
 
 #include "config.h"
 #include "version.h"
+#include "power.h"
 #include "acquire.h"
 #include "sensor.h"
 #include "blink.h"
@@ -177,7 +178,6 @@ nv_configuration_saved(void *cbdata)
         finish_reply();
 }
 
-static volatile bool power_save_mode = false;
 struct spiflash_transaction get_id_transaction;
 
 static void
@@ -289,7 +289,7 @@ process_command()
                         OUT("powersave\n");
                         finish_reply();
                         // usb_disable(); // FIXME
-                        power_save_mode = true;
+                        low_power_mode = true;
                 }
                 break;
         case 'B':     // acquire-on-boot flag
@@ -368,7 +368,7 @@ main(void)
 
         // event loop
         while (true) {
-                bool can_deep_sleep = power_save_mode
+                bool can_deep_sleep = low_power_mode
                         && spiflash_is_idle(&onboard_flash);
                 SCB.scr.sleepdeep = can_deep_sleep;
                 if (can_deep_sleep) {

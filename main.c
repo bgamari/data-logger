@@ -275,6 +275,13 @@ process_command()
                 OUT("sample count = %d\n", sample_store_get_count());
                 finish_reply();
                 break;
+        case 'N':     // sensor friendly name
+                if (data[1] == '=') {
+                        strncpy(nv_config.name, &data[2], sizeof(nv_config.name));
+                }
+                OUT("sensor name = %s\n", &nv_config.name);
+                finish_reply();
+                break;
         case 'V':     // fetch firmware version
                 OUT("version = %s\n", commit_id);
                 finish_reply();

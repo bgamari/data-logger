@@ -83,6 +83,8 @@ very primitive command set for communicating with the device,
  * `T`: Print sample period
  * `l`: Print last acquired sample
  * `n`: Print number of samples taken
+ * `N`: Print friendly name of device
+ * `N=[string]`: Set friendly name of device
  * `s`: List configured sensors
  * `V`: Print firmware version (commit id)
  * `I`: Print device ID

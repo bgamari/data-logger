@@ -155,9 +155,11 @@ write_sample(struct write_sample *w)
                 sample_written(w);
                 return 0;
         } else {
-                return spiflash_program_page(&onboard_flash, &w->transaction, w->addr,
-                                             &buf[w->byte_n++], 1,
-                                             _write_sample, w);
+                int ret = spiflash_program_page(&onboard_flash, &w->transaction, w->addr + w->byte_n,
+                                                &buf[w->byte_n], 1,
+                                                _write_sample, w);
+                w->byte_n ++;
+                return ret;
         }
 }
 #else

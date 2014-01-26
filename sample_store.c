@@ -71,10 +71,8 @@ sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
  */
 struct write_sample {
         struct sample sample;
-        union {
-                struct spiflash_transaction transaction;
-                struct spiflash_write_bytes write_bytes;
-        };
+        struct spiflash_transaction transaction;
+        struct spiflash_write_bytes write_bytes;
         bool pending;
         uint32_t addr;
         struct write_sample *next;

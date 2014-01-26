@@ -24,3 +24,5 @@ int read_samples(struct spiflash_ctx *spiflash,
                  struct sample *buffer,
                  unsigned int start, unsigned int len,
                  spi_cb cb, void *cbdata);
+
+void acquire_blink_state();

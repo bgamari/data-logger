@@ -58,20 +58,29 @@ get_sample_period()
         return sample_period;
 }
 
+void acquire_blink_state()
+{
+        if (acquire_running) {
+                start_blink(2, 50, 50);
+        } else {
+                start_blink(3, 50, 50);
+        }
+}
+
 void start_acquire()
 {
         if (acquire_running) return;
-        start_blink(2, 50, 50);
         alarm_cb(NULL);
         acquire_running = true;
+        acquire_blink_state();
 }
 
 void stop_acquire()
 {
         if (!acquire_running) return;
-        start_blink(3, 50, 50);
         rtc_alarm_cancel(&alarm);
         acquire_running = false;
+        acquire_blink_state();
 }
 
 static struct sensor_listener listener;

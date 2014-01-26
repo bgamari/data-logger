@@ -1,4 +1,5 @@
 #include "power.h"
+#include "acquire.h"
 
 volatile bool low_power_mode = false;
 
@@ -42,6 +43,12 @@ enter_low_power_mode()
         int_enable(IRQ_LLWU);
 }
 
+void wakeup()
+{
+        // TODO: Come out of low power mode for a while
+        acquire_blink_state();
+}
+
 extern void RTC_alarm_Handler(void);
 
 void
@@ -53,6 +60,7 @@ LLWU_Handler(void)
         }
         if (LLWU.wuf1 & (1<<0)) {
                 // wakeup pin
+                wakeup();
         }
         LLWU.wuf1 = 0xff;
         LLWU.wuf2 = 0xff;

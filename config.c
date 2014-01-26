@@ -80,12 +80,3 @@ config_pins()
         // This appears to break ADC_TEMP:
         //adc_sample_prepare(ADC_MODE_POWER_LOW | ADC_MODE_SAMPLE_LONG | ADC_MODE_AVG_32);
 }
-
-void
-PORTA_Handler(void)
-{
-        if (acquire_running)
-                stop_acquire();
-        else
-                start_acquire();
-}

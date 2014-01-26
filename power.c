@@ -3,6 +3,8 @@
 
 /* Power management */
 
+#define WAKEUP_PIN PIN_PTA4
+
 /*
  * In low-power mode we allow the device to enter VLPR and VLPS sates
  * at the expense of most connectivity perhipherals being disabled
@@ -83,7 +85,11 @@ void
 power_init()
 {
         SMC.pmprot.raw = ((struct SMC_PMPROT) { .avlls = 1, .alls = 1, .avlp = 1 }).raw;
-        pin_mode(PIN_PTA4, PIN_MODE_PULLUP);
+	gpio_dir(WAKEUP_PIN, GPIO_INPUT);
+        pin_mode(WAKEUP_PIN, PIN_MODE_PULLUP);
+        pin_physport_from_pin(WAKEUP_PIN)->pcr[pin_physpin_from_pin(WAKEUP_PIN)].irqc = PCR_IRQC_INT_FALLING;
+        int_enable(IRQ_PORTA);
+
         LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
         int_enable(IRQ_LLWU);
 }
@@ -108,6 +114,19 @@ back_to_sleep(void *cbdata)
                 enter_low_power_mode();
 }
 
+void
+PORTA_Handler(void)
+{
+        // clear MCU interrupt
+	pin_physport_from_pin(WAKEUP_PIN)->pcr[pin_physpin_from_pin(WAKEUP_PIN)].raw |= 0;
+
+        // try wakeup
+        exit_low_power_mode();
+        acquire_blink_state();
+        activity = false;
+        timeout_add(&sleep_timeout, 5000, back_to_sleep, NULL);
+}
+
 extern void RTC_alarm_Handler(void);
 
 void
@@ -118,11 +137,7 @@ LLWU_Handler(void)
                 RTC_alarm_Handler();
         }
         if (LLWU.wuf1 & (1<<3)) {
-                // wakeup pin
-                exit_low_power_mode();
-                acquire_blink_state();
-                activity = false;
-                timeout_add(&sleep_timeout, 5000, back_to_sleep, NULL);
+                PORTA_Handler();
         }
         
         LLWU.wuf1 = 0xff;

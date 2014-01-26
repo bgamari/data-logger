@@ -80,7 +80,8 @@ void
 power_init()
 {
         SMC.pmprot.raw = ((struct SMC_PMPROT) { .avlls = 1, .alls = 1, .avlp = 1 }).raw;
-        LLWU.wupe[0].wupe0 = LLWU_PE_FALLING;
+        pin_mode(PIN_PTA4, PIN_MODE_PULLUP);
+        LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
         int_enable(IRQ_LLWU);
 }
 
@@ -113,7 +114,7 @@ LLWU_Handler(void)
                 // RTC Alarm
                 RTC_alarm_Handler();
         }
-        if (LLWU.wuf1 & (1<<0)) {
+        if (LLWU.wuf1 & (1<<3)) {
                 // wakeup pin
                 exit_low_power_mode();
                 acquire_blink_state();

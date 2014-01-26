@@ -321,6 +321,9 @@ process_command()
 static void
 console_line_recvd(const char *cmd, size_t len)
 {
+        // notify power-management of activity
+        power_notify_activity();
+        
         if (cmd[0] == '!') {
                 usb_console_reset();
                 command_queued = false;
@@ -350,6 +353,7 @@ void
 main(void)
 {
         config_pins();
+        power_init();
         adc_init();
         spi_init();
         spiflash_pins_init();

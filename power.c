@@ -50,6 +50,8 @@ exit_blpi(void)
 static void
 enter_vlpr(void)
 {
+        // in VLPR FLASH can only run up to 1 MHz, set dividers appropriately
+        SIM.clkdiv1.raw = ((struct SIM_CLKDIV1_t) { .outdiv1 = 1, .outdiv2 = 1, .outdiv4 = 3 }).raw;
         SMC.pmctrl.raw = ((struct SMC_PMCTRL) { .runm = RUNM_VLPR, .stopm = STOPM_VLPS }).raw;
 }
 
@@ -57,6 +59,7 @@ enter_vlpr(void)
 static void
 exit_vlpr(void)
 {
+        SIM.clkdiv1.raw = ((struct SIM_CLKDIV1_t) { .outdiv1 = 0, .outdiv2 = 0, .outdiv4 = 1 }).raw;
         SMC.pmctrl.raw = ((struct SMC_PMCTRL) { .runm = RUNM_RUN, .stopm = STOPM_STOP }).raw;
 }
 

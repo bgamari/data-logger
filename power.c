@@ -74,8 +74,8 @@ enter_low_power_mode()
 void
 exit_low_power_mode()
 {
-        exit_blpi();
         exit_vlpr();
+        exit_blpi();
         low_power_mode = false;
 }
 

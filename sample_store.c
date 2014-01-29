@@ -13,6 +13,7 @@
 // number of reserved pages at beginning of addressing space
 #define RESERVED_SECTORS 1
 
+static bool sample_store_ready = false;
 static struct spi_flash_params *flash_params = NULL;
 static uint32_t flash_size = 0;
 
@@ -168,6 +169,9 @@ _enqueue_sample_write(struct write_sample *w)
 int
 sample_store_push(const struct sample s)
 {
+        if (!sample_store_ready)
+                return 3;
+
         // find available write_sample
         struct write_sample *w = NULL;
         crit_enter();
@@ -256,6 +260,7 @@ sample_store_recover_cb(uint32_t addr, void *cbdata)
         if (addr != INVALID_PAGE) {
                 sample_idx = (addr - RESERVED_SECTORS * SECTOR_SIZE) / sizeof(struct sample);
                 last_erased_sector = addr / SECTOR_SIZE - 1;
+                sample_store_ready = true;
         } else {
                 sample_idx = 0;
                 last_erased_sector = -1;
@@ -269,6 +274,7 @@ struct find_empty_sector_ctx recover_ctx;
 void
 sample_store_recover(sample_store_recover_done_cb done_cb)
 {
+        sample_store_ready = false;
         sample_store_find_empty_sector(&recover_ctx, 0,
                                        sample_store_recover_cb, done_cb);
 }
@@ -279,7 +285,14 @@ sample_store_recover(sample_store_recover_done_cb done_cb)
 static struct spiflash_transaction trans;
 
 static void
-flash_unprotected_cb(void *cbdata) {}
+flash_recovered_cb()
+{}
+
+static void
+flash_unprotected_cb(void *cbdata)
+{
+        sample_store_recover(flash_recovered_cb);
+}
 
 static void
 identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)

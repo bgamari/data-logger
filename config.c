@@ -18,7 +18,8 @@ struct thermistor_map_data thermistor_map_data = {
         .beta = 3700,
         .t0 = 298,
         .r0 = 10e3,
-        .r1 = 10e3
+        .r1 = 10e3,
+        .polarity = 1
 };
 
 // thermistor #1

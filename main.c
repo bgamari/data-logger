@@ -273,6 +273,9 @@ process_command()
                 last_sensor_sample(sensors);
                 break;
         case 'n':     // fetch stored sample count
+                if (data[1] == '!') {
+                        sample_store_reset();
+                }
                 OUT("sample count = %d\n", sample_store_get_count());
                 finish_reply();
                 break;

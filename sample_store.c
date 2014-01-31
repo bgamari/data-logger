@@ -262,8 +262,7 @@ sample_store_recover_cb(uint32_t addr, void *cbdata)
                 last_erased_sector = addr / SECTOR_SIZE - 1;
                 sample_store_ready = true;
         } else {
-                sample_idx = 0;
-                last_erased_sector = RESERVED_SECTORS - 1;
+                sample_store_reset();
         }
         if (cb)
                 cb();
@@ -282,6 +281,15 @@ sample_store_recover(sample_store_recover_done_cb done_cb)
 /*
  * initialization
  */
+
+/* reset sample_idx to beginning of store */
+void
+sample_store_reset()
+{
+        sample_idx = 0;
+        last_erased_sector = RESERVED_SECTORS - 1;
+}
+
 static struct spiflash_transaction trans;
 
 static void

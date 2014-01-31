@@ -54,4 +54,6 @@ typedef void (*sample_store_recover_done_cb)();
 void sample_store_recover(sample_store_recover_done_cb done_cb);
 
 /* initialization */
+void sample_store_reset();
+
 void sample_store_init();

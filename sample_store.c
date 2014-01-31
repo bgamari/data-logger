@@ -17,12 +17,29 @@ static enum sample_store_full_behavior full_behavior = STOP_ON_FULL;
 #define SECTOR_SIZE 4096
 #define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
 
-static uint32_t
-sample_address(unsigned int sample_idx)
+typedef unsigned int sector_n;
+typedef uint32_t flash_addr;
+
+static sector_n
+sample_idx_to_sector(unsigned int sample_idx)
 {
-        unsigned int sector = sample_idx / SAMPLES_PER_SECTOR + RESERVED_SECTORS;
+        return sample_idx / SAMPLES_PER_SECTOR + RESERVED_SECTORS;
+}
+
+static flash_addr
+sample_idx_to_address(unsigned int sample_idx)
+{
+        sector_n sector = sample_idx_to_sector(sample_idx);
         unsigned int offset = sample_idx % SAMPLES_PER_SECTOR;
         return SECTOR_SIZE * sector + offset * sizeof(struct sample);
+}
+
+static uint32_t
+address_to_sample_idx(uint32_t addr)
+{
+        sector_n sector = addr / SECTOR_SIZE;
+        unsigned int offset = addr % SAMPLES_PER_SECTOR;
+        return (sector - RESERVED_SECTORS) * SAMPLES_PER_SECTOR + offset;
 }
 
 /*
@@ -35,7 +52,7 @@ sample_store_read(struct spiflash_transaction *trans, struct sample *buffer,
 {
         return spiflash_read_page(&onboard_flash, trans,
                                   (uint8_t*) buffer,
-                                  sample_address(start),
+                                  sample_idx_to_address(start),
                                   nsamples * sizeof(struct sample),
                                   cb, cbdata);
 }
@@ -162,7 +179,7 @@ sample_store_push(const struct sample s)
         crit_enter();
 
         // handle FLASH full condition
-        uint32_t addr = sample_address(sample_idx);
+        uint32_t addr = sample_idx_to_address(sample_idx);
         if (addr >= flash_size) {
                 switch (full_behavior) {
                 case WRAP_ON_FULL:
@@ -268,7 +285,7 @@ sample_store_recover_find_sample(void *cbdata)
         if (ctx->sample.time == 0xffffffff) {
                 // found first invalid sample
                 sample_idx = ctx->pos;
-                last_erased_sector = sample_address(ctx->pos) / SECTOR_SIZE;
+                last_erased_sector = sample_idx_to_sector(ctx->pos);
                 sample_store_ready = true;
                 if (ctx->cb)
                         ctx->cb();
@@ -288,8 +305,7 @@ sample_store_recover_empty_sector_found(uint32_t addr, void *cbdata)
 {
         struct recover_ctx *ctx = cbdata;
         if (addr != INVALID_SECTOR) {
-                ctx->pos = addr / sizeof(struct sample)
-                        - RESERVED_SECTORS * SAMPLES_PER_SECTOR;
+                ctx->pos = address_to_sample_idx(addr);
                 ctx->sample.time = 0; // initialize as a valid sample
                 sample_store_recover_find_sample(ctx);
         } else {

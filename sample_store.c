@@ -263,7 +263,7 @@ sample_store_recover_cb(uint32_t addr, void *cbdata)
                 sample_store_ready = true;
         } else {
                 sample_idx = 0;
-                last_erased_sector = -1;
+                last_erased_sector = RESERVED_SECTORS - 1;
         }
         if (cb)
                 cb();

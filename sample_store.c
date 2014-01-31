@@ -5,7 +5,7 @@
 #define MAX(a,b) ((a) > (b)) ? (a) : (b)
 #define MIN(a,b) ((a) < (b)) ? (a) : (b)
 
-// number of reserved pages at beginning of addressing space
+// number of reserved sectors at beginning of addressing space
 #define RESERVED_SECTORS 1
 
 static bool sample_store_ready = false;

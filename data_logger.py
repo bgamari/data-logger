@@ -63,6 +63,10 @@ class DataLogger(object):
         for l in self._read_reply():
             yield self._parse_sample(l)
 
+    def erase_samples(self):
+        self._write_cmd('n!')
+        return self._read_reply_value()
+        
     def set_acquisition_state(self, running):
         self._write_cmd('a=%d' % running)
         return bool(int(self._read_reply_value()))

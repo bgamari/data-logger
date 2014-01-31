@@ -44,6 +44,10 @@ def stop_handler(logger, args):
     logger.set_acquisition_state(False)
     print("Acquisition stopped")
 
+def erase_handler(logger, args):
+    logger.erase()
+    print("Samples erase")
+    
 def info_handler(logger, args):
     count = logger.get_sample_count()
     print('firmware version: %s' % logger.get_firmware_version())
@@ -91,6 +95,9 @@ start.add_argument('-T', '--sample-period', type=int, metavar='SECONDS',
 
 start = subparsers.add_parser('stop', help='stop sample acquisition')
 start.set_defaults(func=stop_handler)
+
+erase = subparsers.add_parser('erase', help='erase acquired samples')
+erase.set_defaults(func=erase_handler)
 
 info = subparsers.add_parser('info', help='fetch various information about device')
 info.set_defaults(func=info_handler)

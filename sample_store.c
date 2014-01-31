@@ -5,11 +5,6 @@
 #define MAX(a,b) ((a) > (b)) ? (a) : (b)
 #define MIN(a,b) ((a) < (b)) ? (a) : (b)
 
-#define PAGE_SIZE 256
-#define SAMPLES_PER_PAGE (PAGE_SIZE / sizeof(struct sample))
-#define SECTOR_SIZE 4096
-#define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
-
 // number of reserved pages at beginning of addressing space
 #define RESERVED_SECTORS 1
 
@@ -18,6 +13,11 @@ static struct spiflash_params *flash_params = NULL;
 static uint32_t flash_size = 0;
 
 static enum sample_store_full_behavior full_behavior = STOP_ON_FULL;
+
+#define PAGE_SIZE 256
+#define SAMPLES_PER_PAGE (PAGE_SIZE / sizeof(struct sample))
+#define SECTOR_SIZE 4096
+#define SAMPLES_PER_SECTOR (SECTOR_SIZE / sizeof(struct sample))
 
 static uint32_t
 sample_address(unsigned int sample_idx)
@@ -340,7 +340,7 @@ identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacit
                     && memtype == i->device_id1
                     && capacity == i->device_id2) {
                         flash_params = i;
-                        flash_size = (1 << i->sector_size) * i->n_sectors;
+                        flash_size = (1 << i->block_size) * i->n_blocks;
                         break;
                 }
 

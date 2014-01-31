@@ -28,8 +28,6 @@ sample_address(unsigned int sample_idx)
 /*
  * reading samples
  */
-
-// start and nsamples given in units of samples
 int
 sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
                   unsigned int start, unsigned int nsamples,

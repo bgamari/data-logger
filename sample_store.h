@@ -7,6 +7,7 @@ struct sample_store_read_ctx {
         struct spiflash_transaction transaction;
 };
 
+/* start and nsamples given in units of samples */
 int sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
                       unsigned int start, unsigned int len,
                       spi_cb cb, void *cbdata);

@@ -14,7 +14,7 @@
 #define RESERVED_SECTORS 1
 
 static bool sample_store_ready = false;
-static struct spi_flash_params *flash_params = NULL;
+static struct spiflash_params *flash_params = NULL;
 static uint32_t flash_size = 0;
 
 static uint32_t
@@ -307,7 +307,7 @@ flash_unprotected_cb(void *cbdata)
 static void
 identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
-        for (struct spi_flash_params *i = spi_flash_table; i->mfg_id != 0x00; i++) {
+        for (struct spiflash_params *i = spiflash_device_params; i->mfg_id != 0x00; i++) {
                 if (mfg_id == i->mfg_id
                     && memtype == i->device_id1
                     && capacity == i->device_id2) {

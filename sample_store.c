@@ -315,7 +315,8 @@ identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacit
                     && memtype == i->device_id1
                     && capacity == i->device_id2) {
                         flash_params = i;
-                        flash_size = (1 << i->block_size) * i->n_blocks;
+                        flash_size = spiflash_block_size_to_bytes(i->block_size)
+                                * i->n_blocks;
                         break;
                 }
 

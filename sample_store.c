@@ -31,39 +31,17 @@ sample_address(unsigned int sample_idx)
  * reading samples
  */
 
-static void
-sample_store_read_cb(void *cbdata)
-{
-        struct sample_store_read_ctx *ctx = cbdata;
-        if (ctx->pos >= ctx->start + ctx->len) {
-                ctx->cb(ctx->cbdata);
-        } else {
-                unsigned int to_read = MIN(ctx->start + ctx->len - ctx->pos,
-                                           SAMPLES_PER_PAGE);
-                uint32_t start_addr = sample_address(ctx->pos);
-                int ret = spiflash_read_page(&onboard_flash, &ctx->transaction,
-                                             (uint8_t*) &ctx->buffer[ctx->pos - ctx->start],
-                                             start_addr, to_read * sizeof(struct sample),
-                                             sample_store_read_cb, ctx);
-                ret = ret;
-                ctx->pos += to_read;
-        }
-}
-
-// start and len given in samples
+// start and nsamples given in units of samples
 int
 sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
-                  unsigned int start, unsigned int len,
+                  unsigned int start, unsigned int nsamples,
                   spi_cb cb, void *cbdata)
 {
-        ctx->buffer = buffer;
-        ctx->pos    = start;
-        ctx->start  = start;
-        ctx->len    = len;
-        ctx->cb     = cb;
-        ctx->cbdata = cbdata;
-        sample_store_read_cb(ctx);
-        return 0;
+        return spiflash_read_page(&onboard_flash, &ctx->transaction,
+                                  (uint8_t*) buffer,
+                                  sample_address(start),
+                                  nsamples * sizeof(struct sample),
+                                  cb, cbdata);
 }
 
 void

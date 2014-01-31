@@ -261,7 +261,8 @@ sample_store_recover_cb(uint32_t addr, void *cbdata)
 {
         sample_store_recover_done_cb cb = cbdata;
         if (addr != INVALID_PAGE) {
-                sample_idx = (addr - RESERVED_SECTORS * SECTOR_SIZE) / sizeof(struct sample);
+                sample_idx = addr / sizeof(struct sample)
+                        - RESERVED_SECTORS * SAMPLES_PER_SECTOR;
                 last_erased_sector = addr / SECTOR_SIZE - 1;
                 sample_store_ready = true;
         } else {

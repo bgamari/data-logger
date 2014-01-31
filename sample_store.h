@@ -3,12 +3,8 @@
 #include <acquire.h>
 
 /* reading samples */
-struct sample_store_read_ctx {
-        struct spiflash_transaction transaction;
-};
-
 /* start and nsamples given in units of samples */
-int sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
+int sample_store_read(struct spiflash_transaction *trans, struct sample *buffer,
                       unsigned int start, unsigned int len,
                       spi_cb cb, void *cbdata);
 

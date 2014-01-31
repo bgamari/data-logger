@@ -29,11 +29,11 @@ sample_address(unsigned int sample_idx)
  * reading samples
  */
 int
-sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
+sample_store_read(struct spiflash_transaction *trans, struct sample *buffer,
                   unsigned int start, unsigned int nsamples,
                   spi_cb cb, void *cbdata)
 {
-        return spiflash_read_page(&onboard_flash, &ctx->transaction,
+        return spiflash_read_page(&onboard_flash, trans,
                                   (uint8_t*) buffer,
                                   sample_address(start),
                                   nsamples * sizeof(struct sample),

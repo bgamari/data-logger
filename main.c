@@ -79,7 +79,7 @@ on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
 static struct sample sample_buffer;
 static volatile unsigned int sample_idx = 0;
 static volatile unsigned int sample_end = 0;
-static struct sample_store_read_ctx sample_read_ctx;
+static struct spiflash_transaction sample_read_trans;
 
 static void print_stored_sample(void *cbdata);
 
@@ -93,7 +93,7 @@ print_sample(struct sample *sample)
 static void
 get_stored_sample(void *cbdata)
 {
-        int ret = sample_store_read(&sample_read_ctx,
+        int ret = sample_store_read(&sample_read_trans,
                                     &sample_buffer, sample_idx, 1,
                                     print_stored_sample, NULL);
         if (ret != 0) {

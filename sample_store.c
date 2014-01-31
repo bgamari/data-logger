@@ -153,7 +153,6 @@ _enqueue_sample_write(struct write_sample *w)
                 tail->next = w;
                 return 0; // although we don't know whether _dispatch_queue will fail
         }
-
 }
 
 int

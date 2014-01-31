@@ -286,8 +286,10 @@ sample_store_recover(sample_store_recover_done_cb done_cb)
 void
 sample_store_reset()
 {
+        crit_enter();
         sample_idx = 0;
         last_erased_sector = RESERVED_SECTORS - 1;
+        crit_exit();
 }
 
 static struct spiflash_transaction trans;

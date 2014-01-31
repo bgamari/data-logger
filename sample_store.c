@@ -253,31 +253,59 @@ sample_store_find_empty_sector(struct find_empty_sector_ctx *ctx,
  * recovery from power loss
  */
 typedef void (*sample_store_recover_done_cb)();
+struct recover_ctx {
+        sample_store_recover_done_cb cb;
+        struct find_empty_sector_ctx find_empty_sector;
+        uint32_t pos;
+        struct sample sample;
+} recover_ctx;
 
+/* look for first invalid sample */
 static void
-sample_store_recover_cb(uint32_t addr, void *cbdata)
+sample_store_recover_find_sample(void *cbdata)
 {
-        sample_store_recover_done_cb cb = cbdata;
-        if (addr != INVALID_SECTOR) {
-                sample_idx = addr / sizeof(struct sample)
-                        - RESERVED_SECTORS * SAMPLES_PER_SECTOR;
-                last_erased_sector = addr / SECTOR_SIZE - 1;
+        struct recover_ctx *ctx = cbdata;
+        if (ctx->sample.time == 0xffffffff) {
+                // found first invalid sample
+                sample_idx = ctx->pos;
+                last_erased_sector = sample_address(ctx->pos) / SECTOR_SIZE;
                 sample_store_ready = true;
+                if (ctx->cb)
+                        ctx->cb();
         } else {
-                sample_store_reset();
+                // WARNING: we are reusing find_empty_sector's spiflash_transaction
+                sample_store_read(&ctx->find_empty_sector.trans,
+                                  &ctx->sample,
+                                  ctx->pos, 1,
+                                  sample_store_recover_find_sample,
+                                  ctx);
+                ctx->pos += 1;
         }
-        if (cb)
-                cb();
 }
 
-struct find_empty_sector_ctx recover_ctx;
+static void
+sample_store_recover_empty_sector_found(uint32_t addr, void *cbdata)
+{
+        struct recover_ctx *ctx = cbdata;
+        if (addr != INVALID_SECTOR) {
+                ctx->pos = addr / sizeof(struct sample)
+                        - RESERVED_SECTORS * SAMPLES_PER_SECTOR;
+                ctx->sample.time = 0; // initialize as a valid sample
+                sample_store_recover_find_sample(ctx);
+        } else {
+                sample_store_reset();
+                if (ctx->cb)
+                        ctx->cb();
+        }
+}
 
 void
 sample_store_recover(sample_store_recover_done_cb done_cb)
 {
         sample_store_ready = false;
-        sample_store_find_empty_sector(&recover_ctx, 0,
-                                       sample_store_recover_cb, done_cb);
+        sample_store_find_empty_sector(&recover_ctx.find_empty_sector, 0,
+                                       sample_store_recover_empty_sector_found,
+                                       &recover_ctx);
 }
         
 /*

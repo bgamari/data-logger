@@ -17,6 +17,8 @@ static bool sample_store_ready = false;
 static struct spiflash_params *flash_params = NULL;
 static uint32_t flash_size = 0;
 
+static enum sample_store_full_behavior full_behavior = STOP_ON_FULL;
+
 static uint32_t
 sample_address(unsigned int sample_idx)
 {
@@ -62,6 +64,18 @@ sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
         ctx->cbdata = cbdata;
         sample_store_read_cb(ctx);
         return 0;
+}
+
+void
+sample_store_set_full_behavior(enum sample_store_full_behavior s)
+{
+        full_behavior = s;
+}
+
+enum sample_store_full_behavior
+sample_store_get_full_behavior()
+{
+        return full_behavior;
 }
 
 /*
@@ -172,9 +186,23 @@ sample_store_push(const struct sample s)
         if (!sample_store_ready)
                 return 3;
 
+        crit_enter();
+
+        // handle FLASH full condition
+        uint32_t addr = sample_address(sample_idx);
+        if (addr >= flash_size) {
+                switch (full_behavior) {
+                case WRAP_ON_FULL:
+                        sample_store_reset();
+                        break;
+                case STOP_ON_FULL:
+                        crit_exit();
+                        return 4;
+                }
+        }
+
         // find available write_sample
         struct write_sample *w = NULL;
-        crit_enter();
         for (unsigned int i=0; i<N_WRITE_SAMPLES; i++) {
                 if (!write_samples[i].pending)
                         w = &write_samples[i];
@@ -185,7 +213,7 @@ sample_store_push(const struct sample s)
         } else {
                 w->pending = true;
                 w->sample = s;
-                w->addr = sample_address(sample_idx);
+                w->addr = addr;
                 if (w->addr > flash_size) {
                         crit_exit();
                         return 2;

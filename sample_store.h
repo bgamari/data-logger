@@ -19,6 +19,15 @@ int sample_store_read(struct sample_store_read_ctx *ctx, struct sample *buffer,
 
 unsigned int sample_store_get_count();
 
+/* what to do when FLASH is full */
+enum sample_store_full_behavior {
+        WRAP_ON_FULL,
+        STOP_ON_FULL,
+};
+
+void sample_store_set_full_behavior(enum sample_store_full_behavior s);
+enum sample_store_full_behavior sample_store_get_full_behavior();
+
 /* writing samples */
 int sample_store_push(const struct sample s);
 

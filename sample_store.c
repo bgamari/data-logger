@@ -284,7 +284,7 @@ sample_store_recover_find_sample(void *cbdata)
         struct recover_ctx *ctx = cbdata;
         if (ctx->sample.time == 0xffffffff) {
                 // found first invalid sample
-                sample_idx = ctx->pos;
+                sample_idx = ctx->pos - 1;
                 last_erased_sector = sample_idx_to_sector(ctx->pos);
                 sample_store_ready = true;
                 if (ctx->cb)
@@ -305,7 +305,7 @@ sample_store_recover_empty_sector_found(uint32_t addr, void *cbdata)
 {
         struct recover_ctx *ctx = cbdata;
         if (addr != INVALID_SECTOR) {
-                ctx->pos = address_to_sample_idx(addr);
+                ctx->pos = address_to_sample_idx(addr) - SAMPLES_PER_SECTOR;
                 ctx->sample.time = 0; // initialize as a valid sample
                 sample_store_recover_find_sample(ctx);
         } else {

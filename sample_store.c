@@ -229,9 +229,9 @@ find_sector_cb(void *cbdata)
                                                      ctx->next_sector, 4, 
                                                      find_sector_cb, ctx);
                         if (res)
-                                ctx->cb(INVALID_PAGE, ctx->cbdata);
+                                ctx->cb(INVALID_SECTOR, ctx->cbdata);
                 } else {
-                        ctx->cb(INVALID_PAGE, ctx->cbdata);
+                        ctx->cb(INVALID_SECTOR, ctx->cbdata);
                 }
         }
 }
@@ -258,7 +258,7 @@ static void
 sample_store_recover_cb(uint32_t addr, void *cbdata)
 {
         sample_store_recover_done_cb cb = cbdata;
-        if (addr != INVALID_PAGE) {
+        if (addr != INVALID_SECTOR) {
                 sample_idx = addr / sizeof(struct sample)
                         - RESERVED_SECTORS * SAMPLES_PER_SECTOR;
                 last_erased_sector = addr / SECTOR_SIZE - 1;

@@ -34,7 +34,7 @@ int sample_store_push(const struct sample s);
  */
 typedef void (*find_empty_sector_cb)(uint32_t addr, void *cbdata);
 
-#define INVALID_PAGE 0xffffffff
+#define INVALID_SECTOR 0xffffffff
 
 struct find_empty_sector_ctx {
         uint32_t next_sector; // address of next page

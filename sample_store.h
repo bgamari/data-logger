@@ -33,7 +33,7 @@ typedef void (*find_empty_sector_cb)(uint32_t addr, void *cbdata);
 #define INVALID_SECTOR 0xffffffff
 
 struct find_empty_sector_ctx {
-        uint32_t next_sector; // address of next page
+        uint32_t next_sector; // address of next sector
         uint32_t buffer;
         struct spiflash_transaction trans;
         find_empty_sector_cb cb;

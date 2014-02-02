@@ -23,23 +23,24 @@ struct thermistor_map_data thermistor_map_data = {
 };
 
 // thermistor #1
-struct adc_sensor_data thermistor_adc_sensor_data = {
+struct adc_sensor_data lm19_adc_sensor_data = {
         .channel = ADC_PTD5,
-        .map = thermistor_map,
+        .map = lm19_map,
         .map_data = &thermistor_map_data,
 };
         
 struct sensor thermistor_sensor = {
         .sample = &adc_sensor_sample,
-        .name = "thermistor",
-        .unit = "Kelvin",
+        .name = "external temperature",
+        .unit = "Celcius",
         .sensor_id = 2,
-        .sensor_data = &thermistor_adc_sensor_data,
+        .sensor_data = &lm19_adc_sensor_data,
 };
 
 // thermistor #2
+/*
 struct adc_sensor_data thermistor2_adc_sensor_data = {
-        .channel = ADC_PTD5,
+        .channel = ADC_PTD6,
         .map = thermistor_map,
         .map_data = &thermistor_map_data,
 };
@@ -51,6 +52,7 @@ struct sensor thermistor2_sensor = {
         .sensor_id = 3,
         .sensor_data = &thermistor2_adc_sensor_data,
 };
+*/
 
 // conductivity sensor
 struct cond_sensor_data cond_sensor_data;
@@ -66,7 +68,7 @@ struct sensor conductivity_sensor = {
 struct sensor *sensors[] = {
         &temperature_sensor,
         &thermistor_sensor,
-        &thermistor2_sensor,
+        //&thermistor2_sensor,
         &conductivity_sensor,
         NULL
 };
@@ -74,8 +76,9 @@ struct sensor *sensors[] = {
 void
 config_pins()
 {
-        pin_mode(PIN_PTD6, PIN_MODE_MUX_ANALOG);
+        pin_mode(PIN_PTB0, PIN_MODE_MUX_ANALOG);
         pin_mode(PIN_PTD5, PIN_MODE_MUX_ANALOG);
+        pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT3 | PIN_MODE_PULLUP);
         //PORTA.pcr[1].irqc = PCR_IRQC_INT_FALLING;
 
         // This appears to break ADC_TEMP:

@@ -298,10 +298,9 @@ process_command()
                 finish_reply();
                 break;
         case 'p':     // enter power-save mode
-                if (data[1] == 'p') {
-                        OUT("powersave\n");
+                if (data[1] == '!') {
+                        OUT("powersave = 1\n");
                         finish_reply();
-                        // usb_disable(); // FIXME
                         enter_low_power_mode();
                 }
                 break;

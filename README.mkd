@@ -87,7 +87,7 @@ very primitive command set for communicating with the device,
  * `s`: List configured sensors
  * `V`: Print firmware version (commit id)
  * `I`: Print device ID
- * `pp`: Enter power-saving mode
+ * `p!`: Enter power-saving mode immediately
  * `R`: Recover last sample index after power-loss
  * Operations acting on non-volatile configuration
      * `B`: Get acquire-on-boot flag

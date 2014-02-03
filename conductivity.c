@@ -154,5 +154,5 @@ cond_sensor_sample_cb(unsigned accum conductivity, void* cbdata)
 void cond_sensor_sample(struct sensor *sensor)
 {
         struct cond_sensor_data *sd = sensor->sensor_data;
-        cond_average(&sd->ctx, 100, cond_sensor_sample_cb, sensor);
+        cond_average(&sd->ctx, sd->avg_count, cond_sensor_sample_cb, sensor);
 }

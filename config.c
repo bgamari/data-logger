@@ -55,7 +55,9 @@ struct sensor thermistor2_sensor = {
 */
 
 // conductivity sensor
-struct cond_sensor_data cond_sensor_data;
+struct cond_sensor_data cond_sensor_data = {
+        .avg_count = 20,
+};
 
 struct sensor conductivity_sensor = {
         .sample = &cond_sensor_sample,

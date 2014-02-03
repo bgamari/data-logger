@@ -11,7 +11,7 @@ static struct spiflash_write_bytes write_bytes;
 static const struct nv_config default_nv_config = {
         .magic              = NV_CONFIG_MAGIC,
         .acquire_on_boot    = false,
-        .sample_period      = 60,
+        .sample_period      = 60 * 1000,
         .name               = "unnamed-sensor",
 };
  

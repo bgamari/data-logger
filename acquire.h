@@ -13,7 +13,7 @@ struct sample {
 };
 
 void acquire_init();
-void set_sample_period(unsigned int seconds);
+void set_sample_period(unsigned int milliseconds);
 unsigned int get_sample_period();
 void take_sample();
 void start_acquire();

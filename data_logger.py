@@ -97,12 +97,14 @@ class DataLogger(object):
         self._read_reply()
 
     def set_sample_period(self, period):
-        self._write_cmd('T=%d' % period)
+        """ set sample period in seconds """
+        self._write_cmd('T=%d' % (period * 1000))
         self._read_reply()
 
     def get_sample_period(self):
+        """ get sample period in seconds """
         self._write_cmd('T')
-        return int(self._read_reply_value())
+        return int(self._read_reply_value()) / 1000.
 
     def list_sensors(self):
         self._write_cmd('s')

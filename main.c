@@ -257,7 +257,7 @@ process_command()
                 OUT("RTC time = %lu\n", rtc_get_time());
                 finish_reply();
                 break;
-        case 'T':     // sample period
+        case 'T':     // sample period in milliseconds
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);
                         if (time > 0) {

@@ -6,9 +6,10 @@
 #include "config.h"
 
 bool acquire_running = false;
-static unsigned int sample_period = 30; // seconds
+static unsigned int sample_period = 30; // milliseconds
 
-static struct rtc_alarm_ctx alarm;
+static struct timeout_ctx timeout; // for < 10 seconds
+static struct rtc_alarm_ctx alarm; // for >= 10 seconds
 
 static void
 on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
@@ -36,17 +37,21 @@ static void
 alarm_cb(void *data)
 {
         take_sample();
-        rtc_alarm_add(&alarm, rtc_get_time() + sample_period,
-                      alarm_cb, NULL);
+        if (sample_period < 10000) {
+                timeout_add(&timeout, sample_period, alarm_cb, NULL);
+        } else {
+                rtc_alarm_add(&alarm, rtc_get_time() + sample_period / 1000,
+                              alarm_cb, NULL);
+        }
 }
 
 void
-set_sample_period(unsigned int seconds)
+set_sample_period(unsigned int milliseconds)
 {
         crit_enter();
         if (acquire_running)
                 rtc_alarm_cancel(&alarm);
-        sample_period = seconds;
+        sample_period = milliseconds;
         if (acquire_running)
                 alarm_cb(NULL);
         crit_exit();

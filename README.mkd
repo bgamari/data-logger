@@ -79,8 +79,8 @@ very primitive command set for communicating with the device,
  * `g [start] [count]`: Print sample numbers `start` to `start+count`
  * `t=[time]`: Set RTC time in seconds
  * `t`: Print RTC time in seconds
- * `T=[time]`: Set time between samples (sample period)
- * `T`: Print sample period
+ * `T=[time]`: Set time between samples in milliseconds (sample period)
+ * `T`: Print sample period in milliseconds
  * `l`: Print last acquired sample
  * `n`: Print number of samples taken
  * `n!`: Erase all samples

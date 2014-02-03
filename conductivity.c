@@ -78,9 +78,6 @@ cond_average(struct cond_average_ctx *ctx, unsigned int n,
 void
 cond_init(void)
 {
-        // FIXME Enable pin
-        //pin_mode();
-
         ftm_init();
         cond_stop();
         FTM0.sc.ps = FTM_PS_DIV32; // prescale
@@ -101,7 +98,7 @@ cond_init(void)
         FTM0.channel[BASE_CH+1].csc.chie = 1;
 
         // PTA1 = FTM0_CH7
-        // FIXME
+        // FIXME: Enable filter?
         //FTM0.filter.ch6fval = 5;
 }
 

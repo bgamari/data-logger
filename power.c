@@ -115,17 +115,15 @@ back_to_sleep(void *cbdata)
 }
 
 void
-PORTA_Handler(void)
+wakeup_pin_handler(void *cbdata)
 {
-        // clear MCU interrupt
-	pin_physport_from_pin(WAKEUP_PIN)->pcr[pin_physpin_from_pin(WAKEUP_PIN)].raw |= 0;
-
         // try wakeup
         exit_low_power_mode();
         acquire_blink_state();
         activity = false;
         timeout_add(&sleep_timeout, 5000, back_to_sleep, NULL);
 }
+PIN_DEFINE_CALLBACK(WAKEUP_PIN, PIN_CHANGE_FALLING, wakeup_pin_handler, NULL);
 
 extern void RTC_alarm_Handler(void);
 
@@ -137,7 +135,7 @@ LLWU_Handler(void)
                 RTC_alarm_Handler();
         }
         if (LLWU.wuf1 & (1<<3)) {
-                PORTA_Handler();
+                wakeup_pin_handler(NULL);
         }
         
         LLWU.wuf1 = 0xff;

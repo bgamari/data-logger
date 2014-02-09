@@ -6,23 +6,31 @@ static struct cond_sample_ctx *head = NULL;
 
 #define BASE_CH 6
 
+static const enum pin_id cond_enable_pin = PIN_PTA1;
+
+static void
+cond_set_enable(bool enable)
+{
+        if (cond_enable_pin)
+                gpio_write(cond_enable_pin, enable);
+}
+
 static void
 cond_start(void)
 {
         if (FTM0.sc.clks)
                 return;
-        
-        // TODO: bring up enable pin
+        cond_set_enable(true);
 
         // start continuous dual-edge capture mode
         FTM0.sc.clks = 1; // enable clock
         FTM0.combine[BASE_CH/2].decap = 1;
 }
-
+        
 static void
 cond_stop(void)
 {
-        // TODO: bring down enable pin
+        cond_set_enable(false);
         FTM0.sc.clks = 0; // disable clock
 }
 
@@ -78,6 +86,9 @@ cond_average(struct cond_average_ctx *ctx, unsigned int n,
 void
 cond_init(void)
 {
+        pin_mode(cond_enable_pin, PIN_MODE_MUX_GPIO);
+        gpio_dir(cond_enable_pin, GPIO_OUTPUT);
+        
         ftm_init();
         cond_stop();
         FTM0.sc.ps = FTM_PS_DIV32; // prescale

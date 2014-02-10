@@ -89,11 +89,12 @@ very primitive command set for communicating with the device,
  * `I`: Print device ID
  * `p!`: Enter power-saving mode immediately
  * Operations acting on non-volatile configuration
-     * `B`: Get acquire-on-boot flag
-     * `B=[bool]`: Set acquire-on-boot flag
-     * `N`: Print friendly name of device
-     * `N=[string]`: Set friendly name of device
-     * `S`: Save non-volatile configuration
+     * `NB`: Get acquire-on-boot flag
+     * `NB=[bool]`: Set acquire-on-boot flag
+     * `NN`: Print friendly name of device
+     * `NN=[string]`: Set friendly name of device
+     * `NS`: Save non-volatile configuration
+     * `NS`: Save non-volatile configuration
  
 `bool` is either `0` or `1`.
 

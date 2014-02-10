@@ -175,6 +175,7 @@ struct spiflash_transaction get_id_transaction;
 static void
 process_command()
 {
+        bool unknown = false;
         const char *data = cmd_buffer;
         switch (data[0]) {
         case 'a':     // acquisition status
@@ -273,13 +274,6 @@ process_command()
                 OUT("sample count = %d\n", sample_store_get_count());
                 finish_reply();
                 break;
-        case 'N':     // friendly name of device
-                if (data[1] == '=') {
-                        strncpy(nv_config.name, &data[2], sizeof(nv_config.name));
-                }
-                OUT("device name = %s\n", &nv_config.name);
-                finish_reply();
-                break;
         case 'V':     // fetch firmware version
                 OUT("version = %s\n", commit_id);
                 finish_reply();
@@ -296,16 +290,33 @@ process_command()
                         enter_low_power_mode();
                 }
                 break;
-        case 'B':     // acquire-on-boot flag
-                if (data[1] == '=')
-                        nv_config.acquire_on_boot = data[2] == '1';
-                OUT("acquire on boot = %d\n", nv_config.acquire_on_boot);
-                finish_reply();
-                break;
-        case 'S':     // save non-volatile configuration
-                nv_config_save(nv_configuration_saved, NULL);
+        case 'N':
+                switch (data[1]) {
+                case 'B':     // acquire-on-boot flag
+                        if (data[2] == '=')
+                                nv_config.acquire_on_boot = data[3] == '1';
+                        OUT("acquire on boot = %d\n", nv_config.acquire_on_boot);
+                        finish_reply();
+                        break;
+                case 'N':     // friendly name of device
+                        if (data[2] == '=') {
+                                strncpy(nv_config.name, &data[3], sizeof(nv_config.name));
+                        }
+                        OUT("device name = %s\n", &nv_config.name);
+                        finish_reply();
+                        break;
+                case 'S':     // save non-volatile configuration
+                        nv_config_save(nv_configuration_saved, NULL);
+                        break;
+                default:
+                        unknown = true;
+                }
                 break;
         default:
+                unknown = true;
+        }
+
+        if (unknown) {
                 OUT("unknown command\n");
                 finish_reply();
         }

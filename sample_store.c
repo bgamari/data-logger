@@ -273,6 +273,7 @@ sample_store_find_empty_sector(struct find_empty_sector_ctx *ctx,
  */
 typedef void (*sample_store_recover_done_cb)();
 struct recover_ctx {
+        bool running;
         sample_store_recover_done_cb cb;
         struct find_empty_sector_ctx find_empty_sector;
         uint32_t pos;
@@ -323,13 +324,16 @@ sample_store_recover_empty_sector_found(uint32_t addr, void *cbdata)
         }
 }
 
-void
+int
 sample_store_recover(sample_store_recover_done_cb done_cb)
 {
+        if (recover_ctx.running)
+                return 1;
         sample_store_ready = false;
         sample_store_find_empty_sector(&recover_ctx.find_empty_sector, 0,
                                        sample_store_recover_empty_sector_found,
                                        &recover_ctx);
+        return 0;
 }
         
 /*

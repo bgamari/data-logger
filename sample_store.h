@@ -51,7 +51,7 @@ void sample_store_find_empty_sector(struct find_empty_sector_ctx *ctx,
  */
 typedef void (*sample_store_recover_done_cb)();
 
-void sample_store_recover(sample_store_recover_done_cb done_cb);
+int sample_store_recover(sample_store_recover_done_cb done_cb);
 
 /* initialization */
 void sample_store_reset();

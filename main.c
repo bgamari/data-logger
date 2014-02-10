@@ -260,10 +260,8 @@ process_command()
         case 'T':     // sample period in milliseconds
                 if (data[1] == '=') {
                         uint32_t time = strtoul(&data[2], NULL, 10);
-                        if (time > 0) {
-                                set_sample_period(time);
-                                nv_config.sample_period = time;
-                        }
+                        set_sample_period(time);
+                        nv_config.sample_period = get_sample_period();
                 }
                 OUT("sample period = %d\n", get_sample_period());
                 finish_reply();

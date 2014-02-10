@@ -5,6 +5,8 @@
 #include "sample_store.h"
 #include "config.h"
 
+#define MIN_SAMPLE_PERIOD 50
+
 bool acquire_running = false;
 static unsigned int sample_period = 30; // milliseconds
 
@@ -48,6 +50,9 @@ alarm_cb(void *data)
 void
 set_sample_period(unsigned int milliseconds)
 {
+        if (milliseconds < MIN_SAMPLE_PERIOD)
+                return;
+        
         crit_enter();
         if (acquire_running)
                 rtc_alarm_cancel(&alarm);

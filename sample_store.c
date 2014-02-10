@@ -50,6 +50,8 @@ sample_store_read(struct spiflash_transaction *trans, struct sample *buffer,
                   unsigned int start, unsigned int nsamples,
                   spi_cb cb, void *cbdata)
 {
+        if (sample_idx_to_address(start+nsamples) >= flash_size)
+                return 1;
         return spiflash_read_page(&onboard_flash, trans,
                                   (uint8_t*) buffer,
                                   sample_idx_to_address(start),
@@ -291,11 +293,17 @@ sample_store_recover_find_sample(void *cbdata)
                         ctx->cb();
         } else {
                 // WARNING: we are reusing find_empty_sector's spiflash_transaction
-                sample_store_read(&ctx->find_empty_sector.trans,
-                                  &ctx->sample,
-                                  ctx->pos, 1,
-                                  sample_store_recover_find_sample,
-                                  ctx);
+                int res = sample_store_read(&ctx->find_empty_sector.trans,
+                                            &ctx->sample,
+                                            ctx->pos, 1,
+                                            sample_store_recover_find_sample,
+                                            ctx);
+                if (res) {
+                        // error (e.g. end of FLASH)
+                        sample_store_reset();
+                        if (ctx->cb)
+                                ctx->cb();
+                }
                 ctx->pos += 1;
         }
 }

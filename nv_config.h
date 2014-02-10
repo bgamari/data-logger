@@ -16,4 +16,4 @@ void nv_config_save(spi_cb cb, void *cbdata);
 
 typedef void (*nv_config_loaded_cb)();
 
-void nv_config_init(nv_config_loaded_cb cb);
+void nv_config_reload(nv_config_loaded_cb cb);

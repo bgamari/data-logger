@@ -55,7 +55,7 @@ nv_config_load_done(void *cbdata)
 }
 
 void
-nv_config_init(nv_config_loaded_cb cb)
+nv_config_reload(nv_config_loaded_cb cb)
 {
         loaded_cb = cb;
         nv_config_load(&nv_config, nv_config_load_done, NULL);

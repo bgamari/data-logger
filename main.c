@@ -170,6 +170,13 @@ nv_configuration_saved(void *cbdata)
         finish_reply();
 }
 
+static void
+nv_configuration_reloaded(void *cbdata)
+{
+        OUT("loaded\n");
+        finish_reply();
+}
+
 struct spiflash_transaction get_id_transaction;
 
 static void
@@ -308,6 +315,9 @@ process_command()
                 case 'S':     // save non-volatile configuration
                         nv_config_save(nv_configuration_saved, NULL);
                         break;
+                case 'R':     // reload non-volatile configuration
+                        nv_config_reload(nv_configuration_reloaded);
+                        break;
                 default:
                         unknown = true;
                 }
@@ -382,7 +392,7 @@ main(void)
         LLWU.filt1.filte = LLWU_FILTER_BOTH;
 
         // load non-volatile configuration
-        nv_config_init(nv_config_available);
+        nv_config_reload(nv_config_available);
 
         // event loop
         while (true) {

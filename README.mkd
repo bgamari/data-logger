@@ -94,7 +94,7 @@ very primitive command set for communicating with the device,
      * `NN`: Print friendly name of device
      * `NN=[string]`: Set friendly name of device
      * `NS`: Save non-volatile configuration
-     * `NS`: Save non-volatile configuration
+     * `NR`: Reload non-volatile configuration
  
 `bool` is either `0` or `1`.
 

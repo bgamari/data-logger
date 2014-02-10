@@ -8,7 +8,7 @@
 #define MIN_SAMPLE_PERIOD 50
 
 bool acquire_running = false;
-static unsigned int sample_period = 30; // milliseconds
+static unsigned int sample_period = 30*1000; // milliseconds
 
 static struct timeout_ctx timeout; // for < 10 seconds
 static struct rtc_alarm_ctx alarm; // for >= 10 seconds

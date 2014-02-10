@@ -163,14 +163,6 @@ last_sensor_sample(void *cbdata)
         }
 }
 
-// `R` command: recovery last sample index
-static void
-recovery_done()
-{
-        OUT("sample count = %d\n", sample_store_get_count());
-        finish_reply();
-}
-
 static void
 nv_configuration_saved(void *cbdata)
 {
@@ -312,9 +304,6 @@ process_command()
                 break;
         case 'S':     // save non-volatile configuration
                 nv_config_save(nv_configuration_saved, NULL);
-                break;
-        case 'R':     // recover from power loss
-                sample_store_recover(recovery_done);
                 break;
         default:
                 OUT("unknown command\n");

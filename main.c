@@ -369,6 +369,7 @@ main(void)
         adc_init();
         spi_init();
         spiflash_pins_init();
+        pin_change_init();
         timeout_init();
         rtc_init();
         sample_store_init();

@@ -47,7 +47,7 @@ void sample_store_find_empty_sector(struct find_empty_sector_ctx *ctx,
 /*
  * recovery from power loss
  *
- * places the sample index at the beginning of the next empty page.
+ * places the sample index after the last valid sample.
  */
 typedef void (*sample_store_recover_done_cb)();
 

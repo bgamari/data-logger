@@ -6,6 +6,8 @@ struct nv_config nv_config;
 static struct spiflash_transaction trans;
 static struct spiflash_write_bytes write_bytes;
 
+static void *cb_data;
+
 #define NV_CONFIG_MAGIC 0xdeadbeef
 
 static const struct nv_config default_nv_config = {
@@ -14,14 +16,23 @@ static const struct nv_config default_nv_config = {
         .sample_period      = 60 * 1000,
         .name               = "unnamed-sensor",
 };
- 
-void
-nv_config_save(spi_cb cb, void *cbdata)
+
+static void
+nv_config_erased(void *cbdata)
 {
+        spi_cb *cb = cbdata;
         spiflash_write_bytes(&onboard_flash, &write_bytes,
                              0, (const uint8_t *) &nv_config,
                              sizeof(struct nv_config),
-                             cb, cbdata);
+                             cb, cb_data);
+}
+
+void
+nv_config_save(spi_cb cb, void *cbdata)
+{
+        cb_data = cbdata;
+        spiflash_erase_sector(&onboard_flash, &trans, 0,
+                              nv_config_erased, cb);
 }
 
 static int

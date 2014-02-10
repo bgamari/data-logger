@@ -357,7 +357,7 @@ nv_config_available()
         // begin acquiring if so-configured
         if (nv_config.acquire_on_boot) {
                 set_sample_period(nv_config.sample_period);
-                sample_store_recover(start_acquire);
+                start_acquire();
         }
 }
 

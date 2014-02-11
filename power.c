@@ -1,9 +1,11 @@
 #include "power.h"
 #include "acquire.h"
+#include "usb_console.h"
 
 /* Power management */
 
 #define WAKEUP_PIN PIN_PTA4
+#define USB_SENSE_PIN PIN_PTD6
 
 /*
  * In low-power mode we allow the device to enter VLPR and VLPS sates
@@ -88,13 +90,18 @@ exit_low_power_mode()
 void
 power_init()
 {
+        // Enable low-power modes
         SMC.pmprot.raw = ((struct SMC_PMPROT) { .avlls = 1, .alls = 1, .avlp = 1 }).raw;
+
+        // Configure wakeup pin
 	gpio_dir(WAKEUP_PIN, GPIO_INPUT);
         pin_mode(WAKEUP_PIN, PIN_MODE_PULLUP);
-        pin_physport_from_pin(WAKEUP_PIN)->pcr[pin_physpin_from_pin(WAKEUP_PIN)].irqc = PCR_IRQC_INT_FALLING;
-        int_enable(IRQ_PORTA);
-
         LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
+
+        // Configure USB sense pin
+	gpio_dir(USB_SENSE_PIN, GPIO_INPUT);
+        LLWU.wupe[3].wupe3 = LLWU_PE_RISING;
+
         int_enable(IRQ_LLWU);
 }
 
@@ -117,6 +124,16 @@ back_to_sleep(void *cbdata)
         if (!activity)
                 enter_low_power_mode();
 }
+
+void
+usb_sense_pin_handler(void *cbdata)
+{
+        if (!low_power_mode)
+                return;
+        exit_low_power_mode();
+        usb_console_init();
+}
+PIN_DEFINE_CALLBACK(USB_SENSE_PIN, PIN_CHANGE_RISING, usb_sense_pin_handler, NULL);
 
 void
 wakeup_pin_handler(void *cbdata)
@@ -142,6 +159,9 @@ LLWU_Handler(void)
         }
         if (LLWU.wuf1 & (1<<3)) {
                 wakeup_pin_handler(NULL);
+        }
+        if (LLWU.wuf2 & (1<<7)) {
+                usb_sense_pin_handler(NULL);
         }
         
         LLWU.wuf1 = 0xff;

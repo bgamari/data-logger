@@ -11,6 +11,7 @@ include ../../toolchain/mchck.mk
 LDFLAGS += -lm
 CWARNFLAGS += -Werror -Wno-format
 CFLAGS += -DCOMMIT_ID=\"$(shell git rev-parse HEAD)\"
+PRINTF_WITH = FIXPOINT
 
 console : 
 	picocom -b 115200 --imap lfcrlf --omap crlf --echo $(DEVICE)

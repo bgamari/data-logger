@@ -117,6 +117,8 @@ back_to_sleep(void *cbdata)
 void
 wakeup_pin_handler(void *cbdata)
 {
+        if (!low_power_mode)
+                return;
         // try wakeup
         exit_low_power_mode();
         acquire_blink_state();

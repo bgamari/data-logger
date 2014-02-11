@@ -8,7 +8,7 @@ sensor_start_sample(struct sensor *sensor)
         if (sensor->busy)
                 return 1;
         sensor->busy = true;
-        sensor->sample(sensor);
+        sensor->type->sample_fn(sensor);
         return 0;
 }
 

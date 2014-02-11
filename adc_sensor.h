@@ -18,6 +18,8 @@ struct adc_sensor_data {
         struct sample_queue queue;
 };
 
+extern struct sensor_type adc_sensor;
+
 void adc_sensor_sample(struct sensor *sensor);
 
 // A mapping function returning the codepoint

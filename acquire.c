@@ -93,10 +93,10 @@ void stop_acquire()
         acquire_blink_state();
 }
 
-bool acquire_is_idle()
+bool acquire_can_stop()
 {
         for (struct sensor **s = &sensors[0]; *s != NULL; s++) {
-                if ((*s)->busy)
+                if ((*s)->busy && (*s)->type->no_stop)
                         return false;
         }
         return true;

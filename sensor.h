@@ -5,12 +5,18 @@ struct sensor;
 
 typedef void (*sample_func)(struct sensor *sensor);
 
+struct sensor_type {
+        sample_func sample_fn;
+        // MCU can't enter STOP modes while sensor is busy
+        bool no_stop;
+};
+
 struct sensor {
+        struct sensor_type *type;
         const char *name;
         const char *unit;
         uint16_t sensor_id;
         void *sensor_data;
-        sample_func sample;
         uint32_t last_sample_time;
         accum last_sample;
         bool busy;

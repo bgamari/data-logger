@@ -160,8 +160,15 @@ cond_sensor_sample_cb(unsigned accum conductivity, void* cbdata)
         sensor_new_sample(sensor, conductivity);
 }
 
-void cond_sensor_sample(struct sensor *sensor)
+static void
+cond_sensor_sample(struct sensor *sensor)
 {
         struct cond_sensor_data *sd = sensor->sensor_data;
         cond_average(&sd->ctx, sd->avg_count, cond_sensor_sample_cb, sensor);
 }
+
+struct sensor_type cond_sensor = {
+        .sample_fn = &cond_sensor_sample,
+        /* FTM modules do not operate in STOP modes */
+        .no_stop = true
+};

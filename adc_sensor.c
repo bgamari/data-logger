@@ -7,6 +7,11 @@ static struct sample_queue *queue_head;
 
 static void adc_schedule(void);
 
+struct sensor_type adc_sensor = {
+        .sample_fn = &adc_sensor_sample,
+        .no_stop = false
+};
+
 static void
 adc_sample_done(uint16_t codepoint, int error, void* cbdata)
 {

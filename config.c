@@ -7,7 +7,7 @@
 
 // on-board temperature
 struct sensor temperature_sensor = {
-        .sample = &adc_sensor_sample,
+        .type = &adc_sensor,
         .name = "onboard-temperature",
         .unit = "Kelvin",
         .sensor_id = 1,
@@ -30,7 +30,7 @@ struct adc_sensor_data lm19_adc_sensor_data = {
 };
         
 struct sensor thermistor_sensor = {
-        .sample = &adc_sensor_sample,
+        .type = &adc_sensor,
         .name = "external temperature",
         .unit = "Celcius",
         .sensor_id = 2,
@@ -60,7 +60,7 @@ struct cond_sensor_data cond_sensor_data = {
 };
 
 struct sensor conductivity_sensor = {
-        .sample = &cond_sensor_sample,
+        .type = &cond_sensor,
         .name = "conductivity",
         .unit = "arbitrary",
         .sensor_id = 4,

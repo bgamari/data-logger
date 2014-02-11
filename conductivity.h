@@ -35,9 +35,12 @@ struct cond_average_ctx {
 int cond_average(struct cond_average_ctx *ctx, unsigned int n,
                  cond_average_done_cb cb, void *cbdata);
 
+/*
+ * sensor plumbing
+ */
 struct cond_sensor_data {
         struct cond_average_ctx ctx;
         unsigned int avg_count;
 };
 
-void cond_sensor_sample(struct sensor *sensor);
+extern struct sensor_type cond_sensor;

@@ -35,6 +35,7 @@ adc_schedule()
         if (queue_head) {
                 struct adc_sensor_data *sensor_data = queue_head->sensor->sensor_data;
                 adc_busy = true;
+                adc_sample_prepare(sensor_data->mode);
                 adc_sample_start(sensor_data->channel, adc_sample_done, queue_head->sensor);
                 queue_head = queue_head->next;
         }

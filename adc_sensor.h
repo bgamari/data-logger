@@ -11,6 +11,7 @@ struct sample_queue {
 
 struct adc_sensor_data {
         enum adc_channel channel;
+        enum adc_mode mode;
         adc_map_func map;
         void *map_data;
 

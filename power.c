@@ -73,7 +73,9 @@ enter_low_power_mode()
         if (low_power_mode)
                 return;
         enter_blpi();
+#ifndef NO_VLPR
         enter_vlpr();
+#endif
         low_power_mode = true;
 }
 
@@ -82,7 +84,9 @@ exit_low_power_mode()
 {
         if (!low_power_mode)
                 return;
+#ifndef NO_VLPR
         exit_vlpr();
+#endif
         exit_blpi();
         low_power_mode = false;
 }

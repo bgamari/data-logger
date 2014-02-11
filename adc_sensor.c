@@ -9,7 +9,8 @@ static void adc_schedule(void);
 
 struct sensor_type adc_sensor = {
         .sample_fn = &adc_sensor_sample,
-        .no_stop = false
+        /* We are using the bus clock therefore we must no enter STOP */
+        .no_stop = true
 };
 
 static void

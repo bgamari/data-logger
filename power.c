@@ -4,6 +4,10 @@
 
 /* Power management */
 
+/*
+ * These cannot be updated without also changing the LLWU
+ * configuration below
+ */
 #define WAKEUP_PIN PIN_PTA4
 #define USB_SENSE_PIN PIN_PTD6
 
@@ -129,6 +133,7 @@ back_to_sleep(void *cbdata)
                 enter_low_power_mode();
 }
 
+#ifdef USB_SENSE_PIN
 void
 usb_sense_pin_handler(void *cbdata)
 {
@@ -140,6 +145,7 @@ usb_sense_pin_handler(void *cbdata)
         }
 }
 PIN_DEFINE_CALLBACK(USB_SENSE_PIN, PIN_CHANGE_EITHER, usb_sense_pin_handler, NULL);
+#endif
 
 void
 wakeup_pin_handler(void *cbdata)

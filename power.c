@@ -128,12 +128,14 @@ back_to_sleep(void *cbdata)
 void
 usb_sense_pin_handler(void *cbdata)
 {
-        if (!low_power_mode)
-                return;
-        exit_low_power_mode();
-        usb_console_init();
+        if (gpio_read(USB_SENSE_PIN)) {
+                exit_low_power_mode();
+                usb_console_init();
+        } else {
+                enter_low_power_mode();
+        }
 }
-PIN_DEFINE_CALLBACK(USB_SENSE_PIN, PIN_CHANGE_RISING, usb_sense_pin_handler, NULL);
+PIN_DEFINE_CALLBACK(USB_SENSE_PIN, PIN_CHANGE_EITHER, usb_sense_pin_handler, NULL);
 
 void
 wakeup_pin_handler(void *cbdata)

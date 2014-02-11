@@ -18,6 +18,7 @@ unsigned int get_sample_period();
 void take_sample();
 void start_acquire();
 void stop_acquire();
+bool acquire_is_idle();
 
 // Reading back samples
 int read_samples(struct spiflash_ctx *spiflash,

@@ -93,6 +93,15 @@ void stop_acquire()
         acquire_blink_state();
 }
 
+bool acquire_is_idle()
+{
+        for (struct sensor **s = &sensors[0]; *s != NULL; s++) {
+                if ((*s)->busy)
+                        return false;
+        }
+        return true;
+}
+
 static struct sensor_listener listener;
 
 void acquire_init()

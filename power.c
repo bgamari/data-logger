@@ -109,8 +109,10 @@ power_init()
         LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
 
         // Configure USB sense pin
+#ifdef USB_SENSE_PIN
 	gpio_dir(USB_SENSE_PIN, GPIO_INPUT);
         LLWU.wupe[3].wupe3 = LLWU_PE_RISING;
+#endif
 
         int_enable(IRQ_LLWU);
 }
@@ -174,10 +176,12 @@ LLWU_Handler(void)
         if (LLWU.wuf1 & (1<<3)) {
                 wakeup_pin_handler(NULL);
         }
+#ifdef USB_SENSE_PIN
         if (LLWU.wuf2 & (1<<7)) {
                 usb_sense_pin_handler(NULL);
         }
-        
+#endif        
+
         LLWU.wuf1 = 0xff;
         LLWU.wuf2 = 0xff;
         LLWU.mwuf = 0xff;

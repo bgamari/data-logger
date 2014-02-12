@@ -35,6 +35,7 @@ take_sample()
         }
 }
 
+/* Take a sample and schedule next sample */
 static void
 alarm_cb(void *data)
 {
@@ -54,8 +55,10 @@ set_sample_period(unsigned int milliseconds)
                 return;
         
         crit_enter();
-        if (acquire_running)
+        if (acquire_running) {
+                timeout_cancel(&timeout);
                 rtc_alarm_cancel(&alarm);
+        }
         sample_period = milliseconds;
         if (acquire_running)
                 alarm_cb(NULL);

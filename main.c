@@ -366,7 +366,6 @@ main(void)
 {
         config_pins();
         power_init();
-        adc_init();
         spi_init();
         spiflash_pins_init();
         pin_change_init();

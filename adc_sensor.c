@@ -28,6 +28,10 @@ void
 adc_sensor_sample(struct sensor *sensor)
 {
         struct adc_sensor_data *sd = sensor->sensor_data;
+        if (!adc_initialized) {
+                adc_init();
+                adc_initialized = true;
+        }
         adc_queue_sample(&sd->ctx, sd->channel, sd->mode,
                          adc_sensor_sample_done, sensor);
 }

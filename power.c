@@ -1,6 +1,7 @@
 #include "power.h"
 #include "acquire.h"
 #include "usb_console.h"
+#include "adc_sensor.h"
 
 /* Power management */
 
@@ -93,6 +94,7 @@ exit_low_power_mode()
 #endif
         exit_blpi();
         low_power_mode = false;
+        adc_initialized = false;
 }
 
 void

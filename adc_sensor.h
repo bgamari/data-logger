@@ -4,11 +4,6 @@
 
 typedef accum (*adc_map_func)(uint16_t codepoint, void *map_data);
 
-struct sample_queue {
-        struct sensor *sensor;
-        struct sample_queue *next;
-};
-
 struct adc_sensor_data {
         enum adc_channel channel;
         enum adc_mode mode;
@@ -16,7 +11,7 @@ struct adc_sensor_data {
         void *map_data;
 
         // internal
-        struct sample_queue queue;
+        struct adc_queue_ctx ctx;
 };
 
 extern struct sensor_type adc_sensor;

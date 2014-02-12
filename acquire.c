@@ -92,6 +92,7 @@ void stop_acquire()
 {
         if (!acquire_running) return;
         rtc_alarm_cancel(&alarm);
+        timeout_cancel(&timeout);
         acquire_running = false;
         acquire_blink_state();
 }

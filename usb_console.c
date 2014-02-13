@@ -72,6 +72,12 @@ usb_console_printf(const char *fmt, ...)
         return ret;
 }
 
+size_t
+usb_console_write(const char *buf, size_t len)
+{
+        return out_file_write((const uint8_t *) buf, len, NULL);
+}
+
 static void
 do_flush(size_t sent)
 {

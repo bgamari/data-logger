@@ -140,7 +140,7 @@ print_sensor(void *cbdata)
         if (*s == NULL) {
                 finish_reply();
         } else {
-                OUT("%2d    %15s    %10s\n",
+                OUT("%2d\t%15s\t%10s\n",
                     (*s)->sensor_id,
                     (*s)->name ? (*s)->name : "unknown",
                     (*s)->unit ? (*s)->unit : "unknown");

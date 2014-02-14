@@ -2,7 +2,7 @@
 #include <math.h>
 
 static accum
-temperature_map(uint16_t codepoint, void *map_data)
+core_temperature_map(uint16_t codepoint, void *map_data)
 {
         unsigned accum voltage = adc_as_voltage(codepoint);
         accum volt_diff = voltage - 0.719k;
@@ -11,9 +11,9 @@ temperature_map(uint16_t codepoint, void *map_data)
         return temp_deg;
 }
 
-struct adc_sensor_data temperature_sensor_data = {
+struct adc_sensor_data core_temperature_sensor_data = {
         .channel = ADC_TEMP,
-        .map = temperature_map
+        .map = core_temperature_map
 };
                  
 accum

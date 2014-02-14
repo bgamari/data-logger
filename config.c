@@ -11,7 +11,7 @@ struct sensor temperature_sensor = {
         .name = "onboard-temperature",
         .unit = "Kelvin",
         .sensor_id = 1,
-        .sensor_data = &temperature_sensor_data
+        .sensor_data = &core_temperature_sensor_data
 };
 
 struct thermistor_map_data thermistor_map_data = {

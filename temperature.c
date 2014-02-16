@@ -13,6 +13,7 @@ core_temperature_map(uint16_t codepoint, void *map_data)
 
 struct adc_sensor_data core_temperature_sensor_data = {
         .channel = ADC_TEMP,
+        .mode = ADC_AVG_32 | ADC_MODE_POWER_LOW | ADC_MODE_SAMPLE_LONG,
         .map = core_temperature_map
 };
                  

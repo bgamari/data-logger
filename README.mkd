@@ -68,7 +68,10 @@ We described a subset of the functions of `data-logger`. `data-logger
 ## internal command set
 
 The device exposes a CDC-ACM device over its USB interface. There is a
-very primitive command set for communicating with the device,
+very primitive command set for communicating with the device. Running
+`make console` in this directory will start
+[picocom](https://code.google.com/p/picocom/) as a convenient way of
+exploring these commands. One can exit with `Ctrl-A Ctrl-X`.
 
  * `a=[bool]`: Start or stop acquisition
  * `f`: Force taking a sample

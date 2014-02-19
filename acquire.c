@@ -14,12 +14,14 @@ static struct timeout_ctx timeout; // for < 10 seconds
 static struct rtc_alarm_ctx alarm; // for >= 10 seconds
 
 static void
-on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
+on_sample_cb(struct sensor *sensor, uint32_t time, uint8_t measurable,
+             accum value, void *cbdata)
 {
         struct sample s = {
-                        .time = rtc_get_time(),
-                        .sensor_id = sensor->sensor_id,
-                        .value = value
+                .time = time,
+                .sensor_id = sensor->sensor_id,
+                .measurable = measurable,
+                .value = value
         };
         sample_store_push(s);
 }

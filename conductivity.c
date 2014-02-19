@@ -157,7 +157,7 @@ static void
 cond_sensor_sample_cb(unsigned accum conductivity, void* cbdata)
 {
         struct sensor *sensor = cbdata;
-        sensor_new_sample(sensor, conductivity);
+        sensor_new_sample(sensor, 0, conductivity);
 }
 
 static void

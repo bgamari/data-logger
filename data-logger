@@ -6,6 +6,12 @@ import time
 import datetime
 from data_logger import DataLogger
 
+def print_sample_header():
+    print("# time         sensor    measurable   value")
+    
+def print_sample(sample):
+    print("%-10d     %-2d     %-2d     %-3.4f" % sample)
+    
 def fetch_handler(logger, args):
     nsamples = logger.get_sample_count()
 
@@ -20,12 +26,12 @@ def fetch_handler(logger, args):
             raise RuntimeError('Too many samples requested')
         count = args.count
 
-    print("# time         sensor    value")
+    print_sample_header()
     for sample in logger.fetch_samples(start, count):
-        (time, sensor, value) = sample
+        (_, sensor, _, _) = sample
         if args.sensor is not None and sensor != args.sensor:
             continue
-        print("%-10d     %-2d        %-3.4f" % (time, sensor, value))
+        print_sample(sample)
 
 def start_handler(logger, args):
     # Ensure that time is set
@@ -69,9 +75,10 @@ def print_last_handler(logger, args):
     if args.force_sample:
         logger.force_sample()
         time.sleep(0.1)
-    print("# time            sensor      value")
-    for (t, sensor, value) in logger.get_last_sample():
-        print("%-10d        %-2d          %-3.4f" % (t, sensor, value))
+
+    print_sample_header()
+    for sample in logger.get_last_sample():
+        print_sample(sample)
 
 def set_rtc_handler(logger, args):
     epoch_time = time.time()

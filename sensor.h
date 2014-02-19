@@ -24,9 +24,20 @@ struct sensor {
 
 int sensor_start_sample(struct sensor *sensor);
 
-void sensor_new_sample(struct sensor *sensor, accum value);
+void sensor_new_sample_list(struct sensor *sensor, size_t elems, ...);
 
-typedef void (*new_sample_cb)(struct sensor *sensor, accum value, void *cbdata);
+__attribute__((__always_inline__))
+inline void
+sensor_new_sample(struct sensor *sensor, unsigned int measurable, accum value, ...)
+{
+        (sensor_new_sample_list(sensor, __builtin_va_arg_pack_len() / 2 + 1,
+                                measurable, value,
+                                __builtin_va_arg_pack()));
+}
+
+typedef void (*new_sample_cb)(struct sensor *sensor,
+                              uint32_t time, uint8_t measurable,
+                              accum value, void *cbdata);
 
 /*
  * listening for samples

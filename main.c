@@ -67,10 +67,11 @@ static volatile bool verbose = false;
 struct sensor_listener listener;
 
 static void
-on_sample_cb(struct sensor *sensor, accum value, void *cbdata)
+on_sample_cb(struct sensor *sensor, uint32_t time,
+             uint8_t measurable, accum value, void *cbdata)
 {
         if (verbose)
-                printf("%d     %3.3k\n", sensor->sensor_id, value);
+                printf("%d     %d     %3.3k\n", sensor->sensor_id, measurable, value);
 }
 
 /*
@@ -92,8 +93,9 @@ print_sample_binary(const struct sample *sample)
 static void
 print_sample_text(const struct sample *sample)
 {
-        usb_console_printf("%10d    %2d    %2.3k\n",
-                           sample->time, sample->sensor_id, sample->value);
+        usb_console_printf("%10d    %2d    %2d    %2.3k\n",
+                           sample->time, sample->sensor_id,
+                           sample->measurable, sample->value);
 }
 
 static void (*print_sample)(const struct sample *) = print_sample_text;

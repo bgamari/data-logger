@@ -82,7 +82,8 @@ radio_send()
 }
 
 static void
-radio_new_sample(struct sensor *sensor, accum value, void *cbdata)
+radio_new_sample(struct sensor *sensor, uint32_t time,
+                 uint8_t measurable, accum value, void *cbdata)
 {
         if (!radio_enabled)
                 return;

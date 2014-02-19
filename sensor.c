@@ -12,21 +12,37 @@ sensor_start_sample(struct sensor *sensor)
         return 0;
 }
 
-void
-sensor_new_sample(struct sensor *sensor, accum value)
+static void
+sensor_new_measurement(struct sensor *sensor, uint32_t time,
+                       uint8_t measurable, accum value)
 {
         struct sensor_listener *l = listeners;
         crit_enter();
-        sensor->last_sample_time = rtc_get_time();
+        sensor->last_sample_time = time;
         sensor->last_sample = value;
-        sensor->busy = false;
         crit_exit();
         while (l) {
-                l->new_sample(sensor, value, l->cbdata);
+                l->new_sample(sensor, time, measurable, value, l->cbdata);
                 l = l->next;
         }
 }
 
+void
+sensor_new_sample_list(struct sensor *sensor, size_t elems, ...)
+{
+        va_list ap;
+        uint32_t time = rtc_get_time();
+        
+        va_start(ap, elems);
+        for ( ; elems > 0; elems--) {
+                uint8_t measurable = va_arg(ap, unsigned int);
+                accum value = va_arg(ap, accum);
+                sensor_new_measurement(sensor, time, measurable, value);
+        }
+        va_end(ap);
+        sensor->busy = false;
+}
+        
 void
 sensor_listen(struct sensor_listener *listener,
               new_sample_cb new_sample, void *cbdata)

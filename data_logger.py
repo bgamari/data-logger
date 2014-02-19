@@ -51,12 +51,13 @@ class DataLogger(object):
 
     def _parse_sample(self, line):
         l = line.split()
-        if len(l) != 3:
+        if len(l) != 4:
             raise RuntimeError("Invalid sample line")
         time = int(l[0])
         sensor = int(l[1])
-        value = float(l[2])
-        return (time, sensor, value)
+        measurable = int(l[2])
+        value = float(l[3])
+        return (time, sensor, measurable, value)
 
     def fetch_samples(self, start, count):
         self._write_cmd('g %d %d' % (start, count))

@@ -29,19 +29,26 @@ provides various details of the device and its status. After plugging
 in a new device, its output will look something like this,
 
     $ ./data-logger info
-    firmware version: 0136b40382c69b1dfd627ef6dadbfe6517eb8402
-    device ID: 24404e45-2d0011-ffff0052-ffffffff
-    samples collected: 0
-    flash: mfg=ef memtype=40 capacity=14
-    RTC time: 1970-01-01T00:00:00 = 0
+    firmware version: c84529f15f3d0d38f643bdc7b891655678370129
+    device ID: 24404e45-280011-ffff0054-ffffffff
+    samples collected: 30977
+    flash: mfg=bf memtype=25 capacity=8e
+    RTC time: 2014-02-20T19:20:00 = 1392924000
     sample period: 30 seconds
     acquisition: stopped
     
     sensors:
-    1 	onboard-temperature           	Kelvin    
-    2 	thermistor                    	Kelvin    
-    3 	thermistor                    	Kelvin    
-    4 	conductivity                  	arbitrary 
+    1 	onboard-temperature 
+        0 	temperature         	Kelvin              
+    
+    2 	external temperature
+        0 	temperature         	Kelvin              
+    
+    5 	gps                 
+        0 	latitude            	degrees             
+        1 	longitude           	degrees             
+        2 	altitude            	meters              
+        3 	n-satellites        	count               
 
 To begin data acquisition use the `start` command,
 
@@ -64,6 +71,15 @@ Finally, the collected data can be downloaded with the `fetch` command,
 
 We described a subset of the functions of `data-logger`. `data-logger
 --help` for a more thorough description.
+
+## core concepts
+
+`data-logger` is intended for long-term, periodic recording of sensor
+data. Each *sensor* (e.g. a thermometer, accelerometer sensor, or GPS)
+may report one or more *measurements*. In the case of, e.g., a GPS
+module these may be the reported latitude, longitude, and
+altitude. These measurements (or *samples*) are stored in FLASH memory
+for later retrieval.
 
 ## internal command set
 

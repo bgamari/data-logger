@@ -386,7 +386,6 @@ main(void)
         sample_store_init();
         usb_console_line_recvd_cb = console_line_recvd;
         usb_console_init();
-        cond_init();
         acquire_init();
         radio_init();
         sensor_listen(&listener, on_sample_cb, NULL);

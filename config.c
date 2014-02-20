@@ -88,7 +88,7 @@ struct sensor *sensors[] = {
         &temperature_sensor,
         &thermistor_sensor,
         //&thermistor2_sensor,
-        &conductivity_sensor,
+        //&conductivity_sensor,
         &gps_sensor,
         NULL
 };
@@ -99,6 +99,7 @@ config_pins()
         pin_mode(PIN_PTB0, PIN_MODE_MUX_ANALOG);
         pin_mode(PIN_PTD5, PIN_MODE_MUX_ANALOG);
         //pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT3 | PIN_MODE_PULLUP);
+        //cond_init();
 
         nmea_init(&gps_sensor);
         pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT2);

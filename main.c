@@ -150,11 +150,33 @@ print_sensor(void *cbdata)
         if (*s == NULL) {
                 finish_reply();
         } else {
-                OUT("%2d\t%15s\t%10s\n",
+                OUT("%2d\t%20s\n",
                     (*s)->sensor_id,
-                    (*s)->name ? (*s)->name : "unknown",
-                    (*s)->unit ? (*s)->unit : "unknown");
+                    (*s)->name);
                 usb_console_flush(print_sensor, s+1);
+        }
+}
+
+// `m` command: list measurables of sensor
+struct list_measurables_state {
+        struct sensor *sensor;
+        unsigned int measurable_idx;
+} list_measurables_state;
+
+static void
+print_measurable(void *cbdata)
+{
+        struct sensor *s = list_measurables_state.sensor;
+        if (list_measurables_state.measurable_idx < s->type->n_measurables) {
+                struct measurable *m = &s->type->measurables[list_measurables_state.measurable_idx];
+                OUT("%2d\t%20s\t%20s\n",
+                    m->id,
+                    m->name ? m->name : "unknown",
+                    m->unit ? m->unit : "unknown");
+                list_measurables_state.measurable_idx++;
+                usb_console_flush(print_measurable, NULL);
+        } else {
+                finish_reply();
         }
 }
 
@@ -281,6 +303,25 @@ process_command()
         case 's':     // list sensors
                 print_sensor(sensors);
                 break;
+        case 'm':     // list measurables
+        {
+                uint32_t sensor_id = strtoul(&data[2], NULL, 10);
+                struct sensor **s=sensors;
+                while (*s) {
+                        if ((*s)->sensor_id == sensor_id) {
+                                list_measurables_state.sensor = *s;
+                                list_measurables_state.measurable_idx = 0;
+                                print_measurable(NULL);
+                                break;
+                        }
+                        s++;
+                }
+                if (*s == NULL) {
+                        OUT("unknown sensor\n");
+                        finish_reply();
+                }
+                break;
+        }
         case 'l':     // list last sensor values
                 last_sensor_sample(sensors);
                 break;

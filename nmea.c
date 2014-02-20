@@ -4,7 +4,6 @@
 #include <string.h>
 #include "nmea.h"
 
-#pragma GCC optimize("0")
 static void
 nmea_set_enable(struct sensor *sensor, bool enabled)
 {
@@ -171,8 +170,19 @@ nmea_sample(struct sensor *sensor)
         nmea_read(sensor);
 }
 
+const char degrees[] = "degrees";
+
+struct measurable nmea_gps_measurables[] = {
+        {.id = 0, .name = "latitude", .unit = degrees},
+        {.id = 1, .name = "longitude", .unit = degrees},
+        {.id = 2, .name = "altitude", .unit = "meters"},
+        {.id = 3, .name = "n-satellites", .unit = "count"},
+};
+        
 struct sensor_type nmea_gps_sensor = {
         .sample_fn = nmea_sample,
-        .no_stop = true
+        .no_stop = true,
+        .n_measurables = 4,
+        .measurables = nmea_gps_measurables
 };
 

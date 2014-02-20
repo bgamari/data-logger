@@ -1,6 +1,17 @@
 #include "thermistor.h"
 #include <math.h>
 
+static struct measurable thermistor_measurables[] = {
+        {.id = 0, .name = "temperature", .unit = "Kelvin"}
+};
+
+struct sensor_type thermistor_sensor_type = {
+        .sample_fn = &adc_sensor_sample,
+        .no_stop = true,
+        .n_measurables = 1,
+        .measurables = thermistor_measurables,
+};
+
 accum
 thermistor_map(uint16_t codepoint, void *map_data)
 {

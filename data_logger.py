@@ -119,11 +119,19 @@ class DataLogger(object):
     def list_sensors(self):
         self._write_cmd('s')
         for l in self._read_reply():
-            parts = l.split()
+            parts = l.split('\t')
             sensor_id = int(parts[0])
             name = parts[1]
+            yield (sensor_id, name)
+
+    def list_sensor_measurables(self, sensor_id):
+        self._write_cmd('m %d' % sensor_id)
+        for l in self._read_reply():
+            parts = l.split('\t')
+            meas_id = int(parts[0])
+            name = parts[1]
             unit = parts[2]
-            yield (sensor_id, name, unit)
+            yield (meas_id, name, unit)
 
     def get_last_sample(self):
         self._write_cmd('l')

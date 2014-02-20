@@ -19,3 +19,4 @@ struct thermistor_map_data {
 accum
 thermistor_map(uint16_t codepoint, void *map_data);
 
+extern struct sensor_type thermistor_sensor_type;

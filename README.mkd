@@ -88,6 +88,7 @@ exploring these commands. One can exit with `Ctrl-A Ctrl-X`.
  * `n`: Print number of samples taken
  * `n!`: Erase all samples
  * `s`: List configured sensors
+ * `m [sensor id]`: List measurables of given sensor
  * `V`: Print firmware version (commit id)
  * `I`: Print device ID
  * `p!`: Enter power-saving mode immediately

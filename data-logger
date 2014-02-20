@@ -68,8 +68,12 @@ def info_handler(logger, args):
           ('running' if logger.get_acquisition_state() else 'stopped'))
     print('')
     print("sensors:")
-    for (sid, name, unit) in logger.list_sensors():
-        print("%-2d\t%-30s\t%-10s" % (sid, name, unit))
+    sensors = list(logger.list_sensors())
+    for (sid, name) in sensors:
+        print("%-2d\t%-20s" % (sid, name))
+        for (mid, name, unit) in logger.list_sensor_measurables(sid):
+            print("    %-2d\t%-20s\t%-20s" % (mid, name, unit))
+        print
 
 def print_last_handler(logger, args):
     if args.force_sample:

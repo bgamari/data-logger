@@ -6,11 +6,10 @@
 #include "acquire.h"
 #include "nmea.h"
 
-// on-board temperature
+// core temperature
 struct sensor temperature_sensor = {
-        .type = &adc_sensor,
+        .type = &core_temp_sensor_type,
         .name = "onboard-temperature",
-        .unit = "Kelvin",
         .sensor_id = 1,
         .sensor_data = &core_temperature_sensor_data
 };
@@ -33,9 +32,8 @@ struct adc_sensor_data lm19_adc_sensor_data = {
 };
         
 struct sensor thermistor_sensor = {
-        .type = &adc_sensor,
+        .type = &thermistor_sensor_type,
         .name = "external temperature",
-        .unit = "Celcius",
         .sensor_id = 2,
         .sensor_data = &lm19_adc_sensor_data,
 };
@@ -51,7 +49,6 @@ struct adc_sensor_data thermistor2_adc_sensor_data = {
 struct sensor thermistor2_sensor = {
         .sample = &adc_sensor_sample,
         .name = "thermistor",
-        .unit = "Kelvin",
         .sensor_id = 3,
         .sensor_data = &thermistor2_adc_sensor_data,
 };
@@ -65,7 +62,6 @@ struct cond_sensor_data cond_sensor_data = {
 struct sensor conductivity_sensor = {
         .type = &cond_sensor,
         .name = "conductivity",
-        .unit = "arbitrary",
         .sensor_id = 4,
         .sensor_data = &cond_sensor_data,
 };
@@ -79,7 +75,6 @@ struct nmea_sensor_data gps_sensor_data = {
 struct sensor gps_sensor = {
         .type = &nmea_gps_sensor,
         .name = "gps",
-        .unit = "degrees",
         .sensor_id = 5,
         .sensor_data = &gps_sensor_data
 };

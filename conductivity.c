@@ -167,8 +167,14 @@ cond_sensor_sample(struct sensor *sensor)
         cond_average(&sd->ctx, sd->avg_count, cond_sensor_sample_cb, sensor);
 }
 
+static struct measurable cond_measurables[] = {
+        {.id = 0, .name = "conductivity", .unit = "arbitrary"},
+};
+
 struct sensor_type cond_sensor = {
         .sample_fn = &cond_sensor_sample,
         /* FTM modules do not operate in STOP modes */
-        .no_stop = true
+        .no_stop = true,
+        .n_measurables = 1,
+        .measurables = cond_measurables
 };

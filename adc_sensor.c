@@ -9,10 +9,16 @@
  */
 bool adc_initialized = false;
 
-struct sensor_type adc_sensor = {
+struct measurable adc_measurables[] = {
+        {.id = 0, .name = "voltage", .unit = "Volts"}
+};
+
+struct sensor_type generic_adc_sensor = {
         .sample_fn = &adc_sensor_sample,
-        /* We are using the bus clock therefore we must no enter STOP */
-        .no_stop = true
+        /* We are using the bus clock therefore we must not enter STOP */
+        .no_stop = true,
+        .n_measurables = 1,
+        .measurables = adc_measurables
 };
 
 static void

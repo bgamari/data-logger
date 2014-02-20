@@ -11,6 +11,17 @@ core_temperature_map(uint16_t codepoint, void *map_data)
         return temp_deg;
 }
 
+static struct measurable core_temp_measurables[] = {
+        {.id = 0, .name = "temperature", .unit = "Kelvin"}
+};
+
+struct sensor_type core_temp_sensor_type = {
+        .sample_fn = &adc_sensor_sample,
+        .no_stop = true,
+        .n_measurables = 1,
+        .measurables = core_temp_measurables
+};
+
 struct adc_sensor_data core_temperature_sensor_data = {
         .channel = ADC_TEMP,
         .mode = ADC_AVG_32 | ADC_MODE_POWER_LOW | ADC_MODE_SAMPLE_LONG,

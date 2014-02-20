@@ -136,8 +136,4 @@ class DataLogger(object):
     def get_last_sample(self):
         self._write_cmd('l')
         for l in self._read_reply():
-            parts = l.split()
-            last_sample_time = int(parts[0])
-            sensor_id = int(parts[1])
-            last_value = float(parts[2])
-            yield (last_sample_time, sensor_id, last_value)
+            yield self._parse_sample(l)

@@ -9,6 +9,8 @@ struct measurable {
         uint8_t id;
         const char *name;
         const char *unit;
+
+        accum last_value;
 };
 
 struct sensor_type {
@@ -25,7 +27,6 @@ struct sensor {
         uint16_t sensor_id;
         void *sensor_data;
         uint32_t last_sample_time;
-        accum last_sample;
         bool busy;
 };
 

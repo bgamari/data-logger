@@ -15,6 +15,7 @@
 #include "nv_config.h"
 #include "sample_store.h"
 #include "radio.h"
+#include "sensor_iter.h"
 
 /*
  * command processing
@@ -181,17 +182,22 @@ print_measurable(void *cbdata)
 }
 
 // `l` command: last sensor value
+struct measurable_iterator last_sample_iter;
+
 static void
 last_sensor_sample(void *cbdata)
 {
-        struct sensor **s = cbdata;
-        if (*s == NULL) {
-                finish_reply();
-        } else {
-                OUT("%10d    %2d    %2.3k\n", (*s)->last_sample_time,
-                    (*s)->sensor_id,
-                    (*s)->last_sample);
+        if (meas_iter_next(&last_sample_iter)) {
+                struct sensor *s = meas_iter_get_sensor(&last_sample_iter);
+                struct measurable *m = meas_iter_get_measurable(&last_sample_iter);
+                OUT("%d    %10d    %2d    %2.3k\n",
+                    s->last_sample_time,
+                    s->sensor_id,
+                    m->id,
+                    m->last_value);
                 usb_console_flush(last_sensor_sample, s+1);
+        } else {
+                finish_reply();
         }
 }
 
@@ -323,6 +329,7 @@ process_command()
                 break;
         }
         case 'l':     // list last sensor values
+                meas_iter_init(&last_sample_iter);
                 last_sensor_sample(sensors);
                 break;
         case 'n':     // fetch stored sample count

@@ -19,8 +19,15 @@ sensor_new_measurement(struct sensor *sensor, uint32_t time,
         struct sensor_listener *l = listeners;
         crit_enter();
         sensor->last_sample_time = time;
-        sensor->last_sample = value;
+        for (unsigned int i=0; i<sensor->type->n_measurables; i++) {
+                struct measurable *m = &sensor->type->measurables[i];
+                if (m->id == measurable) {
+                        m->last_value = value;
+                        break;
+                }
+        }
         crit_exit();
+
         while (l) {
                 l->new_sample(sensor, time, measurable, value, l->cbdata);
                 l = l->next;

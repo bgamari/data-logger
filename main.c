@@ -86,20 +86,12 @@ static struct spiflash_transaction sample_read_trans;
 static void print_stored_sample(void *cbdata);
 
 static void
-print_sample_binary(const struct sample *sample)
-{
-        usb_console_write((const char *) sample, sizeof(sample));
-}
-
-static void
-print_sample_text(const struct sample *sample)
+print_sample(const struct sample *sample)
 {
         usb_console_printf("%10d    %2d    %2d    %2.3k\n",
                            sample->time, sample->sensor_id,
                            sample->measurable, sample->value);
 }
-
-static void (*print_sample)(const struct sample *) = print_sample_text;
 
 static void
 get_stored_sample(void *cbdata)
@@ -265,11 +257,9 @@ process_command()
                         finish_reply();
                 }
                 break;
-        case 'g':     // get stored samples (text)
-        case 'G':     // get stored samples (binary)
+        case 'g':     // get stored samples
         {
                 char *pos;
-                print_sample = data[0] == 'G' ? print_sample_binary : print_sample_text;
                 sample_idx = strtoul(&data[2], &pos, 10);
                 sample_end = sample_idx + strtoul(&pos[1], NULL, 10);
                 if (sample_end - sample_idx > 0)

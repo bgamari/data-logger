@@ -4,6 +4,7 @@
 #include "temperature.h"
 #include "conductivity.h"
 #include "acquire.h"
+#include "nmea.h"
 
 // on-board temperature
 struct sensor temperature_sensor = {
@@ -69,11 +70,26 @@ struct sensor conductivity_sensor = {
         .sensor_data = &cond_sensor_data,
 };
 
+struct nmea_sensor_data gps_sensor_data = {
+        .uart = &uart0,
+        .enable_pin = 0,
+        .baudrate = 57600
+};
+
+struct sensor gps_sensor = {
+        .type = &nmea_gps_sensor,
+        .name = "gps",
+        .unit = "degrees",
+        .sensor_id = 5,
+        .sensor_data = &gps_sensor_data
+};
+
 struct sensor *sensors[] = {
         &temperature_sensor,
         &thermistor_sensor,
         //&thermistor2_sensor,
         &conductivity_sensor,
+        &gps_sensor,
         NULL
 };
 
@@ -82,6 +98,9 @@ config_pins()
 {
         pin_mode(PIN_PTB0, PIN_MODE_MUX_ANALOG);
         pin_mode(PIN_PTD5, PIN_MODE_MUX_ANALOG);
-        pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT3 | PIN_MODE_PULLUP);
-        //PORTA.pcr[1].irqc = PCR_IRQC_INT_FALLING;
+        //pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT3 | PIN_MODE_PULLUP);
+
+        nmea_init(&gps_sensor);
+        pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT2);
+        pin_mode(PIN_PTA2, PIN_MODE_MUX_ALT2);
 }

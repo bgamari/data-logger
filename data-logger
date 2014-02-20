@@ -51,8 +51,8 @@ def stop_handler(logger, args):
     print("Acquisition stopped")
 
 def erase_handler(logger, args):
-    logger.erase()
-    print("Samples erase")
+    logger.erase_samples()
+    print("Samples erased")
     
 def info_handler(logger, args):
     count = logger.get_sample_count()

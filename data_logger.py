@@ -59,10 +59,19 @@ class DataLogger(object):
         value = float(l[3])
         return (time, sensor, measurable, value)
 
-    def fetch_samples(self, start, count):
+    def fetch_sample_chunk(self, start, count):
         self._write_cmd('g %d %d' % (start, count))
         for l in self._read_reply():
             yield self._parse_sample(l)
+
+    def fetch_samples(self, start, count):
+        chunk_sz = 100
+        i = start
+        while i < start+count:
+            c = min(chunk_sz, i-start+count)
+            for s in self.fetch_sample_chunk(i, c):
+                yield s
+            i += c
 
     def erase_samples(self):
         self._write_cmd('n!')

@@ -1,7 +1,7 @@
 # data-logger
 
 This is a set of firmware for autonomously logging sensor measurements
-(e.g. for environmental monitoring purposes) for the
+(e.g. for environmental monitoring purposes) on the
 [MC HCK](http://www.mchck.org/).
 
 This firmware takes advantage of the low power consumption of the MC

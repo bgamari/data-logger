@@ -1,4 +1,6 @@
+#include <mchck.h>
 #include <math.h>
+#include "sensors/lm19.h"
 
 accum
 lm19_map(uint16_t codepoint, void *map_data)

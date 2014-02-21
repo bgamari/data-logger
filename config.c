@@ -2,17 +2,18 @@
 #include "acquire.h"
 
 #include "sensors/thermistor.h"
-#include "sensors/temperature.h"
+#include "sensors/core_temp.h"
+#include "sensors/lm19.h"
 #include "sensors/conductivity.h"
 #include "sensors/nmea.h"
 #include "sensors/bmp085_sensor.h"
 
 // core temperature
-struct sensor temperature_sensor = {
+struct sensor core_temp_sensor = {
         .type = &core_temp_sensor_type,
-        .name = "onboard-temperature",
+        .name = "core temperature",
         .sensor_id = 1,
-        .sensor_data = &core_temperature_sensor_data
+        .sensor_data = &core_temp_sensor_data
 };
 
 struct thermistor_map_data thermistor_map_data = {
@@ -90,7 +91,7 @@ struct sensor bmp085_sensor = {
 };
 
 struct sensor *sensors[] = {
-        &temperature_sensor,
+        &core_temp_sensor,
         &thermistor_sensor,
         //&thermistor2_sensor,
         //&conductivity_sensor,

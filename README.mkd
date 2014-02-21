@@ -126,11 +126,17 @@ loses power, it will lose track of the location of the last sample it
 wrote. For this reason, it is necessary for the device to scan the
 FLASH to recover this location. This is done with the `R` command.
 
-## Power-saving mode
+## Low-power mode
 
 Note: This isn't completely implemented yet.
 
 This is the mode the device should be in while in the field taking
 measurements. Here most of the functions of the device are
-disabled. It is necessary to wake up the device with the "wake up"
-button before the USB interface can be used.
+disabled. 
+
+Note that the microcontroller unfortunately does not have the ability
+to wake itself up when plugged in to a USB port without external
+circuitry (namely pin `PTD6` connected to the USB +5V rail through the
+appropriate voltage divider, see `power.c`). Without this circuitry it
+is necessary to wake up the device with the "wake up" button before
+the USB interface can be used.

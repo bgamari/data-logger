@@ -26,7 +26,8 @@ parse_fixed(const char *s, char **next)
         char *point;
         accum whole = 1. * strtol(s, &point, 10);
         if (*point != '.') {
-                *next = point;
+                if (next)
+                        *next = point;
                 return whole;
         }
 

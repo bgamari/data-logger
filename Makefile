@@ -13,7 +13,7 @@ SRCS += data-logger.desc
 include ../../toolchain/mchck.mk
 
 LDFLAGS += -lm
-CWARNFLAGS += -Werror -Wno-format -Wstack-usage=64
+CWARNFLAGS += -Werror -Wno-format -Wstack-usage=64 -fstack-usage
 CFLAGS += -DCOMMIT_ID=\"$(shell git rev-parse HEAD)\"
 PRINTF_WITH = FIXPOINT
 
@@ -25,3 +25,11 @@ console :
 FORCE :
 
 version.c : FORCE
+
+# generate a sorted list of static data allocations
+data-sizes.txt : data-logger.elf
+	nm -S $< | awk -e'{if ($$3=="d" || $$3=="b") print($$2, $$4)}' | sort -nr > $@
+
+# generate a list of functions and their stack usages
+stack-sizes.txt : data-logger.elf
+	awk -e '{print($$2,$$1)}' *.su | sort -nr

@@ -64,7 +64,7 @@ nmea_parse_sentence(struct sensor *sensor, const char *sentence)
                 next = next_field(next);
 
                 // next = lat
-                double lat = parse_fixed(next, NULL);
+                accum lat = parse_fixed(next, NULL);
                 next = next_field(next);
                 // next = N/S
                 if (*next == 'S') {
@@ -96,14 +96,14 @@ nmea_parse_sentence(struct sensor *sensor, const char *sentence)
 
                 next = next_field(next);
                 // next = number of satellites
-                int nsats = strtol(next, NULL, 10);
+                unsigned int nsats = strtoul(next, NULL, 10);
                 
                 next = next_field(next);
                 // next = horizontal precision
 
                 next = next_field(next);
                 // next = altitude
-                double alt = parse_fixed(next, NULL);
+                accum alt = parse_fixed(next, NULL);
                 next = next_field(next);
                 // next = units
                 

@@ -5,6 +5,7 @@
 accum
 lm19_map(uint16_t codepoint, void *map_data)
 {
-        float v = 3.3 * codepoint / 0xffff;
-        return -1481.96 + sqrt(2.1962e6 + (1.8639 - v) / 3.88e-6);
+        accum v = adc_as_voltage(codepoint);
+        // linear approximation for -40oC to +85oC
+        return (v - 1.8583) * 1000 / -11.67;
 }

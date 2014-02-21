@@ -20,6 +20,33 @@ next_field(const char *s)
         return s + 1;
 }
 
+static bool
+nmea_verify_checksum(const char *sentence)
+{
+        uint8_t csum = 0;
+        if (*sentence != '$')
+                return false;
+        sentence++;
+        while (*sentence != '*') {
+                if (*sentence == '\n')
+                        return true; // no checksum given, assume correct
+                if (*sentence == 0)
+                        return false; // premature end of sentence
+                csum ^= *sentence;
+                sentence++;
+        }
+        if (*sentence == '*') {
+                char *end;
+                uint8_t csum2 = strtol(sentence+1, &end, 16);
+                if (*end != '\r')
+                        return false;
+                if (csum2 != csum)
+                        return false;
+
+        }
+        return true;
+}
+
 static accum
 parse_fixed(const char *s, char **next)
 {
@@ -144,7 +171,8 @@ nmea_data_available(void *cbdata)
         const char *sentence = nmea->buffer;
         while (sentence - nmea->buffer < sizeof(nmea->buffer)) {
                 if (*sentence == '$') {
-                        done = nmea_parse_sentence(sensor, sentence);
+                        if (nmea_verify_checksum(sentence))
+                                done = nmea_parse_sentence(sensor, sentence);
                         break;
                 }
                 sentence++;

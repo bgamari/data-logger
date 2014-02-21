@@ -1,5 +1,5 @@
 #pragma once
-#include "adc_sensor.h"
+#include "sensors/adc_sensor.h"
 
 enum thermistor_polarity {
         // thermistor on the high side, fixed resistor on low

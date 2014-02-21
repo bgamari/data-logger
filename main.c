@@ -10,7 +10,7 @@
 #include "acquire.h"
 #include "sensor.h"
 #include "blink.h"
-#include "conductivity.h"
+#include "sensors/conductivity.h"
 #include "usb_console.h"
 #include "nv_config.h"
 #include "sample_store.h"

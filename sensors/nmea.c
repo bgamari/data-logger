@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <string.h>
-#include "nmea.h"
+#include "sensors/nmea.h"
 
 static void
 nmea_set_enable(struct sensor *sensor, bool enabled)

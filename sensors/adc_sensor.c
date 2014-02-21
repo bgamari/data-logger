@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include "config.h"
-#include "adc_sensor.h"
+#include "sensors/adc_sensor.h"
 
 /*
  * Whether the ADC is in a usable state.

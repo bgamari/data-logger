@@ -1,6 +1,6 @@
 #include <mchck.h>
 #include "sensor.h"
-#include "conductivity.h"
+#include "sensors/conductivity.h"
 
 static struct cond_sample_ctx *head = NULL;
 

@@ -1,7 +1,7 @@
 #include "power.h"
 #include "acquire.h"
 #include "usb_console.h"
-#include "adc_sensor.h"
+#include "sensors/adc_sensor.h"
 
 /* Power management */
 

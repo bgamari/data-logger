@@ -1,10 +1,11 @@
 #include "config.h"
-
-#include "thermistor.h"
-#include "temperature.h"
-#include "conductivity.h"
 #include "acquire.h"
-#include "nmea.h"
+
+#include "sensors/thermistor.h"
+#include "sensors/temperature.h"
+#include "sensors/conductivity.h"
+#include "sensors/nmea.h"
+#include "sensors/bmp085_sensor.h"
 
 // core temperature
 struct sensor temperature_sensor = {
@@ -79,12 +80,22 @@ struct sensor gps_sensor = {
         .sensor_data = &gps_sensor_data
 };
 
+struct bmp085_sensor_data bmp085_sensor_data;
+
+struct sensor bmp085_sensor = {
+        .type = &bmp085_sensor_type,
+        .name = "pressure",
+        .sensor_id = 6,
+        .sensor_data = &bmp085_sensor_data
+};
+
 struct sensor *sensors[] = {
         &temperature_sensor,
         &thermistor_sensor,
         //&thermistor2_sensor,
         //&conductivity_sensor,
         &gps_sensor,
+        &bmp085_sensor,
         NULL
 };
 

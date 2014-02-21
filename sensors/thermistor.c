@@ -1,4 +1,4 @@
-#include "thermistor.h"
+#include "sensors/thermistor.h"
 #include <math.h>
 
 static struct measurable thermistor_measurables[] = {

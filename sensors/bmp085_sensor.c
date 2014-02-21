@@ -1,5 +1,5 @@
 #include <mchck.h>
-#include "bmp085-sensor.h"
+#include "sensors/bmp085_sensor.h"
 
 static void
 bmp085_sample_done(uint16_t pressure, void *cbdata)

@@ -1,5 +1,5 @@
 #include <mchck.h>
-#include "bmp085.h"
+#include "sensors/bmp085.h"
 
 /*
  * basic register I/O

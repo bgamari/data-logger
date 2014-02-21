@@ -1,6 +1,6 @@
 #pragma once
-#include "bmp085.h"
 #include "sensor.h"
+#include "sensors/bmp085.h"
 
 struct bmp085_sensor_data {
         struct bmp085_ctx ctx;

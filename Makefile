@@ -1,10 +1,13 @@
 PROG=data-logger
 DEVICE ?= /dev/ttyACM0
 
-SRCS += main.c acquire.c blink.c conductivity.c usb_console.c nv_config.c
-SRCS += sensor.c adc_sensor.c temperature.c thermistor.c sample_store.c
-SRCS += radio.c flash_list.c power.c spiflash_utils.c nmea.c
-SRCS += bmp085-sensor.c bmp085.c
+SENSOR_SRCS += conductivity.c temperature.c thermistor.c nmea.c bmp085.c
+SENSOR_SRCS += bmp085_sensor.c adc_sensor.c
+
+SRCS += main.c acquire.c blink.c usb_console.c nv_config.c
+SRCS += sensor.c sample_store.c
+SRCS += radio.c flash_list.c power.c spiflash_utils.c
+SRCS += $(addprefix sensors/,$(SENSOR_SRCS))
 SRCS += config.c version.c
 SRCS += data-logger.desc
 include ../../toolchain/mchck.mk

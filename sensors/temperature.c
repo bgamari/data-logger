@@ -1,4 +1,4 @@
-#include "temperature.h"
+#include "sensors/temperature.h"
 #include <math.h>
 
 static accum

@@ -139,6 +139,7 @@ nmea_data_available(void *cbdata)
         bool done = false;
         
         /* find beginning of sentence */
+        nmea->buffer[sizeof(nmea->buffer)] = 0; // null-terminate
         const char *sentence = nmea->buffer;
         while (sentence - nmea->buffer < sizeof(nmea->buffer)) {
                 if (*sentence == '$') {

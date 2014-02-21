@@ -31,7 +31,7 @@ new_data(uint8_t *data, size_t len)
 }
 
 // ACM transmit
-#define TX_BUF_SIZE 64
+#define TX_BUF_SIZE 256
 static char tx_buffer[TX_BUF_SIZE];
 static volatile unsigned int tx_head = 0; // where data is placed
 static volatile size_t tx_tail = 0; // where data is read out

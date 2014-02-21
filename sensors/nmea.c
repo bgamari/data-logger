@@ -4,10 +4,22 @@
 #include <string.h>
 #include "sensors/nmea.h"
 
+/* This must not be called while a read is in flight */
+static void
+nmea_mtk_power_save(struct sensor *sensor, bool pwr_save)
+{
+        struct nmea_sensor_data *nmea = sensor->sensor_data;
+        int len = snprintf(nmea->buffer, sizeof(nmea->buffer),
+                           "$PMTK320,%d\r\n", pwr_save); 
+        uart_write(nmea->uart, &nmea->trans, nmea->buffer, len, NULL, NULL);
+}
+
 static void
 nmea_set_enable(struct sensor *sensor, bool enabled)
 {
         struct nmea_sensor_data *nmea = sensor->sensor_data;
+        if (nmea->flavor == NMEA_MTK)
+                nmea_mtk_power_save(sensor, !enabled);
         if (nmea->enable_pin)
                 gpio_write(nmea->enable_pin, enabled);
 }
@@ -215,4 +227,3 @@ struct sensor_type nmea_gps_sensor = {
         .n_measurables = 4,
         .measurables = nmea_gps_measurables
 };
-

@@ -109,6 +109,7 @@ config_pins()
         //cond_init();
 
         nmea_init(&gps_sensor);
+        i2c_init(I2C_RATE_100); // for bmp085
         pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT2);
         pin_mode(PIN_PTA2, PIN_MODE_MUX_ALT2);
 }

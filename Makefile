@@ -13,7 +13,7 @@ SRCS += data-logger.desc
 include ../../toolchain/mchck.mk
 
 LDFLAGS += -lm
-CWARNFLAGS += -Werror -Wno-format
+CWARNFLAGS += -Werror -Wno-format -Wstack-usage=64
 CFLAGS += -DCOMMIT_ID=\"$(shell git rev-parse HEAD)\"
 PRINTF_WITH = FIXPOINT
 

@@ -5,13 +5,33 @@
 #include "sensors/nmea.h"
 
 /* This must not be called while a read is in flight */
+static int
+nmea_write(struct sensor *sensor, const char *fmt, ...)
+{
+        struct nmea_sensor_data *nmea = sensor->sensor_data;
+        va_list args;
+        va_start(args, fmt);
+        int ret = snprintf(nmea->buffer, sizeof(nmea->buffer), fmt, args);
+        va_end(args);
+        if (ret < 0)
+                return ret;
+
+        uint8_t csum = 0;
+        for (unsigned int i=1; i < ret; i++)
+                csum ^= nmea->buffer[i];
+
+        int ret2 = snprintf(&nmea->buffer[ret], sizeof(nmea->buffer) - ret,
+                            "*%02x\r\n", csum);
+        if (ret < 0)
+                return ret;
+        uart_write(nmea->uart, &nmea->trans, nmea->buffer, ret+ret2, NULL, NULL);
+        return ret+ret2;
+}
+
 static void
 nmea_mtk_power_save(struct sensor *sensor, bool pwr_save)
 {
-        struct nmea_sensor_data *nmea = sensor->sensor_data;
-        int len = snprintf(nmea->buffer, sizeof(nmea->buffer),
-                           "$PMTK320,%d\r\n", pwr_save); 
-        uart_write(nmea->uart, &nmea->trans, nmea->buffer, len, NULL, NULL);
+        nmea_write(sensor, "$PMTK320,%d", pwr_save); 
 }
 
 static void

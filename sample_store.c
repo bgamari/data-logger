@@ -79,7 +79,6 @@ sample_store_get_full_behavior()
  */
 struct write_sample {
         struct sample sample;
-        struct spiflash_transaction transaction;
         struct spiflash_write_bytes write_bytes;
         bool pending;
         uint32_t addr;
@@ -112,7 +111,8 @@ ensure_erased(void *cbdata)
         if (next_sector > last_erased_sector) {
                 // erase one sector and check again
                 last_erased_sector++;
-                spiflash_erase_sector(&onboard_flash, &w->transaction,
+                // NOTE: we are reusing write_bytes' transaction
+                spiflash_erase_sector(&onboard_flash, &w->write_bytes.trans,
                                       last_erased_sector * SECTOR_SIZE,
                                       ensure_erased, w);
         } else {

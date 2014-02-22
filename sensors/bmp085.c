@@ -36,7 +36,7 @@ bmp085_read_reg(struct bmp085_ctx *ctx, uint8_t reg,
 {
         ctx->cb = cb;
         ctx->read_reg_cbdata = cbdata;
-        ctx->buf[0] = 0xf4;
+        ctx->buf[0] = reg;
         ctx->trans = (struct i2c_transaction) {
                 .address = 0xee,
                 .direction = I2C_WRITE,
@@ -58,7 +58,7 @@ bmp085_set_control(struct bmp085_ctx *ctx, uint8_t value)
                 .address = 0xee,
                 .direction = I2C_WRITE,
                 .buffer = ctx->buf,
-                .length = 3,
+                .length = 2,
                 .stop = I2C_STOP,
                 .cb = NULL
         };

@@ -7,6 +7,7 @@
 #include "sensors/conductivity.h"
 #include "sensors/nmea.h"
 #include "sensors/bmp085_sensor.h"
+#include "sensors/flow.h"
 
 // core temperature
 struct sensor core_temp_sensor = {
@@ -81,6 +82,7 @@ struct sensor gps_sensor = {
         .sensor_data = &gps_sensor_data
 };
 
+// BMP085 pressure sensor
 struct bmp085_sensor_data bmp085_sensor_data;
 
 struct sensor bmp085_sensor = {
@@ -90,6 +92,19 @@ struct sensor bmp085_sensor = {
         .sensor_data = &bmp085_sensor_data
 };
 
+// flow sensor
+struct flow_sensor_data flow_sensor_data = {
+        .count = 10
+};
+
+struct sensor flow_sensor = {
+        .type = &flow_sensor_type,
+        .name = "flow",
+        .sensor_id = 7,
+        .sensor_data = &flow_sensor_data
+};
+
+// sensor list
 struct sensor *sensors[] = {
         &core_temp_sensor,
         &thermistor_sensor,
@@ -97,6 +112,7 @@ struct sensor *sensors[] = {
         //&conductivity_sensor,
         &gps_sensor,
         &bmp085_sensor,
+        &flow_sensor,
         NULL
 };
 
@@ -109,7 +125,9 @@ config_pins()
         //cond_init();
 
         nmea_init(&gps_sensor);
-        i2c_init(I2C_RATE_100); // for bmp085
+
+        // for bmp085
+        i2c_init(I2C_RATE_100);
         pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT2);
         pin_mode(PIN_PTA2, PIN_MODE_MUX_ALT2);
 }

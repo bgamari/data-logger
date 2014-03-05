@@ -86,9 +86,11 @@ cond_average(struct cond_average_ctx *ctx, unsigned int n,
 void
 cond_init(void)
 {
-        pin_mode(cond_out_pin, PIN_MODE_MUX_ALT3);
-        pin_mode(cond_enable_pin, PIN_MODE_MUX_GPIO);
-        gpio_dir(cond_enable_pin, GPIO_OUTPUT);
+        pin_mode(cond_out_pin, PIN_MODE_MUX_ALT3 | PIN_MODE_PULLUP);
+        if (cond_enable_pin) {
+                pin_mode(cond_enable_pin, PIN_MODE_MUX_GPIO);
+                gpio_dir(cond_enable_pin, GPIO_OUTPUT);
+        }
         
         ftm_init();
         cond_stop();

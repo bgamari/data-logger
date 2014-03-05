@@ -21,6 +21,15 @@ struct sensor_type generic_adc_sensor = {
         .measurables = adc_measurables
 };
 
+void
+adc_sensor_init()
+{
+        if (!adc_initialized) {
+                adc_init();
+                adc_initialized = true;
+        }
+}
+
 static void
 adc_sensor_sample_done(uint16_t codepoint, int error, void* cbdata)
 {
@@ -34,10 +43,7 @@ void
 adc_sensor_sample(struct sensor *sensor)
 {
         struct adc_sensor_data *sd = sensor->sensor_data;
-        if (!adc_initialized) {
-                adc_init();
-                adc_initialized = true;
-        }
+        adc_sensor_init();
         adc_queue_sample(&sd->ctx, sd->channel, sd->mode,
                          adc_sensor_sample_done, sensor);
 }

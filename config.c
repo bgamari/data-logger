@@ -8,6 +8,7 @@
 #include "sensors/nmea.h"
 #include "sensors/bmp085_sensor.h"
 #include "sensors/flow.h"
+#include "sensors/battery_voltage.h"
 
 // core temperature
 struct sensor core_temp_sensor = {
@@ -104,6 +105,20 @@ struct sensor flow_sensor = {
         .sensor_data = &flow_sensor_data
 };
 
+// battery voltage
+struct batt_v_sensor_data battery_sensor_data = {
+        .channel = ADC_PTD1,
+        .enable_pin = GPIO_PTD5,
+        .divider = 2,
+};
+
+struct sensor battery_voltage_sensor = {
+        .type = &batt_v_sensor_type,
+        .name = "battery voltage",
+        .sensor_id = 8,
+        .sensor_data = &battery_sensor_data
+};
+
 // sensor list
 struct sensor *sensors[] = {
         &core_temp_sensor,
@@ -111,8 +126,9 @@ struct sensor *sensors[] = {
         //&thermistor2_sensor,
         //&conductivity_sensor,
         &gps_sensor,
-        &bmp085_sensor,
+        //&bmp085_sensor,
         &flow_sensor,
+        &battery_voltage_sensor,
         NULL
 };
 
@@ -130,4 +146,7 @@ config_pins()
         i2c_init(I2C_RATE_100);
         pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT2);
         pin_mode(PIN_PTA2, PIN_MODE_MUX_ALT2);
+
+        batt_v_init(&battery_voltage_sensor);
+        pin_mode(PIN_PTD1, PIN_MODE_MUX_ANALOG);
 }

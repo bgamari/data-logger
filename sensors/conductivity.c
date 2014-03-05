@@ -4,9 +4,10 @@
 
 static struct cond_sample_ctx *head = NULL;
 
-#define BASE_CH 6
-static const enum pin_id cond_out_pin = PIN_PTA1;
-static const enum pin_id cond_enable_pin = PIN_PTA2;
+#define BASE_CH 4
+static const enum pin_id cond_out_pin = PIN_PTD4;
+static const enum pin_mode cond_out_pin_mux = PIN_MODE_MUX_ALT4;
+static const enum pin_id cond_enable_pin = 0;
 
 static void
 cond_set_enable(bool enable)
@@ -86,7 +87,7 @@ cond_average(struct cond_average_ctx *ctx, unsigned int n,
 void
 cond_init(void)
 {
-        pin_mode(cond_out_pin, PIN_MODE_MUX_ALT3 | PIN_MODE_PULLUP);
+        pin_mode(cond_out_pin, cond_out_pin_mux | PIN_MODE_PULLUP);
         if (cond_enable_pin) {
                 pin_mode(cond_enable_pin, PIN_MODE_MUX_GPIO);
                 gpio_dir(cond_enable_pin, GPIO_OUTPUT);

@@ -28,7 +28,6 @@ struct thermistor_map_data thermistor_map_data = {
 
 // thermistor #1
 struct adc_sensor_data lm19_adc_sensor_data = {
-        //.channel = ADC_PTD5,
         .channel = ADC_PTB3,
         .mode = ADC_MODE_AVG_32 | ADC_MODE_SAMPLE_LONG | ADC_MODE_POWER_LOW,
         .map = lm19_map,
@@ -124,10 +123,10 @@ struct sensor *sensors[] = {
         &core_temp_sensor,
         &thermistor_sensor,
         //&thermistor2_sensor,
-        //&conductivity_sensor,
-        &gps_sensor,
+        &conductivity_sensor,
+        //&gps_sensor,
         //&bmp085_sensor,
-        &flow_sensor,
+        //&flow_sensor,
         &battery_voltage_sensor,
         NULL
 };
@@ -135,12 +134,19 @@ struct sensor *sensors[] = {
 void
 config_pins()
 {
-        pin_mode(PIN_PTB0, PIN_MODE_MUX_ANALOG);
-        pin_mode(PIN_PTD5, PIN_MODE_MUX_ANALOG);
-        //pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT3 | PIN_MODE_PULLUP);
-        //cond_init();
+        // REMOTE_EN pin
+        pin_mode(PIN_PTD3, PIN_MODE_MUX_GPIO);
+        gpio_dir(PIN_PTD3, GPIO_OUTPUT);
 
-        nmea_init(&gps_sensor);
+        pin_mode(PIN_PTB3, PIN_MODE_MUX_ANALOG); // LM19
+
+        // conductivity
+        pin_mode(PIN_PTB2, PIN_MODE_MUX_GPIO); // EC_RANGE
+        gpio_dir(PIN_PTB2, GPIO_OUTPUT);
+        gpio_write(PIN_PTB2, GPIO_HIGH);
+        cond_init();
+
+        //nmea_init(&gps_sensor);
 
         // for bmp085
         i2c_init(I2C_RATE_100);

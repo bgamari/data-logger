@@ -2,11 +2,17 @@
 
 static struct sensor_listener *listeners;
 
+static unsigned int busy_count = 0;
+
+static const enum gpio_pin_id sensor_enable_pin = PIN_PTD3;
+
 int
 sensor_start_sample(struct sensor *sensor)
 {
         if (sensor->busy)
                 return 1;
+        busy_count++;
+        gpio_write(sensor_enable_pin, GPIO_LOW);
         sensor->busy = true;
         sensor->type->sample_fn(sensor);
         return 0;
@@ -48,6 +54,10 @@ sensor_new_sample_list(struct sensor *sensor, size_t elems, ...)
         }
         va_end(ap);
         sensor->busy = false;
+
+        busy_count--;
+        if (busy_count == 0)
+                gpio_write(sensor_enable_pin, GPIO_HIGH);
 }
         
 void

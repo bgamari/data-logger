@@ -47,6 +47,19 @@ tcs_sample(struct sensor *sensor)
         tcs_start_sampling(&sd->ctx, tcs_sample_wait, sensor);
 }
 
+const char intensity[] = "intensity";
+
+struct measurable tcs3472_measurables[] = {
+        {.id = 0, .name = "clear", .unit = "intensity"},
+        {.id = 1, .name = "red", .unit = "intensity"},
+        {.id = 2, .name = "green", .unit = "intensity"},
+        {.id = 3, .name = "blue", .unit = "intensity"},
+};
+
 struct sensor_type tcs3472_sensor_type = {
-        .sample_fn = tcs_sample
+        .sample_fn = tcs_sample,
+        // Needs I2C
+        .no_stop = true,
+        .n_measurables = 4,
+        .measurables = tcs3472_measurables
 };

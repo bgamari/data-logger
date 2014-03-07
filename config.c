@@ -9,6 +9,7 @@
 #include "sensors/bmp085_sensor.h"
 #include "sensors/flow.h"
 #include "sensors/battery_voltage.h"
+#include "sensors/tcs3472_sensor.h"
 
 // core temperature
 struct sensor core_temp_sensor = {
@@ -69,9 +70,10 @@ struct sensor conductivity_sensor = {
         .sensor_data = &cond_sensor_data,
 };
 
+// NMEA GPS sensor
 struct nmea_sensor_data gps_sensor_data = {
         .uart = &uart0,
-        .enable_pin = 0,
+        .enable_pin = PIN_PTA18,
         .baudrate = 57600
 };
 
@@ -118,16 +120,27 @@ struct sensor battery_voltage_sensor = {
         .sensor_data = &battery_sensor_data
 };
 
+// color sensor
+struct tcs_sensor_data tcs_sensor_data;
+
+struct sensor tcs3472_sensor = {
+        .type = &tcs3472_sensor_type,
+        .name = "color",
+        .sensor_id = 9,
+        .sensor_data = &tcs_sensor_data
+};
+
 // sensor list
 struct sensor *sensors[] = {
         &core_temp_sensor,
         &thermistor_sensor,
         //&thermistor2_sensor,
-        &conductivity_sensor,
+        //&conductivity_sensor,
         //&gps_sensor,
         //&bmp085_sensor,
         //&flow_sensor,
-        &battery_voltage_sensor,
+        //&battery_voltage_sensor,
+        //&tcs3472_sensor,
         NULL
 };
 

@@ -138,8 +138,6 @@ config_pins()
         pin_mode(PIN_PTD3, PIN_MODE_MUX_GPIO);
         gpio_dir(PIN_PTD3, GPIO_OUTPUT);
 
-        pin_mode(PIN_PTB3, PIN_MODE_MUX_ANALOG); // LM19
-
         // conductivity
         pin_mode(PIN_PTB2, PIN_MODE_MUX_GPIO); // EC_RANGE
         gpio_dir(PIN_PTB2, GPIO_OUTPUT);
@@ -152,6 +150,9 @@ config_pins()
         i2c_init(I2C_RATE_100);
         pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT2);
         pin_mode(PIN_PTA2, PIN_MODE_MUX_ALT2);
+
+        // Overrides i2c pin muxing
+        pin_mode(PIN_PTB3, PIN_MODE_MUX_ANALOG); // LM19
 
         batt_v_init(&battery_voltage_sensor);
         pin_mode(PIN_PTD1, PIN_MODE_MUX_ANALOG);

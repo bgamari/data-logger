@@ -151,8 +151,8 @@ config_pins()
         gpio_write(PIN_PTB2, GPIO_HIGH);
         cond_init();
 
-        // overrides i2c pin muxing
-        pin_mode(PIN_PTB3, PIN_MODE_MUX_ANALOG); // LM19
+        // LM19 (overrides i2c pin muxing)
+        pin_mode(PIN_PTB3, PIN_MODE_MUX_ANALOG);
 
         batt_v_init(&battery_voltage_sensor);
         pin_mode(PIN_PTD1, PIN_MODE_MUX_ANALOG);

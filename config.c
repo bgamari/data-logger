@@ -121,7 +121,9 @@ struct sensor battery_voltage_sensor = {
 };
 
 // color sensor
-struct tcs_sensor_data tcs_sensor_data;
+struct tcs_sensor_data tcs_sensor_data = {
+        .ctx = {.address = 0x29}
+};
 
 struct sensor tcs3472_sensor = {
         .type = &tcs3472_sensor_type,

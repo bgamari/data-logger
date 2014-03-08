@@ -41,6 +41,12 @@ sensor_new_measurement(struct sensor *sensor, uint32_t time,
 }
 
 void
+sensor_sample_failed(struct sensor *sensor)
+{
+        sensor->busy = false;
+}
+
+void
 sensor_new_sample_list(struct sensor *sensor, size_t elems, ...)
 {
         va_list ap;

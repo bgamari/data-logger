@@ -33,6 +33,8 @@ struct sensor {
 
 int sensor_start_sample(struct sensor *sensor);
 
+void sensor_sample_failed(struct sensor *sensor);
+
 void sensor_new_sample_list(struct sensor *sensor, size_t elems, ...);
 
 __attribute__((__always_inline__))

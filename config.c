@@ -152,11 +152,13 @@ config_pins()
         gpio_dir(PIN_PTD3, GPIO_OUTPUT);
 
         //nmea_init(&gps_sensor);
-
-        // for bmp085
-        i2c_init(I2C_RATE_100);
         pin_mode(PIN_PTA1, PIN_MODE_MUX_ALT2);
         pin_mode(PIN_PTA2, PIN_MODE_MUX_ALT2);
+
+        // for I2C devices
+        i2c_init(I2C_RATE_100);
+        pin_mode(PIN_PTB0, PIN_MODE_MUX_ALT2);
+        pin_mode(PIN_PTB1, PIN_MODE_MUX_ALT2);
 
         // conductivity
         pin_mode(PIN_PTB2, PIN_MODE_MUX_GPIO); // EC_RANGE

@@ -159,8 +159,8 @@ config_pins()
 
         // for I2C devices
         i2c_init(I2C_RATE_100);
-        pin_mode(PIN_PTB0, PIN_MODE_MUX_ALT2);
-        pin_mode(PIN_PTB1, PIN_MODE_MUX_ALT2);
+        PORTB.pcr[pin_physpin_from_pin(PIN_PTB0)].raw = ((struct PCR_t) {.mux=2,.ode=1}).raw;
+        PORTB.pcr[pin_physpin_from_pin(PIN_PTB1)].raw = ((struct PCR_t) {.mux=2,.ode=1}).raw;
 
         // conductivity
         pin_mode(PIN_PTB2, PIN_MODE_MUX_GPIO); // EC_RANGE

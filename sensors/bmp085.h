@@ -32,6 +32,7 @@ struct bmp085_ctx {
         uint16_t last_pressure, last_temperature;
 };
 
+// Call i2c_init before calling this
 void bmp085_init(struct bmp085_ctx *ctx);
 
 int bmp085_correct_temperature(struct bmp085_ctx *ctx, uint16_t ut);

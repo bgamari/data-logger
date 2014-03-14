@@ -177,8 +177,6 @@ bmp085_read_cal(struct bmp085_ctx *ctx)
 void
 bmp085_init(struct bmp085_ctx *ctx)
 {
-        i2c_init(I2C_RATE_100);
-
         ctx->read_cal_offset = 0;
         bmp085_read_cal(ctx);
 }

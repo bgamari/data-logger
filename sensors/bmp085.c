@@ -19,7 +19,7 @@ bmp085_read_address_set(enum i2c_result result,
 {
         struct bmp085_ctx *ctx = trans->cbdata;
         ctx->trans = (struct i2c_transaction) {
-                .address = 0xee,
+                .address = 0x77,
                 .direction = I2C_READ,
                 .buffer = ctx->buf,
                 .length = 2,
@@ -38,7 +38,7 @@ bmp085_read_reg(struct bmp085_ctx *ctx, uint8_t reg,
         ctx->read_reg_cbdata = cbdata;
         ctx->buf[0] = reg;
         ctx->trans = (struct i2c_transaction) {
-                .address = 0xee,
+                .address = 0x77,
                 .direction = I2C_WRITE,
                 .buffer = ctx->buf,
                 .length = 1,
@@ -55,7 +55,7 @@ bmp085_set_control(struct bmp085_ctx *ctx, uint8_t value)
         ctx->buf[0] = 0xf4;
         ctx->buf[1] = value;
         ctx->trans = (struct i2c_transaction) {
-                .address = 0xee,
+                .address = 0x77,
                 .direction = I2C_WRITE,
                 .buffer = ctx->buf,
                 .length = 2,

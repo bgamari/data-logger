@@ -23,7 +23,6 @@ enum bmp085_oss {
 struct bmp085_ctx {
         struct i2c_transaction trans;
         uint8_t buf[4];
-        bmp085_data_cb cb;
         uint8_t read_cal_offset;
         struct timeout_ctx timeout;
         bmp085_read_reg_cb read_reg_cb;

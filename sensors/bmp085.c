@@ -34,7 +34,7 @@ static void
 bmp085_read_reg(struct bmp085_ctx *ctx, uint8_t reg,
                 bmp085_read_reg_cb cb, void *cbdata)
 {
-        ctx->cb = cb;
+        ctx->read_reg_cb = cb;
         ctx->read_reg_cbdata = cbdata;
         ctx->buf[0] = reg;
         ctx->trans = (struct i2c_transaction) {

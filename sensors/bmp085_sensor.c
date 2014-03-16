@@ -9,9 +9,9 @@ bmp085_sample_done(uint16_t pressure, void *cbdata)
         sd->last_pressure = pressure;
         accum real_temperature = 0.1 * bmp085_correct_temperature(&sd->ctx,
                                                                   sd->last_temperature);
-        accum real_pressure = 1. * bmp085_correct_pressure(&sd->ctx,
-                                                           sd->last_temperature,
-                                                           sd->last_pressure);
+        accum real_pressure = 1e-3 * bmp085_correct_pressure(&sd->ctx,
+                                                             sd->last_temperature,
+                                                             sd->last_pressure);
         sensor_new_sample(sensor, 0, real_pressure, 1, real_temperature);
 }
 
@@ -32,7 +32,7 @@ bmp085_sample(struct sensor *sensor)
 }
 
 static struct measurable bmp085_measurables[] = {
-        {.id = 0, .name = "pressure", .unit = "Pascals"},
+        {.id = 0, .name = "pressure", .unit = "kPa"},
         {.id = 1, .name = "temperature", .unit = "Celcius"},
 };
         

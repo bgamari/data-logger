@@ -7,11 +7,11 @@ bmp085_sample_done(uint16_t pressure, void *cbdata)
         struct sensor *sensor = cbdata;
         struct bmp085_sensor_data *sd = sensor->sensor_data;
         sd->last_pressure = pressure;
-        accum real_temperature = bmp085_correct_temperature(&sd->ctx,
-                                                            sd->last_temperature);
-        accum real_pressure = bmp085_correct_pressure(&sd->ctx,
-                                                      sd->last_temperature,
-                                                      sd->last_pressure);
+        accum real_temperature = 0.1 * bmp085_correct_temperature(&sd->ctx,
+                                                                  sd->last_temperature);
+        accum real_pressure = 1. * bmp085_correct_pressure(&sd->ctx,
+                                                           sd->last_temperature,
+                                                           sd->last_pressure);
         sensor_new_sample(sensor, 0, real_pressure, 1, real_temperature);
 }
 

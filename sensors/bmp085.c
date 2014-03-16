@@ -100,9 +100,9 @@ bmp085_correct_pressure(struct bmp085_ctx *ctx, uint16_t ut, uint16_t up)
         x1 = cal->ac3 * b6 >> 13;
         x2 = (cal->b1 * (b6 * b6 >> 12)) >> 16;
         x3 = ((x1 + x2) + 2) >> 2;
-        int b4 = cal->ac4 * (uint32_t) (x3 + 0x8000) >> 15;
-        int b7 = ((uint32_t) up - b3) * (50000 >> ctx->oss);
-        int p = b7 < 0x80000000 ? (b7 * 2) / b4 : (b7 / b4) * 2;
+        unsigned int b4 = cal->ac4 * (uint32_t) (x3 + 0x8000) >> 15;
+        unsigned int b7 = ((uint32_t) up - b3) * (50000 >> ctx->oss);
+        int p = (b7 < 0x80000000) ? ((b7 * 2) / b4) : ((b7 / b4) * 2);
         x1 = (p >> 8) * (p >> 8);
         x1 = (x1 * 3038) >> 16;
         x2 = (-7357 * p) >> 16;

@@ -3,7 +3,7 @@ DEVICE ?= /dev/ttyACM0
 
 SENSOR_SRCS += conductivity.c core_temp.c lm19.c thermistor.c nmea.c bmp085.c
 SENSOR_SRCS += bmp085_sensor.c adc_sensor.c flow.c battery_voltage.c
-SENSOR_SRCS += tcs3472_sensor.c tcs3472.c pca9554.c
+SENSOR_SRCS += tcs3472_sensor.c tcs3472.c pca9554.c tmp100.c
 
 SRCS += main.c acquire.c blink.c usb_console.c nv_config.c
 SRCS += sensor.c sample_store.c

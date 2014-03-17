@@ -9,12 +9,13 @@ struct tcs_ctx {
         struct i2c_transaction trans[2];
         struct timeout_ctx timeout;
         uint8_t buffer[2];
+        tcs_write_reg_cb *write_reg_cb;
         union {
-                tcs_read_reg_cb *read_reg_cb;
-                tcs_read_cb *read_cb;
-                tcs_write_reg_cb *write_reg_cb;
+                tcs_write_reg_cb *user_write_reg_cb;
+                tcs_read_reg_cb *user_read_reg_cb;
+                tcs_read_cb *user_read_cb;
         };
-        void *cbdata;
+        void *user_cbdata;
 };
 
 struct tcs_sample {

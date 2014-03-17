@@ -89,6 +89,7 @@ tcs_write_reg(struct tcs_ctx *ctx, uint8_t reg, uint8_t value, tcs_write_reg_cb 
                 .cb = tcs_write_reg_done,
                 .cbdata = ctx
         };
+        i2c_queue(&ctx->trans[0]);
 }
 
 static void
@@ -117,4 +118,3 @@ tcs_start_sampling(struct tcs_ctx *ctx, tcs_write_reg_cb *cb, void *cbdata)
 {
         tcs_write_reg(ctx, 0x00, 0x1, tcs_start_sampling_on, ctx);
 }
-

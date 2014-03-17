@@ -2,6 +2,7 @@
 #include "sensor.h"
 
 struct tcs_sensor_data {
+        // internal
         struct tcs_ctx ctx;
         struct tcs_sample sample;
 };

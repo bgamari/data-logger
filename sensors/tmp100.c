@@ -27,8 +27,11 @@ tmp100_init(struct tmp100_ctx *ctx, uint8_t address, i2c_cb *cb, void *cbdata)
 static void
 tmp100_sample_done(uint8_t *buf, enum i2c_result result, void *cbdata)
 {
-        uint16_t temp = *(uint16_t *) buf;
-        accum real_temp = temp / 4;
+        uint16_t word = (buf[0] << 4) | (buf[1] >> 4);
+        int16_t temp = word & ~(1 << 11);
+        if (word & (1<<11))
+                temp = 0x1000 - temp;
+        accum real_temp = 1. * temp / 16;
         struct sensor *sensor = cbdata;
         sensor_new_sample(sensor, 0, real_temp);
 }

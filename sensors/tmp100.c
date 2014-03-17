@@ -61,3 +61,5 @@ struct sensor_type tmp100_sensor_type = {
         .n_measurables = 1,
         .measurables = tmp100_measurables
 };
+
+void tmp100_hack() {}

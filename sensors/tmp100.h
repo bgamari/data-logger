@@ -32,6 +32,7 @@ struct tmp100_config {
 };
 
 void tmp100_init(struct tmp100_ctx *ctx, uint8_t address, i2c_cb *cb, void *cbdata);
+void tmp100_hack();
 
 struct tmp100_sensor_data {
         uint8_t address;

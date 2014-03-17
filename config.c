@@ -192,4 +192,5 @@ config_pins()
         // BMP085
         bmp085_init(&bmp085_sensor_data.ctx);
 
+        tmp100_hack();
 }

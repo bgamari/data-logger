@@ -10,6 +10,7 @@
 #include "sensors/flow.h"
 #include "sensors/battery_voltage.h"
 #include "sensors/tcs3472_sensor.h"
+#include "sensors/tmp100.h"
 
 // core temperature
 struct sensor core_temp_sensor = {
@@ -132,6 +133,16 @@ struct sensor tcs3472_sensor = {
         .sensor_data = &tcs_sensor_data
 };
 
+// tmp100
+struct tmp100_sensor_data tmp100_sensor_data;
+
+struct sensor tmp100_sensor = {
+        .type = &tmp100_sensor_type,
+        .name = "temperature",
+        .sensor_id = 10,
+        .sensor_data = &tmp100_sensor_data
+};
+
 // sensor list
 struct sensor *sensors[] = {
         &core_temp_sensor,
@@ -139,10 +150,11 @@ struct sensor *sensors[] = {
         //&thermistor2_sensor,
         //&conductivity_sensor,
         //&gps_sensor,
-        //&bmp085_sensor,
+        &bmp085_sensor,
         //&flow_sensor,
-        //&battery_voltage_sensor,
+        &battery_voltage_sensor,
         //&tcs3472_sensor,
+        &tmp100_sensor,
         NULL
 };
 
@@ -166,11 +178,18 @@ config_pins()
         pin_mode(PIN_PTB2, PIN_MODE_MUX_GPIO); // EC_RANGE
         gpio_dir(PIN_PTB2, GPIO_OUTPUT); // overrides i2c pin muxing
         gpio_write(PIN_PTB2, GPIO_HIGH);
-        cond_init();
+        //cond_init();
 
         // LM19 (overrides i2c pin muxing)
         pin_mode(PIN_PTB3, PIN_MODE_MUX_ANALOG);
 
+        // battery voltage
         batt_v_init(&battery_voltage_sensor);
         pin_mode(PIN_PTD1, PIN_MODE_MUX_ANALOG);
+
+        // BMP085
+        bmp085_init(&bmp085_sensor_data.ctx);
+
+        // TMP100
+        tmp100_init(&tmp100_sensor_data.tmp100, 0x48);
 }

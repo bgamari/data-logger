@@ -134,7 +134,9 @@ struct sensor tcs3472_sensor = {
 };
 
 // tmp100
-struct tmp100_sensor_data tmp100_sensor_data;
+struct tmp100_sensor_data tmp100_sensor_data = {
+        .address = 0x48
+};
 
 struct sensor tmp100_sensor = {
         .type = &tmp100_sensor_type,
@@ -190,6 +192,4 @@ config_pins()
         // BMP085
         bmp085_init(&bmp085_sensor_data.ctx);
 
-        // TMP100
-        tmp100_init(&tmp100_sensor_data.tmp100, 0x48);
 }

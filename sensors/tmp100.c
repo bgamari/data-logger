@@ -1,12 +1,7 @@
 #include "sensors/tmp100.h"
 
-static void
-tmp100_init_done(enum i2c_result result, struct i2c_transaction *trans)
-{
-}
-
 void
-tmp100_init(struct tmp100_ctx *ctx, uint8_t address)
+tmp100_init(struct tmp100_ctx *ctx, uint8_t address, i2c_cb *cb, void *cbdata)
 {
         ctx->buffer[0] = TMP100_REG_CONFIG;
         ctx->buffer[1] = ((struct tmp100_config) {
@@ -23,7 +18,8 @@ tmp100_init(struct tmp100_ctx *ctx, uint8_t address)
                 .stop = I2C_STOP,
                 .buffer = ctx->buffer,
                 .length = 2,
-                .cb = tmp100_init_done
+                .cb = cb,
+                .cbdata = cbdata
         };
         i2c_queue(&ctx->trans);
 }
@@ -38,15 +34,23 @@ tmp100_sample_done(uint8_t *buf, enum i2c_result result, void *cbdata)
 }
 
 static void
-tmp100_sample(struct sensor *sensor)
+tmp100_sample_start(enum i2c_result result, struct i2c_transaction *trans)
 {
+        struct sensor *sensor = trans->cbdata;
         struct tmp100_sensor_data *sd = sensor->sensor_data;
         i2c_reg_read(&sd->reg_read, sd->tmp100.trans.address,
                      TMP100_REG_TEMPERATURE, sd->buf, 2,
                      tmp100_sample_done, sensor);
 }
 
-struct measurable tmp100_measurables[] = {
+static void
+tmp100_sample(struct sensor *sensor)
+{
+        struct tmp100_sensor_data *sd = sensor->sensor_data;
+        tmp100_init(&sd->tmp100, sd->address, tmp100_sample_start, sensor);
+}
+
+static struct measurable tmp100_measurables[] = {
         {.id = 0, .name = "temperature", .unit = "Celcius"},
 };
 

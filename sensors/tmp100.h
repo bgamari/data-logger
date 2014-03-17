@@ -31,9 +31,12 @@ struct tmp100_config {
         UNION_STRUCT_END;
 };
 
-void tmp100_init(struct tmp100_ctx *ctx, uint8_t address);
+void tmp100_init(struct tmp100_ctx *ctx, uint8_t address, i2c_cb *cb, void *cbdata);
 
 struct tmp100_sensor_data {
+        uint8_t address;
+
+        // internal
         struct tmp100_ctx tmp100;
         uint8_t buf[2];
         struct i2c_reg_read_ctx reg_read;

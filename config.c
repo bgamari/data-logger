@@ -148,14 +148,14 @@ struct sensor tmp100_sensor = {
 // sensor list
 struct sensor *sensors[] = {
         &core_temp_sensor,
-        &thermistor_sensor,
+        //&thermistor_sensor,
         //&thermistor2_sensor,
-        //&conductivity_sensor,
+        &conductivity_sensor,
         //&gps_sensor,
-        &bmp085_sensor,
+        //&bmp085_sensor,
         //&flow_sensor,
         &battery_voltage_sensor,
-        //&tcs3472_sensor,
+        &tcs3472_sensor,
         &tmp100_sensor,
         NULL
 };
@@ -180,17 +180,17 @@ config_pins()
         pin_mode(PIN_PTB2, PIN_MODE_MUX_GPIO); // EC_RANGE
         gpio_dir(PIN_PTB2, GPIO_OUTPUT); // overrides i2c pin muxing
         gpio_write(PIN_PTB2, GPIO_HIGH);
-        //cond_init();
+        cond_init();
 
         // LM19 (overrides i2c pin muxing)
-        pin_mode(PIN_PTB3, PIN_MODE_MUX_ANALOG);
+        //pin_mode(PIN_PTB3, PIN_MODE_MUX_ANALOG);
 
         // battery voltage
         batt_v_init(&battery_voltage_sensor);
         pin_mode(PIN_PTD1, PIN_MODE_MUX_ANALOG);
 
         // BMP085
-        bmp085_init(&bmp085_sensor_data.ctx);
+        //bmp085_init(&bmp085_sensor_data.ctx);
 
         tmp100_hack();
 }

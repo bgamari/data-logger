@@ -7,6 +7,7 @@ struct batt_v_sensor_data {
 
         // internal
         struct adc_queue_ctx ctx;
+        accum value;
 };
 
 extern struct sensor_type batt_v_sensor_type;

@@ -9,6 +9,7 @@ struct flow_sensor_data {
         uint32_t tick_accum;
         unsigned int tick_count;
         uint32_t last_tick;
+        accum value;
 };
 
 extern struct sensor_type flow_sensor_type;

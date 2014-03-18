@@ -16,6 +16,7 @@ struct nmea_sensor_data {
         /* private */
         struct uart_trans_ctx trans;
         char buffer[128];
+        accum values[4];
 };
 
 void nmea_init(struct sensor *sensor);

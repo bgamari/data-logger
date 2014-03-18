@@ -41,6 +41,7 @@ struct tmp100_sensor_data {
         struct tmp100_ctx tmp100;
         uint8_t buf[2];
         struct i2c_reg_read_ctx reg_read;
+        accum value;
 };
 
 struct sensor_type tmp100_sensor_type;

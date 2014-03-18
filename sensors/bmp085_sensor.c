@@ -12,7 +12,9 @@ bmp085_sample_done(uint16_t pressure, void *cbdata)
         accum real_pressure = 1e-3 * bmp085_correct_pressure(&sd->ctx,
                                                              sd->last_temperature,
                                                              sd->last_pressure);
-        sensor_new_sample(sensor, 0, real_pressure, 1, real_temperature);
+        sd->values[0] = real_pressure;
+        sd->values[1] = real_temperature;
+        sensor_new_sample(sensor, sd->values);
 }
 
 static void

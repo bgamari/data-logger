@@ -32,7 +32,8 @@ flow_on_change(void *cbdata)
                 if (sd->tick_count == 0) {
                         flow_set_enabled(false);
                         timeout_put_ref();
-                        sensor_new_sample(_sensor, 0, 1. * sd->tick_accum / sd->count);
+                        sd->value = 1. * sd->tick_accum / sd->count;
+                        sensor_new_sample(_sensor, &sd->value);
                 }
         }
                 

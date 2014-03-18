@@ -12,6 +12,7 @@ struct adc_sensor_data {
 
         // internal
         struct adc_queue_ctx ctx;
+        accum value;
 };
 
 extern struct sensor_type adc_sensor;

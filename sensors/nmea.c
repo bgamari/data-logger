@@ -109,7 +109,12 @@ static void
 handle_gpgga(struct sensor *sensor,
              accum lat, accum lon, accum alt, unsigned int nsats)
 {
-        sensor_new_sample(sensor, 0, lat, 1, lon, 2, alt, 3, nsats);
+        struct nmea_sensor_data *sd = sensor->sensor_data;
+        sd->values[0] = lat;
+        sd->values[1] = lon;
+        sd->values[2] = alt;
+        sd->values[3] = nsats;
+        sensor_new_sample(sensor, sd->values);
         nmea_set_enable(sensor, false);
 }
 

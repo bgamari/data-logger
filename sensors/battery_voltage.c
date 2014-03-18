@@ -19,8 +19,8 @@ batt_v_sample_done(uint16_t codepoint, int error, void *cbdata)
         struct sensor *sensor = cbdata;
         struct batt_v_sensor_data *sd = sensor->sensor_data;
         gpio_write(sd->enable_pin, GPIO_HIGH);
-        accum batt_v = adc_as_voltage(codepoint) * sd->divider;
-        sensor_new_sample(sensor, 0, batt_v);
+        sd->value = adc_as_voltage(codepoint) * sd->divider;
+        sensor_new_sample(sensor, &sd->value);
 }
 
 void

@@ -182,11 +182,12 @@ last_sensor_sample(void *cbdata)
         if (meas_iter_next(&last_sample_iter)) {
                 struct sensor *s = meas_iter_get_sensor(&last_sample_iter);
                 struct measurable *m = meas_iter_get_measurable(&last_sample_iter);
+                accum value = sensor_get_value(s, m->id);
                 OUT("%d    %10d    %2d    %2.3k\n",
                     s->last_sample_time,
                     s->sensor_id,
                     m->id,
-                    m->last_value);
+                    value);
                 usb_console_flush(last_sensor_sample, s+1);
         } else {
                 finish_reply();

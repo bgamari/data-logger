@@ -7,6 +7,7 @@ struct tcs_sensor_data {
         struct timeout_ctx timeout;
         struct tcs_ctx tcs;
         struct tcs_sample sample;
+        accum values[4];
 };
 
 extern struct sensor_type tcs3472_sensor_type;

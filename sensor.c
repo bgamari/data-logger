@@ -18,28 +18,6 @@ sensor_start_sample(struct sensor *sensor)
         return 0;
 }
 
-static void
-sensor_new_measurement(struct sensor *sensor, uint32_t time,
-                       uint8_t measurable, accum value)
-{
-        struct sensor_listener *l = listeners;
-        crit_enter();
-        sensor->last_sample_time = time;
-        for (unsigned int i=0; i<sensor->type->n_measurables; i++) {
-                struct measurable *m = &sensor->type->measurables[i];
-                if (m->id == measurable) {
-                        m->last_value = value;
-                        break;
-                }
-        }
-        crit_exit();
-
-        while (l) {
-                l->new_sample(sensor, time, measurable, value, l->cbdata);
-                l = l->next;
-        }
-}
-
 void
 sensor_sample_failed(struct sensor *sensor)
 {
@@ -47,23 +25,26 @@ sensor_sample_failed(struct sensor *sensor)
 }
 
 void
-sensor_new_sample_list(struct sensor *sensor, size_t elems, ...)
+sensor_new_sample(struct sensor *sensor, accum *values)
 {
-        va_list ap;
         uint32_t time = rtc_get_time();
-        
-        va_start(ap, elems);
-        for ( ; elems > 0; elems--) {
-                uint8_t measurable = va_arg(ap, unsigned int);
-                accum value = va_arg(ap, accum);
-                sensor_new_measurement(sensor, time, measurable, value);
+        crit_enter();
+        sensor->last_sample_time = time;
+        sensor->values = values;
+        for (unsigned int i=0; i < sensor->type->n_measurables; i++) {
+                accum value = sensor->values[i];
+                struct sensor_listener *l = listeners;
+                while (l) {
+                        l->new_sample(sensor, time, i, value, l->cbdata);
+                        l = l->next;
+                }
         }
-        va_end(ap);
         sensor->busy = false;
 
         busy_count--;
         if (busy_count == 0)
                 gpio_write(sensor_enable_pin, GPIO_HIGH);
+        crit_exit();
 }
         
 void
@@ -76,4 +57,14 @@ sensor_listen(struct sensor_listener *listener,
         listener->next = listeners;
         listeners = listener;
         crit_exit();
+}
+
+accum
+sensor_get_value(struct sensor *sensor, unsigned int measurable)
+{
+        if (measurable < sensor->type->n_measurables
+            && sensor->values != NULL)
+                return sensor->values[measurable];
+        else
+                return 0;
 }

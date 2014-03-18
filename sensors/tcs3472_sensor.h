@@ -3,7 +3,9 @@
 
 struct tcs_sensor_data {
         // internal
-        struct tcs_ctx ctx;
+        uint8_t buf;
+        struct timeout_ctx timeout;
+        struct tcs_ctx tcs;
         struct tcs_sample sample;
 };
 

@@ -19,6 +19,7 @@ struct tcs_sample {
 
 enum tcs_reg {
         TCS_REG_ENABLE = 0x00,
+        TCS_REG_CONTROL = 0x0f,
         TCS_REG_STATUS = 0x13,
         TCS_REG_CDATA  = 0x14,
         TCS_REG_CDATAH = 0x15,

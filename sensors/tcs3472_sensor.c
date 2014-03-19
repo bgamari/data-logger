@@ -78,10 +78,22 @@ tcs_sample_enabled(enum i2c_result result, void *cbdata)
 }
 
 static void
+tcs_sample_gain_set(enum i2c_result result, void *cbdata)
+{
+        struct sensor *sensor = cbdata;
+        struct tcs_sensor_data *sd = sensor->sensor_data;
+        if (result != I2C_RESULT_SUCCESS) {
+                sensor_sample_failed(sensor);
+                return;
+        }
+        tcs_write_reg(&sd->tcs, TCS_REG_ENABLE, 0x1, tcs_sample_enabled, sensor);
+}
+
+static void
 tcs_sample(struct sensor *sensor)
 {
         struct tcs_sensor_data *sd = sensor->sensor_data;
-        tcs_write_reg(&sd->tcs, TCS_REG_ENABLE, 0x1, tcs_sample_enabled, sensor);
+        tcs_write_reg(&sd->tcs, TCS_REG_CONTROL, 0x2, tcs_sample_gain_set, sensor);
 }
 
 const char intensity[] = "intensity";

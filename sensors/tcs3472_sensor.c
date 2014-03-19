@@ -10,10 +10,10 @@ tcs_sample_finish(enum i2c_result result, void *cbdata)
                 sensor_sample_failed(sensor);
                 return;
         }
-        sd->values[0] = 1.0k * d->cdata;
-        sd->values[1] = 1.0k * d->rdata;
-        sd->values[2] = 1.0k * d->gdata;
-        sd->values[3] = 1.0k * d->bdata;
+        sd->values[0] = 1.0k * d->cdata / 0xffff;
+        sd->values[1] = 1.0k * d->rdata / 0xffff;
+        sd->values[2] = 1.0k * d->gdata / 0xffff;
+        sd->values[3] = 1.0k * d->bdata / 0xffff;
         sensor_new_sample(sensor, sd->values);
 }
 

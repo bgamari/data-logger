@@ -19,6 +19,9 @@ struct tcs_sample {
 
 enum tcs_reg {
         TCS_REG_ENABLE = 0x00,
+        TCS_REG_ATIME  = 0x01,
+        TCS_REG_WTIME  = 0x03,
+        TCS_REG_CONFIG = 0x0d,
         TCS_REG_CONTROL = 0x0f,
         TCS_REG_STATUS = 0x13,
         TCS_REG_CDATA  = 0x14,
@@ -29,6 +32,13 @@ enum tcs_reg {
         TCS_REG_GDATAH = 0x19,
         TCS_REG_BDATA  = 0x1a,
         TCS_REG_BDATAH = 0x1b,
+};
+
+enum tcs_gain {
+        TCS_GAIN_1  = 0x0,
+        TCS_GAIN_4  = 0x1,
+        TCS_GAIN_16 = 0x2,
+        TCS_GAIN_60 = 0x3
 };
 
 void tcs_write_reg(struct tcs_ctx *ctx, enum tcs_reg reg, uint8_t value, tcs_write_reg_cb *cb, void *cbdata);

@@ -2,6 +2,9 @@
 #include "sensor.h"
 
 struct tcs_sensor_data {
+        enum tcs_gain gain;
+        uint8_t int_time;
+        
         // internal
         uint8_t buf;
         struct timeout_ctx timeout;

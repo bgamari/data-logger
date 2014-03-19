@@ -1,5 +1,14 @@
 #include "sensors/tcs3472_sensor.h"
 
+#define MIN(a,b) (((a) > (b)) ? (b) : (a))
+
+static uint16_t
+tcs_max_count(uint8_t int_time)
+{
+        uint32_t v = MIN((256 - (uint32_t) int_time) * 1024, 0xffff);
+        return v;
+}
+
 static void
 tcs_sample_finish(enum i2c_result result, void *cbdata)
 {
@@ -10,10 +19,11 @@ tcs_sample_finish(enum i2c_result result, void *cbdata)
                 sensor_sample_failed(sensor);
                 return;
         }
-        sd->values[0] = 1.0k * d->cdata / 0xffff;
-        sd->values[1] = 1.0k * d->rdata / 0xffff;
-        sd->values[2] = 1.0k * d->gdata / 0xffff;
-        sd->values[3] = 1.0k * d->bdata / 0xffff;
+        uint16_t max = tcs_max_count(sd->int_time);
+        sd->values[0] = 1.0k * d->cdata / max;
+        sd->values[1] = 1.0k * d->rdata / max;
+        sd->values[2] = 1.0k * d->gdata / max;
+        sd->values[3] = 1.0k * d->bdata / max;
         sensor_new_sample(sensor, sd->values);
 }
 
@@ -58,15 +68,7 @@ tcs_sample_begin_wait(enum i2c_result result, void *cbdata)
 }
 
 static void
-tcs_sample_rgbc_en(void *cbdata)
-{
-        struct sensor *sensor = cbdata;
-        struct tcs_sensor_data *sd = sensor->sensor_data;
-        tcs_write_reg(&sd->tcs, TCS_REG_ENABLE, 0x03, tcs_sample_begin_wait, sensor);
-}
-        
-static void
-tcs_sample_enabled(enum i2c_result result, void *cbdata)
+tcs_sample_int_time_set(enum i2c_result result, void *cbdata)
 {
         struct sensor *sensor = cbdata;
         struct tcs_sensor_data *sd = sensor->sensor_data;
@@ -74,7 +76,7 @@ tcs_sample_enabled(enum i2c_result result, void *cbdata)
                 sensor_sample_failed(sensor);
                 return;
         }
-        timeout_add(&sd->timeout, 3, tcs_sample_rgbc_en, sensor);
+        tcs_write_reg(&sd->tcs, TCS_REG_ENABLE, 0x03, tcs_sample_begin_wait, sensor);
 }
 
 static void
@@ -86,14 +88,35 @@ tcs_sample_gain_set(enum i2c_result result, void *cbdata)
                 sensor_sample_failed(sensor);
                 return;
         }
-        tcs_write_reg(&sd->tcs, TCS_REG_ENABLE, 0x1, tcs_sample_enabled, sensor);
+        tcs_write_reg(&sd->tcs, TCS_REG_ATIME, sd->int_time,
+                      tcs_sample_int_time_set, sensor);
+}
+
+static void
+tcs_sample_powered_on(void *cbdata)
+{
+        struct sensor *sensor = cbdata;
+        struct tcs_sensor_data *sd = sensor->sensor_data;
+        tcs_write_reg(&sd->tcs, TCS_REG_CONTROL, sd->gain, tcs_sample_gain_set, sensor);
+}
+
+static void
+tcs_sample_power_wait(enum i2c_result result, void *cbdata)
+{
+        struct sensor *sensor = cbdata;
+        struct tcs_sensor_data *sd = sensor->sensor_data;
+        if (result != I2C_RESULT_SUCCESS) {
+                sensor_sample_failed(sensor);
+                return;
+        }
+        timeout_add(&sd->timeout, 3, tcs_sample_powered_on, sensor);
 }
 
 static void
 tcs_sample(struct sensor *sensor)
 {
         struct tcs_sensor_data *sd = sensor->sensor_data;
-        tcs_write_reg(&sd->tcs, TCS_REG_CONTROL, 0x2, tcs_sample_gain_set, sensor);
+        tcs_write_reg(&sd->tcs, TCS_REG_ENABLE, 0x1, tcs_sample_power_wait, sensor);
 }
 
 const char intensity[] = "intensity";

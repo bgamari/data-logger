@@ -123,7 +123,9 @@ struct sensor battery_voltage_sensor = {
 
 // color sensor
 struct tcs_sensor_data tcs_sensor_data = {
-        .tcs = {.address = 0x29}
+        .tcs = {.address = 0x29},
+        .gain = TCS_GAIN_16,
+        .int_time = 0x00,
 };
 
 struct sensor tcs3472_sensor = {

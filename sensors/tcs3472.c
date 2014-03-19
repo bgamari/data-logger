@@ -30,19 +30,9 @@ tcs_write_reg(struct tcs_ctx *ctx, uint8_t reg, uint8_t value, tcs_write_reg_cb 
         i2c_queue(&ctx->reg_read.trans);
 }
 
-#define FLIP(a) a = (a & 0xff) << 8 | (a >> 8)
-
 static void
 tcs_flip_data(uint8_t *buf, enum i2c_result result, void *cbdata)
 {
-        if (result == I2C_RESULT_SUCCESS) {
-                struct tcs_sample *s = (struct tcs_sample *) buf;
-                FLIP(s->cdata);
-                FLIP(s->rdata);
-                FLIP(s->gdata);
-                FLIP(s->bdata);
-        }
-
         struct tcs_ctx *ctx = cbdata;
         ctx->read_reg_cb(buf, result, ctx->cbdata);
 }

@@ -36,7 +36,7 @@ struct adc_sensor_data lm19_adc_sensor_data = {
         .map_data = &thermistor_map_data,
 };
         
-struct sensor thermistor_sensor = {
+struct sensor lm19_sensor = {
         .type = &thermistor_sensor_type,
         .name = "external temperature",
         .sensor_id = 2,
@@ -124,7 +124,7 @@ struct sensor battery_voltage_sensor = {
 // color sensor
 struct tcs_sensor_data tcs_sensor_data = {
         .tcs = {.address = 0x29},
-        .gain = TCS_GAIN_16,
+        .gain = TCS_GAIN_60,
         .int_time = 0x00,
 };
 
@@ -150,7 +150,7 @@ struct sensor tmp100_sensor = {
 // sensor list
 struct sensor *sensors[] = {
         &core_temp_sensor,
-        //&thermistor_sensor,
+        &lm19_sensor,
         //&thermistor2_sensor,
         &conductivity_sensor,
         //&gps_sensor,
@@ -158,7 +158,7 @@ struct sensor *sensors[] = {
         //&flow_sensor,
         &battery_voltage_sensor,
         &tcs3472_sensor,
-        &tmp100_sensor,
+        //&tmp100_sensor,
         NULL
 };
 

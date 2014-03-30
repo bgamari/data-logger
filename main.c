@@ -88,7 +88,7 @@ static void print_stored_sample(void *cbdata);
 static void
 print_sample(const struct sample *sample)
 {
-        usb_console_printf("%10d    %2d    %2d    %2.3k\n",
+        usb_console_printf("%10d    %2d    %2d    %4.4k\n",
                            sample->time, sample->sensor_id,
                            sample->measurable, sample->value);
 }
@@ -183,7 +183,7 @@ last_sensor_sample(void *cbdata)
                 struct sensor *s = meas_iter_get_sensor(&last_sample_iter);
                 struct measurable *m = meas_iter_get_measurable(&last_sample_iter);
                 accum value = sensor_get_value(s, m->id);
-                OUT("%d    %10d    %2d    %2.3k\n",
+                OUT("%d    %10d    %2d    %2.4k\n",
                     s->last_sample_time,
                     s->sensor_id,
                     m->id,

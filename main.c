@@ -72,7 +72,7 @@ on_sample_cb(struct sensor *sensor, uint32_t time,
              uint8_t measurable, accum value, void *cbdata)
 {
         if (verbose)
-                printf("%d     %d     %3.3k\n", sensor->sensor_id, measurable, value);
+                printf("%d     %d     %3.4k\n", sensor->sensor_id, measurable, value);
 }
 
 /*

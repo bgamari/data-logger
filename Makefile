@@ -18,6 +18,10 @@ CWARNFLAGS += -Werror -Wno-format -Wstack-usage=72 -fstack-usage
 CFLAGS += -DCOMMIT_ID=\"$(shell git rev-parse HEAD)\"
 PRINTF_WITH = FIXPOINT
 
+ifeq ($(wildcard config.c), )
+$(error Please choose a target device by copying the appropriate config-*.c file to config.c)
+endif
+
 console : 
 	picocom -b 115200 --imap lfcrlf --omap crlf --echo $(DEVICE)
 

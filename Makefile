@@ -1,5 +1,6 @@
-PROG=data-logger
+PROG = data-logger
 DEVICE ?= /dev/ttyACM0
+TARGET = MK20DX128VLF5
 
 SENSOR_SRCS += conductivity.c core_temp.c lm19.c thermistor.c nmea.c bmp085.c
 SENSOR_SRCS += bmp085_sensor.c adc_sensor.c flow.c battery_voltage.c

@@ -17,14 +17,6 @@ cond_gpio_init(struct cond_gpio_sensor_data *cond)
 
         pin_mode(PIN_PTC2, PIN_MODE_MUX_ANALOG);
         SIM.scgc4.cmp = 1;
-        CMP1.daccr.dacen = 1;
-        CMP1.daccr.vrsel = 1;
-        CMP1.daccr.vosel = 64/2;
-        CMP1.cr1.pmode = 0;
-        CMP1.muxcr.psel = 0x0;
-        CMP1.muxcr.msel = 0x7;
-        CMP1.cr1.en = 1;
-        CMP1.scr.ier = 1;
 }
 
 void
@@ -39,11 +31,17 @@ cond_gpio_start(struct sensor *sensor)
 static void
 cond_gpio_sample_done(struct sensor *sensor)
 {
+
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
         uint32_t dt = timeout_get_time().time - sd->start_time.time;
         accum dt_accum = dt / 1000;
+
+        CMP1.cr1.en = 0;
+        CMP1.daccr.dacen = 0;
+        timeout_put_ref();
         gpio_dir(sd->pin_a, GPIO_DISABLE);
         gpio_dir(sd->pin_b, GPIO_DISABLE);
+
         sensor_new_sample(sensor, &dt_accum);
 }
 
@@ -56,10 +54,8 @@ CMP_Handler(void)
         sd->count--;
         if (sd->count > 0)
                 cond_gpio_start(_cond_sensor);
-        else {
-                CMP1.cr1.en = 0;
+        else
                 cond_gpio_sample_done(_cond_sensor);
-        }
 }
 
 static void
@@ -67,9 +63,19 @@ cond_gpio_sample(struct sensor *sensor)
 {
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
         _cond_sensor = sensor;
-        sd->count = sd->transitions;
         timeout_get_ref();
         sd->start_time = timeout_get_time();
+        sd->count = sd->transitions;
+
+        CMP1.daccr.dacen = 1;
+        CMP1.daccr.vrsel = 1;
+        CMP1.daccr.vosel = 64/2;
+        CMP1.cr1.pmode = 0;
+        CMP1.muxcr.psel = 0x0;
+        CMP1.muxcr.msel = 0x7;
+        CMP1.cr1.en = 1;
+        CMP1.scr.ier = 1;
+
         cond_gpio_start(sensor);
 }
 

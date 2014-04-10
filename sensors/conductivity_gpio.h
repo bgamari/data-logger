@@ -11,3 +11,5 @@ struct cond_gpio_sensor_data {
 };
 
 struct sensor_type cond_gpio_sensor_type;
+
+void cond_gpio_init(struct cond_gpio_sensor_data *cond);

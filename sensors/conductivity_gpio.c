@@ -23,9 +23,10 @@ void
 cond_gpio_start(struct sensor *sensor)
 {
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
+        CMP1.daccr.vosel = (phase + 1) * 64 / 3;
+        CMP1.cr1.inv = sd->phase;
         gpio_write(sd->pin_a, sd->phase);
         gpio_write(sd->pin_b, !sd->phase);
-        CMP1.cr1.inv = sd->phase;
 }
 
 static void
@@ -69,7 +70,6 @@ cond_gpio_sample(struct sensor *sensor)
 
         CMP1.daccr.dacen = 1;
         CMP1.daccr.vrsel = 1;
-        CMP1.daccr.vosel = 64/2;
         CMP1.cr1.pmode = 0;
         CMP1.muxcr.psel = 0x0;
         CMP1.muxcr.msel = 0x7;

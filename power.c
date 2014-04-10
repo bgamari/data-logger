@@ -110,7 +110,8 @@ power_init()
 
         // Configure USB sense pin
 #ifdef USB_SENSE_PIN
-	gpio_dir(USB_SENSE_PIN, GPIO_INPUT);
+        pin_mode(USB_SENSE_PIN, PIN_MODE_MUX_GPIO);
+        gpio_dir(USB_SENSE_PIN, GPIO_INPUT);
         LLWU.wupe[3].wupe3 = LLWU_PE_RISING;
 #endif
 

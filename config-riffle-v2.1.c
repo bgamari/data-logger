@@ -10,6 +10,8 @@
 #include "sensors/tcs3472_sensor.h"
 #include "sensors/tmp100.h"
 
+/* Riffle 2.1 configuration */
+
 // core temperature
 struct sensor core_temp_sensor = {
         .type = &core_temp_sensor_type,

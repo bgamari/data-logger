@@ -9,6 +9,8 @@
 #include "sensors/battery_voltage.h"
 #include "sensors/tcs3472_sensor.h"
 
+/* Riffle 2.0 configuration */
+
 // core temperature
 struct sensor core_temp_sensor = {
         .type = &core_temp_sensor_type,

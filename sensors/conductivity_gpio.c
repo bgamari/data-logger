@@ -27,13 +27,14 @@ cond_gpio_start(struct sensor *sensor)
                 // waiting for rising edge
                 CMP0.scr.ief = false;
                 CMP0.scr.ier = true;
+                CMP0.daccr.vosel = 48;
         } else {
                 // waiting for falling edge
                 CMP0.scr.ier = false;
                 CMP0.scr.ief = true;
+                CMP0.daccr.vosel = 16;
         }
 
-        CMP0.daccr.vosel = (sd->phase + 1) * 64 / 3;
         gpio_write(sd->pin_a, sd->phase);
 
         #ifdef USE_FTM

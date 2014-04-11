@@ -1,7 +1,7 @@
 #include <mchck.h>
 
 struct cond_gpio_sensor_data {
-        enum gpio_pin_id pin_a, pin_b;
+        enum gpio_pin_id pin_a;
         unsigned int transitions;
 
         // private

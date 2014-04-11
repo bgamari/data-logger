@@ -53,11 +53,11 @@ cond_gpio_sample_done(struct sensor *sensor)
         #else
         uint32_t dt = timeout_get_time().time - sd->start_time.time;
         accum dt_ms = 1.0k * dt / sd->transitions;
+        timeout_put_ref();
         #endif
 
         CMP0.cr1.en = 0;
         CMP0.daccr.dacen = 0;
-        timeout_put_ref();
         gpio_write(sd->pin_a, 0);
 
         sensor_new_sample(sensor, &dt_ms);
@@ -85,8 +85,6 @@ cond_gpio_sample(struct sensor *sensor)
 {
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
         _cond_sensor = sensor;
-        timeout_get_ref();
-        sd->start_time = timeout_get_time();
         sd->count = sd->transitions;
         sd->phase = true;
         sd->t_accum = 0;
@@ -94,6 +92,9 @@ cond_gpio_sample(struct sensor *sensor)
         #ifdef USE_FTM
         FTM1.cntin = 0;
         FTM1.mod = 0xffff;
+        #else
+        timeout_get_ref();
+        sd->start_time = timeout_get_time();
         #endif
 
         pin_mode(PIN_PTC6, PIN_MODE_MUX_ANALOG);

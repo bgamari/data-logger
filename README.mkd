@@ -103,6 +103,8 @@ exploring these commands. One can exit with `Ctrl-A Ctrl-X`.
  * `l`: Print last acquired sample
  * `n`: Print number of samples taken
  * `n!`: Erase all samples
+ * `S`: Print whether acquired samples are stored to FLASH
+ * `S=[bool]`: Set whether acquired samples are stored to FLASH
  * `s`: List configured sensors
  * `m [sensor id]`: List measurables of given sensor
  * `V`: Print firmware version (commit id)

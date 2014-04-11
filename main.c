@@ -263,6 +263,12 @@ process_command()
                 OUT("sample period = %d\n", get_sample_period());
                 finish_reply();
                 break;
+        case 'S':     // store acquired samples
+                if (data[1] == '=')
+                        acquire_store = data[2] == '1';
+                OUT("store = %d\n", acquire_store);
+                finish_reply();
+                break;
         case 's':     // list sensors
                 print_sensor(sensors);
                 break;

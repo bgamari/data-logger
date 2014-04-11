@@ -8,6 +8,7 @@
 #define MIN_SAMPLE_PERIOD 50
 
 bool acquire_running = false;
+bool acquire_store = true;
 static unsigned int sample_period = 30*1000; // milliseconds
 
 static struct timeout_ctx timeout; // for < 10 seconds
@@ -23,7 +24,8 @@ on_sample_cb(struct sensor *sensor, uint32_t time, uint8_t measurable,
                 .measurable = measurable,
                 .value = value
         };
-        sample_store_push(s);
+        if (acquire_store)
+                sample_store_push(s);
 }
 
 void

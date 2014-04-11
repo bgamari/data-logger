@@ -4,6 +4,7 @@
 
 extern struct spiflash_ctx spiflash;
 extern bool acquire_running;
+extern bool acquire_store;
 
 struct sample {
         uint32_t time;

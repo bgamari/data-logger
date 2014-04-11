@@ -25,14 +25,14 @@ cond_gpio_start(struct sensor *sensor)
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
         if (sd->phase) {
                 // waiting for rising edge
+                CMP0.daccr.vosel = 48;
                 CMP0.scr.ief = false;
                 CMP0.scr.ier = true;
-                CMP0.daccr.vosel = 48;
         } else {
                 // waiting for falling edge
+                CMP0.daccr.vosel = 16;
                 CMP0.scr.ier = false;
                 CMP0.scr.ief = true;
-                CMP0.daccr.vosel = 16;
         }
 
         gpio_write(sd->pin_a, sd->phase);
@@ -49,7 +49,7 @@ cond_gpio_sample_done(struct sensor *sensor)
 
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
         #ifdef USE_FTM
-        accum dt_ms = 0.03125k * sd->t_accum / sd->transitions;
+        accum dt_ms = 0.03125k * sd->t_accum / (sd->transitions - 1);
         #else
         uint32_t dt = timeout_get_time().time - sd->start_time.time;
         accum dt_ms = 1.0k * dt / sd->transitions;
@@ -67,13 +67,22 @@ void
 CMP0_Handler(void)
 {
         struct cond_gpio_sensor_data *sd = _cond_sensor->sensor_data;
+
         #ifdef USE_FTM
         FTM1.sc.clks = 0x0;
-        sd->t_accum += FTM1.cnt;
+
+        /*
+         * we need to throw out the first transition as it is measuring
+         * the rise time from ground
+         */
+        if (sd->count != sd->transitions && !sd->phase)
+                sd->t_accum += FTM1.cnt;
         #endif
+
         CMP0.scr.raw |= ((struct CMP_SCR_t) {.cfr = 1, .cff = 1}).raw;
+        if (!sd->phase)
+                sd->count--;
         sd->phase = !sd->phase;
-        sd->count--;
         if (sd->count > 0)
                 cond_gpio_start(_cond_sensor);
         else
@@ -103,7 +112,8 @@ cond_gpio_sample(struct sensor *sensor)
         CMP0.muxcr.psel = 0;
         CMP0.muxcr.msel = 7;
         CMP0.fpr = 10;
-        CMP0.cr0.filter_cnt = 6;
+        CMP0.cr0.filter_cnt = 7;
+        CMP0.cr0.hystctr = 3;
         CMP0.cr1.en = 1;
         CMP0.scr.ier = 1;
 

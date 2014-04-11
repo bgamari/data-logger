@@ -1,8 +1,6 @@
 #include "conductivity_gpio.h"
 #include "sensor.h"
 
-unsigned int count = 0;
-
 struct sensor *_cond_sensor;
 
 void

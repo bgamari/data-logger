@@ -1,6 +1,7 @@
 #include <mchck.h>
 
 #define USE_FTM
+#define USE_VREF
 
 struct cond_gpio_sensor_data {
         enum gpio_pin_id pin_a;

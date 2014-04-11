@@ -28,7 +28,7 @@ cond_gpio_start(struct sensor *sensor)
                 CMP0.scr.ier = true;
         } else {
                 // waiting for falling edge
-                CMP0.daccr.vosel = 16;
+                CMP0.daccr.vosel = 24;
                 CMP0.scr.ier = false;
                 CMP0.scr.ief = true;
         }
@@ -52,6 +52,10 @@ cond_gpio_sample_done(struct sensor *sensor)
         uint32_t dt = timeout_get_time().time - sd->start_time.time;
         accum dt_ms = 1.0k * dt / sd->transitions;
         timeout_put_ref();
+        #endif
+
+        #ifdef USE_VREF
+        VREF.sc.raw = 0;
         #endif
 
         CMP0.cr1.en = 0;
@@ -105,7 +109,17 @@ cond_gpio_sample(struct sensor *sensor)
         #endif
 
         pin_mode(PIN_PTC6, PIN_MODE_MUX_ANALOG);
-        CMP0.daccr.vrsel = 1; // Vin2 == Vcc
+        #ifdef USE_VREF
+        SIM.scgc4.vref = 1;
+        VREF.trm.chopen = 1;
+        VREF.trm.trim = 0;
+        VREF.sc.vrefen = 1;
+        while (!VREF.sc.vrefst);
+        VREF.sc.raw = ((struct VREF_SC_t) {.vrefen=1, .regen=1, .icompen=1, .mode_lv=2}).raw;
+        CMP0.daccr.vrsel = 0;
+        #else
+        CMP0.daccr.vrsel = 1;
+        #endif
         CMP0.daccr.dacen = 1;
         CMP0.muxcr.psel = 0;
         CMP0.muxcr.msel = 7;

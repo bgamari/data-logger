@@ -1,6 +1,5 @@
 #include <mchck.h>
 
-#define USE_FTM
 #define USE_VREF
 
 struct cond_gpio_sensor_data {
@@ -8,12 +7,9 @@ struct cond_gpio_sensor_data {
         unsigned int transitions;
 
         // private
-        #ifdef USE_FTM
         unsigned int t_accum;
-        #endif
         bool phase;
         unsigned int count;
-        union timeout_time start_time;
 };
 
 struct sensor_type cond_gpio_sensor_type;

@@ -11,10 +11,8 @@ cond_gpio_init(struct cond_gpio_sensor_data *cond)
         gpio_write(cond->pin_a, 0);
         SIM.scgc4.cmp = 1;
         int_enable(IRQ_CMP0);
-        #ifdef USE_FTM
         SIM.scgc6.ftm1 = 1;
         FTM1.mode.ftmen = 1;
-        #endif
 }
 
 void
@@ -35,10 +33,8 @@ cond_gpio_start(struct sensor *sensor)
 
         gpio_write(sd->pin_a, sd->phase);
 
-        #ifdef USE_FTM
         FTM1.cnt = 0;
         FTM1.sc.clks = 0x2;
-        #endif
 }
 
 static void
@@ -46,13 +42,7 @@ cond_gpio_sample_done(struct sensor *sensor)
 {
 
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
-        #ifdef USE_FTM
         accum dt_ms = 0.03125k * sd->t_accum / (sd->transitions - 1);
-        #else
-        uint32_t dt = timeout_get_time().time - sd->start_time.time;
-        accum dt_ms = 1.0k * dt / sd->transitions;
-        timeout_put_ref();
-        #endif
 
         #ifdef USE_VREF
         VREF.sc.raw = 0;
@@ -70,16 +60,14 @@ CMP0_Handler(void)
 {
         struct cond_gpio_sensor_data *sd = _cond_sensor->sensor_data;
 
-        #ifdef USE_FTM
         FTM1.sc.clks = 0x0;
 
         /*
          * we need to throw out the first transition as it is measuring
          * the rise time from ground
          */
-        if (sd->count != sd->transitions && !sd->phase)
+        if (sd->count != sd->transitions)
                 sd->t_accum += FTM1.cnt;
-        #endif
 
         CMP0.scr.raw |= ((struct CMP_SCR_t) {.cfr = 1, .cff = 1}).raw;
         if (!sd->phase)
@@ -100,13 +88,8 @@ cond_gpio_sample(struct sensor *sensor)
         sd->phase = true;
         sd->t_accum = 0;
 
-        #ifdef USE_FTM
         FTM1.cntin = 0;
         FTM1.mod = 0xffff;
-        #else
-        timeout_get_ref();
-        sd->start_time = timeout_get_time();
-        #endif
 
         pin_mode(PIN_PTC6, PIN_MODE_MUX_ANALOG);
         #ifdef USE_VREF

@@ -42,8 +42,6 @@ cond_gpio_sample_done(struct sensor *sensor)
 {
 
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
-        accum dt_ms = 0.03125k * sd->t_accum / (sd->transitions - 1);
-
         #ifdef USE_VREF
         VREF.sc.raw = 0;
         #endif
@@ -52,6 +50,9 @@ cond_gpio_sample_done(struct sensor *sensor)
         CMP0.daccr.dacen = 0;
         gpio_write(sd->pin_a, 0);
 
+        pin_mode(PIN_PTC6, PIN_MODE_MUX_GPIO);
+        gpio_dir(PIN_PTC6, GPIO_OUTPUT);
+        gpio_write(PIN_PTC6, 0);
         sensor_new_sample(sensor, &dt_ms);
 }
 

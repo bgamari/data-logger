@@ -6,7 +6,7 @@ struct sensor *_cond_sensor;
 void
 cond_gpio_init(struct cond_gpio_sensor_data *cond)
 {
-        pin_mode(cond->pin_a, PIN_MODE_MUX_GPIO);
+        pin_mode(cond->pin_a, PIN_MODE_MUX_GPIO | PIN_MODE_SLEW_FAST);
         gpio_dir(cond->pin_a, GPIO_OUTPUT);
         gpio_write(cond->pin_a, 0);
         SIM.scgc4.cmp = 1;

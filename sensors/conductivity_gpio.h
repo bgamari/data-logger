@@ -7,7 +7,7 @@ struct cond_gpio_sensor_data {
         unsigned int transitions;
 
         // private
-        unsigned int t_accum;
+        unsigned int t_accum[2];
         bool phase;
         unsigned int count;
 };

@@ -53,7 +53,14 @@ cond_gpio_sample_done(struct sensor *sensor)
         pin_mode(PIN_PTC6, PIN_MODE_MUX_GPIO);
         gpio_dir(PIN_PTC6, GPIO_OUTPUT);
         gpio_write(PIN_PTC6, 0);
-        sensor_new_sample(sensor, &dt_ms);
+
+        accum dt_ms[2];
+        for (int i=0; i<2; i++) {
+                dt_ms[i] = (1000/32000k) * sd->t_accum[i] / (sd->transitions - 1);
+                //accum cap_uf = 10;
+                //accum r_kohm = dt_ms / cap_uf / log(1 - dv/vcc);
+        }
+        sensor_new_sample(sensor, dt_ms);
 }
 
 void
@@ -62,17 +69,18 @@ CMP0_Handler(void)
         struct cond_gpio_sensor_data *sd = _cond_sensor->sensor_data;
 
         FTM1.sc.clks = 0x0;
+        CMP0.scr.raw |= ((struct CMP_SCR_t) {.cfr = 1, .cff = 1}).raw;
 
         /*
          * we need to throw out the first transition as it is measuring
          * the rise time from ground
          */
-        if (sd->count != sd->transitions)
-                sd->t_accum += FTM1.cnt;
+        if (sd->count < sd->transitions)
+                sd->t_accum[sd->phase] += FTM1.cnt;
 
-        CMP0.scr.raw |= ((struct CMP_SCR_t) {.cfr = 1, .cff = 1}).raw;
         if (!sd->phase)
                 sd->count--;
+
         sd->phase = !sd->phase;
         if (sd->count > 0)
                 cond_gpio_start(_cond_sensor);
@@ -87,7 +95,8 @@ cond_gpio_sample(struct sensor *sensor)
         _cond_sensor = sensor;
         sd->count = sd->transitions;
         sd->phase = true;
-        sd->t_accum = 0;
+        sd->t_accum[0] = 0;
+        sd->t_accum[1] = 0;
 
         FTM1.cntin = 0;
         FTM1.mod = 0xffff;
@@ -118,11 +127,12 @@ cond_gpio_sample(struct sensor *sensor)
 
 static struct measurable cond_gpio_measurables[] = {
         {.id = 0, .name = "conductivity", .unit = "arbitrary"},
+        {.id = 1, .name = "conductivity", .unit = "arbitrary"},
 };
 
 struct sensor_type cond_gpio_sensor_type = {
         .sample_fn = &cond_gpio_sample,
         .no_stop = true,
-        .n_measurables = 1,
+        .n_measurables = 2,
         .measurables = cond_gpio_measurables
 };

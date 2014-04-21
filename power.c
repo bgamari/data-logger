@@ -22,25 +22,30 @@ volatile bool low_power_mode = false;
 #define LLWU_LPTMR        (1 << 0)
 #define LLWU_RTC_ALARM    (1 << 5)
 
+/* Note: Nice block diagram of MCG on pg. 430 of reference manual */
+
 /* enter Bypassed Low-Power Internal (BLPI) clocking mode from FLL Engaged
  * Internal (FEI)
  */
 static void
 enter_blpi(void)
 {
+        const uint8_t irc_divider = 3;
+
         // divide fast IRC by 8
         MCG.c1.irclken = 0;
-        MCG.sc.fcrdiv = 0x3;
+        MCG.sc.fcrdiv = irc_divider;
         MCG.c1.irclken = 1;
 
         // FEI to FBI (ref manual pg. 454)
-        MCG.c2.ircs = MCG_IRCS_FAST;
-        while (MCG.s.ircst != MCG_IRCST_FAST);
+        MCG.c6.plls = MCG_PLLS_FLL;
+        while (MCG.s.pllst != MCG_PLLST_FLL);
+        MCG.c1.irefs = MCG_IREFS_INTERNAL;
+        while (MCG.s.irefst != MCG_IREFST_INTERNAL);
         MCG.c1.clks = MCG_CLKS_INTERNAL;
         while (MCG.s.clkst != MCG_CLKST_INTERNAL);
 
         // FBI to BLPI (ref manual pg. 461)
-        MCG.c6.plls = 0;
         MCG.c2.lp = 1;
 }
 

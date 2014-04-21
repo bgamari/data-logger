@@ -229,12 +229,23 @@ nmea_read(struct sensor *sensor)
 }
 
 static void
+nmea_sample_timeout(void *cbdata)
+{
+        struct sensor *sensor = cbdata;
+        nmea_set_enable(sensor, false);
+        sensor_sample_failed(sensor);
+}
+
+static void
 nmea_sample(struct sensor *sensor)
 {
         struct nmea_sensor_data *nmea = sensor->sensor_data;
         nmea_set_enable(sensor, true);
         bzero(nmea->buffer, sizeof(nmea->buffer)); // invalidate
         nmea_read(sensor);
+        if (nmea->max_acquire_time)
+                timeout_add(&nmea->timeout, 1000*nmea->max_acquire_time,
+                            nmea_sample_timeout, sensor);
 }
 
 const char degrees[] = "degrees";

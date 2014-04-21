@@ -12,8 +12,10 @@ struct nmea_sensor_data {
         enum pin_id enable_pin;
         unsigned int baudrate;
         enum nmea_flavor flavor;
+        unsigned int max_acquire_time; // seconds
 
         /* private */
+        struct timeout_ctx timeout;
         struct uart_trans_ctx trans;
         char buffer[128];
         accum values[4];

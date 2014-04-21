@@ -55,8 +55,9 @@ exit_blpi(void)
 
         // FBI to FEI
         MCG.c6.plls = 0; // FLL
-        MCG.c1.clks = MCG_CLKS_FLLPLL;
+        while (MCG.s.pllst != 0);
 
+        MCG.c1.clks = MCG_CLKS_FLLPLL;
         while (MCG.s.clkst != MCG_CLKST_FLL);
 }
 

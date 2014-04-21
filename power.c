@@ -166,6 +166,7 @@ wakeup_pin_handler(void *cbdata)
 PIN_DEFINE_CALLBACK(WAKEUP_PIN, PIN_CHANGE_FALLING, wakeup_pin_handler, NULL);
 
 extern void RTC_alarm_Handler(void);
+extern void LPT_Handler(void);
 
 void
 LLWU_Handler(void)
@@ -173,6 +174,10 @@ LLWU_Handler(void)
         if (LLWU.mwuf & (1<<5)) {
                 // RTC Alarm
                 RTC_alarm_Handler();
+        }
+        if (LLWU.mwuf & (1<<0)) {
+                // LPTMR
+                LPT_Handler();
         }
         if (LLWU.wuf1 & (1<<3)) {   // WAKEUP_PIN == LLWU_P3 == PTA4
                 wakeup_pin_handler(NULL);

@@ -161,8 +161,9 @@ usb_sense_pin_handler(void *cbdata)
 {
         if (gpio_read(USB_SENSE_PIN)) {
                 exit_low_power_mode();
-                usb_console_reset();
+                usb_console_init();
         } else {
+                stdout->ops = NULL;
                 enter_low_power_mode();
         }
 }

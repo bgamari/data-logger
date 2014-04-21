@@ -50,9 +50,6 @@ cond_gpio_sample_done(struct sensor *sensor)
         CMP0.daccr.dacen = 0;
         gpio_write(sd->pin_a, 0);
 
-        pin_mode(PIN_PTC6, PIN_MODE_MUX_GPIO);
-        gpio_dir(PIN_PTC6, GPIO_OUTPUT);
-        gpio_write(PIN_PTC6, 0);
 
         accum dt_ms[2];
         for (int i=0; i<2; i++) {

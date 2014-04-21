@@ -174,11 +174,11 @@ LLWU_Handler(void)
                 // RTC Alarm
                 RTC_alarm_Handler();
         }
-        if (LLWU.wuf1 & (1<<3)) {
+        if (LLWU.wuf1 & (1<<3)) {   // WAKEUP_PIN == LLWU_P3 == PTA4
                 wakeup_pin_handler(NULL);
         }
 #ifdef USB_SENSE_PIN
-        if (LLWU.wuf2 & (1<<7)) {
+        if (LLWU.wuf2 & (1<<7)) {   // USB_SENSE_PIN == LLWU_P15 == PTD6
                 usb_sense_pin_handler(NULL);
         }
 #endif        

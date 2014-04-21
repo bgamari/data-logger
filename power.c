@@ -19,6 +19,9 @@
  */
 volatile bool low_power_mode = false;
 
+#define LLWU_LPTMR        (1 << 0)
+#define LLWU_RTC_ALARM    (1 << 5)
+
 /* enter Bypassed Low-Power Internal (BLPI) clocking mode from FLL Engaged
  * Internal (FEI)
  */
@@ -114,6 +117,7 @@ power_init()
         gpio_dir(USB_SENSE_PIN, GPIO_INPUT);
         LLWU.wupe[3].wupe3 = LLWU_PE_RISING;
 #endif
+        LLWU.wume = LLWU_LPTMR | LLWU_RTC_ALARM;
 
         int_enable(IRQ_LLWU);
 }
@@ -171,11 +175,11 @@ extern void LPT_Handler(void);
 void
 LLWU_Handler(void)
 {
-        if (LLWU.mwuf & (1<<5)) {
+        if (LLWU.mwuf & LLWU_RTC_ALARM) {
                 // RTC Alarm
                 RTC_alarm_Handler();
         }
-        if (LLWU.mwuf & (1<<0)) {
+        if (LLWU.mwuf & LLWU_LPTMR) {
                 // LPTMR
                 LPT_Handler();
         }

@@ -25,6 +25,9 @@ volatile uint32_t system_clockrate = 48000000;
 #define LLWU_LPTMR        (1 << 0)
 #define LLWU_RTC_ALARM    (1 << 5)
 
+// forward declaration
+void usb_sense_pin_handler(void *cbdata);
+
 /* Note: Nice block diagram of MCG on pg. 430 of reference manual */
 
 /* enter Bypassed Low-Power Internal (BLPI) clocking mode from FLL Engaged
@@ -142,6 +145,9 @@ power_init()
         LLWU.wume = LLWU_LPTMR | LLWU_RTC_ALARM;
 
         int_enable(IRQ_LLWU);
+
+        // check whether USB power is available
+        usb_sense_pin_handler(NULL);
 }
 
 static struct timeout_ctx sleep_timeout;

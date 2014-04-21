@@ -402,15 +402,6 @@ main(void)
         sensor_listen(&listener, on_sample_cb, NULL);
         start_blink(5, 100, 100);
 
-        // configure LLWU
-        // enable RTC alarm wake-up source
-        LLWU.wume |= 1 << 5;
-        // enable LLWU_P3 = PTA4 as wake-up source
-        pin_mode(PIN_PTA4, PIN_MODE_MUX_ALT1);
-        LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
-        LLWU.filt1.filtsel = 3; // P3
-        LLWU.filt1.filte = LLWU_FILTER_BOTH;
-
         // load non-volatile configuration
         nv_config_reload(nv_config_available);
 

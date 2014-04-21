@@ -128,8 +128,8 @@ power_init()
         SMC.pmprot.raw = ((struct SMC_PMPROT) { .avlls = 1, .alls = 1, .avlp = 1 }).raw;
 
         // Configure wakeup pin (LLWU_P3 = PTA4)
+        pin_mode(WAKEUP_PIN, PIN_MODE_MUX_GPIO | PIN_MODE_PULLUP);
         gpio_dir(WAKEUP_PIN, GPIO_INPUT);
-        pin_mode(WAKEUP_PIN, PIN_MODE_PULLUP);
         LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
         LLWU.filt1.filtsel = 3; // P3
         LLWU.filt1.filte = LLWU_FILTER_BOTH;

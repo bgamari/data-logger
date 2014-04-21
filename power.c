@@ -124,16 +124,20 @@ power_init()
         // Enable low-power modes
         SMC.pmprot.raw = ((struct SMC_PMPROT) { .avlls = 1, .alls = 1, .avlp = 1 }).raw;
 
-        // Configure wakeup pin
-	gpio_dir(WAKEUP_PIN, GPIO_INPUT);
+        // Configure wakeup pin (LLWU_P3 = PTA4)
+        gpio_dir(WAKEUP_PIN, GPIO_INPUT);
         pin_mode(WAKEUP_PIN, PIN_MODE_PULLUP);
         LLWU.wupe[0].wupe3 = LLWU_PE_FALLING;
+        LLWU.filt1.filtsel = 3; // P3
+        LLWU.filt1.filte = LLWU_FILTER_BOTH;
 
-        // Configure USB sense pin
+        // Configure USB sense pin (LLWU_P15 = PTD6)
 #ifdef USB_SENSE_PIN
         pin_mode(USB_SENSE_PIN, PIN_MODE_MUX_GPIO);
         gpio_dir(USB_SENSE_PIN, GPIO_INPUT);
         LLWU.wupe[3].wupe3 = LLWU_PE_RISING;
+        LLWU.filt1.filtsel = 15; // P15
+        LLWU.filt1.filte = LLWU_FILTER_BOTH;
 #endif
         LLWU.wume = LLWU_LPTMR | LLWU_RTC_ALARM;
 

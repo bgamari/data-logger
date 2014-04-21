@@ -25,7 +25,7 @@ void
 adc_sensor_init()
 {
         if (!adc_initialized) {
-                adc_init();
+                adc_queue_init();
                 adc_initialized = true;
         }
 }

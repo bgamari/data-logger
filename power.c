@@ -19,6 +19,9 @@
  */
 volatile bool low_power_mode = false;
 
+/* the current system clockrate */
+volatile uint32_t system_clockrate = 48000000;
+
 #define LLWU_LPTMR        (1 << 0)
 #define LLWU_RTC_ALARM    (1 << 5)
 
@@ -44,6 +47,7 @@ enter_blpi(void)
         while (MCG.s.irefst != MCG_IREFST_INTERNAL);
         MCG.c1.clks = MCG_CLKS_INTERNAL;
         while (MCG.s.clkst != MCG_CLKST_INTERNAL);
+        system_clockrate = 2000000 / (1<<irc_divider);
 
         // FBI to BLPI (ref manual pg. 461)
         MCG.c2.lp = 1;
@@ -69,6 +73,7 @@ exit_blpi(void)
 
         MCG.c1.clks = MCG_CLKS_FLLPLL;
         while (MCG.s.clkst != MCG_CLKST_FLL);
+        system_clockrate = 48000000;
 }
 
 /* enter Very Low-Power Run state */

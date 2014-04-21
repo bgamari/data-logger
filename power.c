@@ -54,8 +54,13 @@ exit_blpi(void)
         MCG.c2.lp = 0;
 
         // FBI to FEI
-        MCG.c6.plls = 0; // FLL
-        while (MCG.s.pllst != 0);
+        MCG.c6.plls = MCG_PLLS_FLL;
+        while (MCG.s.pllst != MCG_PLLST_FLL);
+
+        // "In FEI mode, only the slow Internal Reference Clock (IRC)
+        // can be used as the FLL source." (ref manual pg. 428)
+        MCG.c1.irefs = MCG_IREFS_INTERNAL; // slow IRC as FLL source
+        while (MCG.s.irefst != MCG_IREFST_INTERNAL);
 
         MCG.c1.clks = MCG_CLKS_FLLPLL;
         while (MCG.s.clkst != MCG_CLKST_FLL);

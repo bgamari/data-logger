@@ -13,7 +13,7 @@
 //#define USB_SENSE_PIN PIN_PTD6
 
 /*
- * In low-power mode we allow the device to enter VLPR and VLPS sates
+ * In low-power mode we allow the device to enter VLPR and VLPS states
  * at the expense of most connectivity perhipherals being disabled
  * (namely SPI and USB).
  */

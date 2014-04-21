@@ -422,6 +422,9 @@ main(void)
                                 usb_on = false;
                         }
                 }
+                LLWU.wuf1 = 0xff;
+                LLWU.wuf2 = 0xff;
+                LLWU.mwuf = 0xff;
                 __asm__("wfi");
                 if (SMC.pmctrl.stopa)
                         onboard_led(1);

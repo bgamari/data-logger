@@ -34,7 +34,7 @@ cond_gpio_start(struct sensor *sensor)
         gpio_write(sd->pin_a, sd->phase);
 
         FTM1.cnt = 0;
-        FTM1.sc.clks = 0x2;
+        FTM1.sc.clks = 0x1;
 }
 
 static void
@@ -56,7 +56,7 @@ cond_gpio_sample_done(struct sensor *sensor)
 
         accum dt_ms[2];
         for (int i=0; i<2; i++) {
-                dt_ms[i] = (1000/32000k) * sd->t_accum[i] / (sd->transitions - 1);
+                dt_ms[i] = 1000k / (48e6/128) * sd->t_accum[i] / (sd->transitions - 1);
                 //accum cap_uf = 10;
                 //accum r_kohm = dt_ms / cap_uf / log(1 - dv/vcc);
         }
@@ -98,6 +98,7 @@ cond_gpio_sample(struct sensor *sensor)
         sd->t_accum[0] = 0;
         sd->t_accum[1] = 0;
 
+        FTM1.sc.ps = 7; // f/128
         FTM1.cntin = 0;
         FTM1.mod = 0xffff;
 

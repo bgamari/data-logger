@@ -122,10 +122,10 @@ tcs_sample(struct sensor *sensor)
 const char intensity[] = "intensity";
 
 struct measurable tcs3472_measurables[] = {
-        {.id = 0, .name = "clear", .unit = "intensity"},
-        {.id = 1, .name = "red", .unit = "intensity"},
-        {.id = 2, .name = "green", .unit = "intensity"},
-        {.id = 3, .name = "blue", .unit = "intensity"},
+        {.id = 0, .name = "clear", .unit = intensity},
+        {.id = 1, .name = "red", .unit = intensity},
+        {.id = 2, .name = "green", .unit = intensity},
+        {.id = 3, .name = "blue", .unit = intensity},
 };
 
 struct sensor_type tcs3472_sensor_type = {

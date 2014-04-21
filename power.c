@@ -142,6 +142,8 @@ power_init()
         LLWU.filt1.filtsel = 15; // P15
         LLWU.filt1.filte = LLWU_FILTER_BOTH;
 #endif
+
+        // Enable LLWU peripheral wakeups
         LLWU.wume = LLWU_LPTMR | LLWU_RTC_ALARM;
 
         int_enable(IRQ_LLWU);

@@ -21,12 +21,12 @@ cond_gpio_start(struct sensor *sensor)
         struct cond_gpio_sensor_data *sd = sensor->sensor_data;
         if (sd->phase) {
                 // waiting for rising edge
-                CMP0.daccr.vosel = 30;
+                CMP0.daccr.vosel = 12;
                 CMP0.scr.ief = false;
                 CMP0.scr.ier = true;
         } else {
                 // waiting for falling edge
-                CMP0.daccr.vosel = 25;
+                CMP0.daccr.vosel = 8;
                 CMP0.scr.ier = false;
                 CMP0.scr.ief = true;
         }

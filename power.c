@@ -28,10 +28,12 @@ volatile bool low_power_mode = false;
 static void
 enter_blpi(void)
 {
-        // FEI to FBI (ref manual pg. 454)
+        // divide fast IRC by 8
         MCG.c1.irclken = 0;
-        MCG.sc.fcrdiv = 0x3; // divide IRC by 8
+        MCG.sc.fcrdiv = 0x3;
         MCG.c1.irclken = 1;
+
+        // FEI to FBI (ref manual pg. 454)
         MCG.c2.ircs = MCG_IRCS_FAST;
         while (MCG.s.ircst != MCG_IRCST_FAST);
         MCG.c1.clks = MCG_CLKS_INTERNAL;

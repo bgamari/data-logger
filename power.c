@@ -104,6 +104,8 @@ enter_low_power_mode()
         enter_blpi();
 #ifndef NO_VLPR
         enter_vlpr();
+#else
+        SMC.pmctrl.stopm = STOPM_LLS;
 #endif
         low_power_mode = true;
 }

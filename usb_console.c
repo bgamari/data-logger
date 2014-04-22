@@ -4,6 +4,7 @@
 #include "data-logger.desc.h"
 
 static struct cdc_ctx cdc;
+bool usb_enabled = false;
 
 // ACM device receive buffer
 static char rx_buffer[32];
@@ -134,6 +135,23 @@ init_vcdc(int config)
 void
 usb_console_init()
 {
+        if (usb_enabled)
+                return;
         usb_console_reset();
         usb_init(&cdc_device);
+        usb_enabled = true;
+}
+
+void
+usb_console_power_down()
+{
+        if (!usb_enabled)
+                return;
+        USB0.ctl.raw |= ((struct USB_CTL_t){
+                        .txd_suspend = 1,
+                                .usben = 0,
+                                .oddrst = 1,
+                                }).raw;
+        SIM.scgc4.usbotg = 0;
+        usb_enabled = false;
 }

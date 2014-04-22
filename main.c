@@ -372,8 +372,6 @@ console_line_recvd(const char *cmd, size_t len)
         process_command();
 }
 
-static bool usb_on = true;
-
 static void
 nv_config_available()
 {
@@ -396,7 +394,7 @@ main(void)
         rtc_init();
         sample_store_init();
         usb_console_line_recvd_cb = console_line_recvd;
-        usb_console_init();
+        // usb console is initialized by power.c
         acquire_init();
         radio_init();
         sensor_listen(&listener, on_sample_cb, NULL);
@@ -410,18 +408,6 @@ main(void)
                 bool can_deep_sleep = low_power_mode
                         && spi_is_idle() && acquire_can_stop();
                 SCB.scr.sleepdeep = can_deep_sleep;
-                if (can_deep_sleep) {
-                        // TODO: power things down
-                        if (usb_on) {
-                                USB0.ctl.raw |= ((struct USB_CTL_t){
-                                                .txd_suspend = 1,
-                                                        .usben = 0,
-                                                        .oddrst = 1,
-                                                        }).raw;
-                                SIM.scgc4.usbotg = 0;
-                                usb_on = false;
-                        }
-                }
                 LLWU.wuf1 = 0xff;
                 LLWU.wuf2 = 0xff;
                 LLWU.mwuf = 0xff;

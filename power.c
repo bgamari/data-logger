@@ -184,6 +184,7 @@ usb_sense_pin_handler(void *cbdata)
                 acquire_blink_state();
         } else {
                 stdout->ops = NULL;
+                usb_console_power_down();
                 enter_low_power_mode();
         }
 }

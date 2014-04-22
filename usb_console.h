@@ -16,3 +16,5 @@ void usb_console_flush(flush_cb cb, void *cbdata);
 void usb_console_reset();
 
 void usb_console_init();
+
+void usb_console_power_down();

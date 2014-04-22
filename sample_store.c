@@ -347,7 +347,8 @@ sample_store_reset()
         crit_enter();
         sample_idx = 0;
         last_erased_sector = RESERVED_SECTORS - 1;
-        sample_store_ready = true;
+        if (flash_params)
+                sample_store_ready = true;
         crit_exit();
 }
 

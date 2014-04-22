@@ -366,6 +366,9 @@ flash_unprotected_cb(void *cbdata)
 static void
 identify_flash_cb(void *cbdata, uint8_t mfg_id, uint8_t memtype, uint8_t capacity)
 {
+        if (mfg_id == 0)
+                return;
+
         for (struct spiflash_params *i = spiflash_device_params; i->mfg_id != 0x00; i++) {
                 if (mfg_id == i->mfg_id
                     && memtype == i->device_id1

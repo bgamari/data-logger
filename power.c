@@ -10,7 +10,7 @@
  * configuration below
  */
 #define WAKEUP_PIN PIN_PTA4
-//#define USB_SENSE_PIN PIN_PTD6
+#define USB_SENSE_PIN PIN_PTD6
 
 /*
  * In low-power mode we allow the device to enter VLPR and VLPS states
@@ -189,6 +189,13 @@ usb_sense_pin_handler(void *cbdata)
         }
 }
 PIN_DEFINE_CALLBACK(USB_SENSE_PIN, PIN_CHANGE_EITHER, usb_sense_pin_handler, NULL);
+#else
+void
+usb_sense_pin_handler(void *cbdata)
+{
+        usb_console_init();
+        acquire_blink_state();
+}
 #endif
 
 void

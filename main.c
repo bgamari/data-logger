@@ -387,21 +387,29 @@ main(void)
 {
         config_pins();
         power_init();
+        // 222uA
         spi_init();
+        // 223uA
         spiflash_pins_init();
+        // 297uA
         pin_change_init();
+        // 297uA
         timeout_init();
+        // 298uA
         rtc_init();
+        // 298uA
         sample_store_init();
+        // 223uA
         usb_console_line_recvd_cb = console_line_recvd;
         // usb console is initialized by power.c
         acquire_init();
-        radio_init();
+        //radio_init();
         sensor_listen(&listener, on_sample_cb, NULL);
         start_blink(5, 100, 100);
 
         // load non-volatile configuration
         nv_config_reload(nv_config_available);
+        // 219uA
 
         // event loop
         while (true) {

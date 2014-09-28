@@ -197,7 +197,7 @@ nmea_init(struct sensor *sensor)
 static void nmea_read(struct sensor *sensor);
 
 static void
-nmea_data_available(void *cbdata)
+nmea_data_available(const void *buf, size_t len, void *cbdata)
 {
         struct sensor *sensor = cbdata;
         struct nmea_sensor_data *nmea = sensor->sensor_data;

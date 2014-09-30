@@ -386,6 +386,7 @@ void
 main(void)
 {
         config_pins();
+        timeout_init();
         power_init();
         // 222uA
         spi_init();
@@ -393,8 +394,6 @@ main(void)
         spiflash_pins_init();
         // 297uA
         pin_change_init();
-        // 297uA
-        timeout_init();
         // 298uA
         rtc_init();
         // 298uA
